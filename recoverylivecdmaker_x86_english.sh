@@ -92,7 +92,7 @@ As you can tell its unlikley you have any files named like this, but just check 
 
 Creates a recovery oriented live CD based on ubuntu lucid (10.04) packages for x86
 
-last edit: 07/14/2010 AD (Gregorian Calander) 14:45 UTC" 
+last edit: 07/14/2010 AD (Gregorian Calander) 20:48 UTC" 
 
 
 
@@ -1239,8 +1239,8 @@ fspanel &
 chmod +x /usr/recoverystuff/launch_panel.sh
 ##############END CREATION OF HELPER SCRIPTS#################
 
-#get the remastersys source code on the disk to be GPL compatable
-wget http://geekconnection.org/remastersys/fragtemp/source/ubuntu-source/remastersys_2.0.11-1.tar.gz
+#get the remastersys source code on the disk 
+wget https://sourceforge.net/projects/remastersys/files/remastersys-ubuntu-gutsy/remastersys_2.0.11-1_all.deb/download
 
 #make the iso using remastersys############################################
 remastersys backup
