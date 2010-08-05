@@ -1,7 +1,7 @@
 To build, just run the included script. This script only works on Ubuntu/Debain (I think it would work on Debian) based systems. 
 
 Problems:
-  It has only been thoroughly tested on Ubuntu.
+  It has only been semi-thoroughly tested on Ubuntu.
 
   It requires not slow hardware/CD writer right now because some files/libraries that are required for some of
   the imported programs to run, are only available for a set time limit, so they may fail.
