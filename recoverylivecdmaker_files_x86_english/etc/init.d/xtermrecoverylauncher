@@ -1,0 +1,15 @@
+#! /bin/sh
+#This file was last modified 08/04/002010 (Gregorian Calendar) 01:37 UTC
+#allow the recovery imported apps to see the ldconfigs
+mount --bind /etc /usr/recoverystuff/etc
+
+#allow the recovery imported apps to see the base executables
+mount --bind /bin /usr/recoverystuff/bin
+
+#allow the recovery imported apps to see the base /lib folders
+mount --bind /lib   /usr/recoverystuff/lib
+mount --bind /lib32 /usr/recoverystuff/lib32
+mount --bind /lib64 /usr/recoverystuff/lib64
+
+xtermrecoverylauncher &
+

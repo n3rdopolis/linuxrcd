@@ -1,0 +1,203 @@
+#! /bin/bash
+#This file is part of LinuxRCD.
+#
+#    LinuxRCD is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    LinuxRCD is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
+#
+#This file was last modified 08/04/002010 (Gregorian Calendar) 11:34 UTC
+
+#TODO remove part that says wont work
+echo -e "Welcome to the Ubuntu Recovery CD from http://ubuntuforums.org/showthread.php?t=1254973 !
+
+
+Press enter to continue."
+
+read stop
+
+echo -e "This Live CD is used to recover broken Ubuntu systems (and POSSIBLY other distros). This CD is not offical from Ubuntu, but it should work. This is not meant to be a DATA recovery CD, to recover accedently deleted files. If you wanted a DATA recovery CD, use Photorec, and do not write anything to the filesystem that you deleted the files from, because the more you write to a filesystem the less chance that data recovery is possible. This is for recovering Ubuntu systems that are unusable instead.
+
+This will not see Wubi installs yet, and wont see encrypted ones. It will not be able to recover systems of incomptible architechture, such as 32 bit CD recovering a 64 bit system. (a 64 bit disk MIGHT be able to recover a 32 bit system however. it has not been tested yet) 
+
+"
+
+echo -e " The CPU architechture of this cd is 32 bit, x86. 
+
+press enter"
+
+
+read stop
+
+echo -e "Be aware that as soon as you mount into your system, it is not like other Live CDs where all modifications go away after reboot. In this Live CD, everything runs as root, except for the web browser that automaticaly starts upon boot. If you create a second window of the web browser from the panel below, it will run as root, (and is not the best idea to do so.) The non root browser, if accedentaly closed will automatialy restart as non-root. The Xephyr and recoverylauncher programs also recreate themselves if closed as root, however, as they are root to begin with. 
+
+Press enter."
+
+read stop
+
+echo -e "Lets begin. As you can see, upon startup, there is a window labled [1mrecoverylauncher[0m (this one) another window called [1mXephyr on :1.0 (ctrl+shift grabs mouse and keyboard[0m, and a final [1mGoogle Chrome - Kdialog[0m. The [1mrecoverylauncher[0m window, is a terminal, with this script running. It will walk you through mounting your system of which you want to recover, which you otherwise could not get into. (whether you cant boot into it from GRUB, cant login for some reason, or if your X sever is down, and the like.) The [1mXephyr on :1.0 (ctrl+shift grabs mouse and keyboard[0m window will contain a GUI running as the system that you selected. Do not be alarmed that the GUI is different (as in not your standard desktop environment, whether its Gnome or KDE, or whatever you use. This Live CD uses LXDE as its desktop, and within the Xephyr Window ). Whatever you do within the Xephyr window will affect the system you seleted to mount (such as using Synaptic within the Xephyr window to install a package). The [1mGoogle Chrome - Kdialog [0m window contains is just a message, saying that after you hit its OK button, it will promt you to set the default browser. Be aware that the setting its prompting for is only effecting the system on this live CD, not your installed systems, hit continue on that and a google chrome window will appear. The web browser is not running as root, and is there so you can search for solution on the web if you need help.
+
+Press enter."
+
+read stop
+
+
+echo "
+OK. Now you can choose which Linux install you want to control. They will be listed below, but give the list some time to build. You can select your OS by entering the preceding number, then hitting enter. Please be patient as it may take a while for all operating systems to be found.
+
+
+If it seems like you OS is not listed here, please report to http://ubuntuforums.org/showthread.php?t=1254973, as you might be using a weird filesystem, or something may be wrong where the FS type can not be detected. If you manage to mount your target automatially at /media/RecoveryMount after it failing to detect your OS, when you get back to this screen, hit 0 then hit enter, and it will use the file system already mounted.
+
+Detected installed OSes:"
+#list all detected installed into a file
+os-prober > /usr/share/detectedoses
+#list the contents of the file for the user 
+cat /usr/share/detectedoses | awk '{print FNR "   "  $0 }'
+#capture number of oses
+oscount=$(cat /usr/share/detectedoses | grep : -c)
+#if no oses detected then die
+if (( 0==oscount ));
+then
+echo " No OSes found "
+exit 0
+fi
+echo " Choose your OS: "
+#grab the users input
+read oschoice
+#run os prober again, and grab the entire OS line
+cat /usr/share/detectedoses | awk NR==$oschoice > /usr/share/osline
+#get the device file name where the OS is installed
+cat /usr/share/osline | sed  's/:.*/ /' > /usr/share/devname
+#make the mountpoint where the system will be mounted
+mkdir /media/RecoveryMount
+#mount the system with the device name as readonly
+mount $(cat /usr/share/devname) /media/RecoveryMount -o ro
+#test chroot,
+chroot /media/RecoveryMount  /bin/true
+#if it failed 
+if [[ $? -ne 0 ]]
+then
+#tell the user something went wrong
+echo "Unable to access your selected system. Either the physical mounting of the filesystem failed, you selected an invalad choice, or you have some critical files missing in your system (the file thats missing is /bin/true).
+
+The choice you selected was:"
+cat /usr/share/osline
+umount /media/RecoveryMount
+echo "The recoverylauncher window will now close and reload. Press enter to continue"
+read stop
+exit 1
+fi
+
+echo "Do you want to perform a disk check on your file system before you continue? If you want to check the disk then enter the number 1, then hit enter. If you dont, enter the number 0, then hit enter"
+read checkdisk
+
+
+if [[ $checkdisk -eq 1 ]]
+then
+#unmount the read only file system
+umount /media/RecoveryMount
+#check the specified root file system for errors
+fsck -p $(cat /usr/share/devname)
+fi
+
+#unmount the read only file system
+umount /media/RecoveryMount
+
+
+#mount the system with the device name
+mount $(cat /usr/share/devname) /media/RecoveryMount
+
+#mount in the devfs into the mountpoint
+mount --bind /dev /media/RecoveryMount/dev
+
+#mount in dbus so apps work
+mount --bind /var/run/dbus /media/RecoveryMount/var/run/dbus
+
+#mount in X11 authorization folder. 
+mount --bind /tmp/.X11-unix /media/RecoveryMount/tmp/.X11-unix
+
+#make the opt/recoverystuff folder in case if its not there
+mkdir /media/RecoveryMount/opt/recoverystuff
+
+#bind the live cds /usr folder to the targets /opt folder
+mount --rbind /usr /media/RecoveryMount/opt/recoverystuff
+
+#xhost needs this as it does not accept a display argument
+export DISPLAY=:1
+
+#allow all local connections
+xhost +local:
+
+#change the hostname of the live cd session to that of the selected target system
+hostname -F /media/RecoveryMount/etc/hostname
+
+#start the chroot script. Run it as a background task so that this can prompt for done
+chroot /media/RecoveryMount  /opt/recoverystuff/bin/recoverychrootscript &
+
+
+############################################################
+#set the variable to prompt if user is done
+IsUserDone=no
+echo "The live cd is now in recovery mode. You should be able to control your system within Xephyr now. Do not turn off your computer untill you are done. when you are done type DONE into this window, (case sensitive), or press enter 4 times unmount the system when you are ready. Note that if you use a seperate partition for your home folder, or filesystems that automatically mount when you boot, it tried to mount them, but they could have failed if the config file was broken. When you do unmount your system Xephyr will reload, and may get in the way of this window. If it does,just move it away, and continue in this window"
+
+#wait for any output from the background script to stop.
+sleep 5
+
+#while loop. wait for user to type DONE to unmount 
+while [ ! $IsUserDone = DONE   ] ; do  echo " Type DONE (case sensitive) when ready, or press enter 4 times to safely unmount your system: " ; read -d ~ -n 4 IsUserDone ; done 
+
+#kill all X apps by destroying the display. Many apps perform a safe exit routine when the X server dies
+killall Xephyr
+
+#gently kill any other processess
+fuser -15 -k /media/RecoveryMount
+
+# TODO this might need to wait, but the command might do that for us
+
+#forcibly kill the processess
+fuser -k /media/RecoveryMount
+
+#change the hostname of the live cd back to the default
+hostname -F /etc/hostname
+
+#unlink the symlink created
+unlink /media/RecoveryMount/FileSystems
+
+#unmount recovery systems /sys
+umount -lf /media/RecoveryMount/sys
+
+#unmount recovery systems /proc
+umount -lf /media/RecoveryMount/proc
+
+#unmount recovery systems /dev/pts
+umount -lf /media/RecoveryMount/dev/pts
+
+#unmount recovery systems /dev
+umount -lf /media/RecoveryMount/dev
+
+#unmount the dbus folder
+umount /media/RecoveryMount/var/run/dbus
+
+#unmount the X11 authroization folder
+umount /media/RecoveryMount/tmp/.X11-unix
+
+#unmount the /usr folder
+umount /media/RecoveryMount/opt/recoverystuff
+
+#unmount all fstab partitions
+chroot /media/RecoveryMount umount -a
+
+#unmount the recovered systems fs
+umount -lf /media/RecoveryMount
+
+echo " Your have exited out of your target system. Press enter to continue"
+read stop
+exit 0 

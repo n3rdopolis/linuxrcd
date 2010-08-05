@@ -1,0 +1,15 @@
+#! /bin/sh
+#This file was last modified 08/04/002010 (Gregorian Calendar) 01:37 UTC
+openvt -c 1 /bin/bash -f &
+openvt -c 2 /bin/bash -f &
+openvt -c 3 /bin/bash -f &
+openvt -c 4 /bin/bash -f &
+openvt -c 5 /bin/bash -f &
+openvt -c 6 /bin/bash -f &
+#openvt -c 7 /bin/bash -f & tty7 is for the x server.
+openvt -c 8 /bin/bash -f &
+openvt -c 9 /bin/bash -f &
+openvt -c 10 /bin/bash -f &
+openvt -c 11 /bin/bash -f &
+openvt -c 12 /bin/bash -f &
+

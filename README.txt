@@ -17,8 +17,6 @@ the file system upon shutdown.
 TODO:
   add more programs/scripts for recovery
 
-  divide the single script into multiple files
-
   find a better solution then bind mounting in the libraries for the programs. It works OK for programs that don't
   write to /lib and /usr (like a user manager) but for ones that do require a new solution
 
