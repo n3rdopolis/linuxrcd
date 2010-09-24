@@ -24,7 +24,7 @@ _recovery_mount_ --bind /opt/recoverystuff/recoverystuff/lib /lib32
 _recovery_mount_ --bind /opt/recoverystuff/recoverystuff/lib /lib64
 
 #mount the ldconfigs so that the apps know where to find their libraries temporarily
-mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.cache  /etc/ld.so.cache
+#mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.cache  /etc/ld.so.cache
 mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf   /etc/ld.so.conf
 mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf.d /etc/ld.so.conf.d
 

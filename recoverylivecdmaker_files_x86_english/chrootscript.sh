@@ -70,8 +70,8 @@ yes Yes | aptitude install network-manager-gnome hicolor-icon-theme -y
 #install web browser 
 sudo aptitude install chromium-browser --without-recommends -y
 
-#install recovery utilities
-sudo aptitude install  kuser --without-recommends -y
+#install recovery/config utilities
+sudo aptitude install  kuser gparted --without-recommends -y
 
 ###BEGIN REMASTERSYS EDITS####
 
