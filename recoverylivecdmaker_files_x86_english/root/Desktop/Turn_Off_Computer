@@ -2,6 +2,10 @@
 #This file was last modified 08/04/002010 (Gregorian Calendar) 01:35 UTC 
 ##Run the method to safely unmount the target system in case if the user leaves it open
 
+kdialog --yesno "Are you sure you want to shutdown?"
+
+if (($?==0))
+then
 #kill all X apps by destroying the display. Many apps perform a safe exit routine when the X server dies
 killall Xephyr
 
@@ -47,4 +51,4 @@ chroot /media/RecoveryMount umount -a
 umount -lf /media/RecoveryMount
 
 shutdown -P now
-
+fi
