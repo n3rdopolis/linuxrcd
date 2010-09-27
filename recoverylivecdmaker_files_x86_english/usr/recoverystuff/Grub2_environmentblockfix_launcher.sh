@@ -23,14 +23,48 @@ mount --bind /opt/recoverystuff/recoverystuff/lib /lib
 _recovery_mount_ --bind /opt/recoverystuff/recoverystuff/lib /lib32
 _recovery_mount_ --bind /opt/recoverystuff/recoverystuff/lib /lib64
 
-#mount the ldconfigs so that the apps know where to find their libraries 
+#mount the ldconfigs so that the apps know where to find their libraries
 #mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.cache  /etc/ld.so.cache
 #mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf   /etc/ld.so.conf
 #mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf.d /etc/ld.so.conf.d
 
 #call the application
 cd /
-lxterminal -e "login -p" & 
+
+kdialog --yesno "This will attempt to remove the Grub environment block.
+
+You would want to try to remove this file if you get the error 'Invalad environment block' when you try to boot your system, or sometimes if you get the error 'out of disk'
+
+If the environment block is removed, and your system still fails to boot, then you might either have a full disk or file system error, disk hardware problem, or an older BIOS with a 137GB limit, and Grub is trying to write past 137GB on the drive. If this is the case then you will have to create a small partition at the beginning of your drive. Either that, or you already tried to remove the environment block, and was successful.
+
+Do you want to try to delete the environment block?"
+fixgrub=$?
+
+
+if [[ $fixgrub -eq 0 ]]
+then
+#open up the x server reconfigure
+
+if [ -f  /boot/grub/grubenv ]
+then
+mv  /boot/grub/grubenv /boot/grub/grubenv$(date +%s).bak
+
+if [ -f  /boot/grub/grubenv ]
+then
+kdialog --error "Attempted to delete the environment block, but the file still exists. Try running a disk check"
+else
+kdialog --msgbox "Grub Environment block was removed"
+fi
+
+else
+kdialog --msgbox "Grub Environment block does not seem to exist"
+fi
+
+
+
+fi
+
+
 #wait 5
 sleep 2
 #unmount the /usr folder, revealing the contents of the users /usr again

@@ -275,13 +275,22 @@ mount --bind /dev /media/LiveDiskCreAtionChrootFolDer/dev/
 
 
 #copy in the files needed
-rsync "$ThIsScriPtSFolDerLoCaTion"/recoverylivecdmaker_files_x86_english/* -Cr /media/LiveDiskCreAtionChrootFolDer
+rsync "$ThIsScriPtSFolDerLoCaTion"/recoverylivecdmaker_files_x86_english/* -Cr /media/LiveDiskCreAtionChrootFolDer/temp/
 rsync "$ThIsScriPtSFolDerLoCaTion"/*                                       -Cr /media/LiveDiskCreAtionChrootFolDer/build_source
 
-#create the script that runs in chroot under the new fs to configure it, and build its live cd PLACEHOLDER! File is now being copied in
 
-#make the script executable
-chmod +x /media/LiveDiskCreAtionChrootFolDer/chrootscript.sh 
+#make the chroot script executable.
+#chmod +x /media/LiveDiskCreAtionChrootFolDer/temp/chrootscript.sh
+#make the imported files executable 
+chmod +x -R /media/LiveDiskCreAtionChrootFolDer/temp/
+chown    -R /media/LiveDiskCreAtionChrootFolDer/temp/
+chgrp    -R /media/LiveDiskCreAtionChrootFolDer/temp/
+
+#copy the new executable files to where they belong
+rsync /media/LiveDiskCreAtionChrootFolDer/temp/* -a /media/LiveDiskCreAtionChrootFolDer/
+#delete the temp folder
+rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/
+
 
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)

@@ -71,8 +71,10 @@ yes Yes | aptitude install network-manager-gnome hicolor-icon-theme -y
 sudo aptitude install chromium-browser --without-recommends -y
 
 #install recovery/config utilities
-sudo aptitude install  kuser gparted --without-recommends -y
+sudo aptitude install  kuser gparted mountmanager  --without-recommends -y
 
+# Delete all of mountmanager's translations to force it to use the built in English one.
+rm /usr/lib/mountmanager/trans/*
 ###BEGIN REMASTERSYS EDITS####
 
 #filter out Remastersys installing Ubiquity by filtering between 2 decisive comments in the file
@@ -111,7 +113,7 @@ rm /remastersys
 #mv /clipboardmgr /usr/bin
 
 #make it executable
-chmod +x /usr/bin/clipboardmgr
+#chmod +x /usr/bin/clipboardmgr
 #############################################CONFIGURE STARTUP OF LIVE CD################################
 
 #####################BEGIN OLD STYLE INIT SCRIPT EDITS###################
@@ -151,7 +153,7 @@ rm /etc/init/tty6.conf
 
 
 #make it executable
-chmod +x /etc/init.d/bash
+#chmod +x /etc/init.d/bash
 
 #put it in init startup list try early init2
 ln -s  /etc/init.d/bash  /etc/rc2.d/S50bash
@@ -170,7 +172,7 @@ ln -s  /etc/init.d/bash  /etc/rc2.d/S50bash
 
 
 #make it executable
-chmod +x /etc/init.d/lxde
+#chmod +x /etc/init.d/lxde
 
 #put it in init startup list try early init2
 ln -s  /etc/init.d/lxde  /etc/rc2.d/S51lxde
@@ -191,7 +193,7 @@ ln -s  /etc/init.d/lxde  /etc/rc2.d/S51lxde
 
 
 #make it executable
-chmod +x /usr/bin/xephyrcaller
+#chmod +x /usr/bin/xephyrcaller
 #########END XEPHYR CALLER#########
 
 
@@ -202,7 +204,7 @@ chmod +x /usr/bin/xephyrcaller
 
 
 #make it executable
-chmod +x /etc/init.d/xephyr
+#chmod +x /etc/init.d/xephyr
 
 #put it in init startup list try early init2
 ln -s  /etc/init.d/xephyr  /etc/rc2.d/S52xephyr
@@ -221,7 +223,7 @@ ln -s  /etc/init.d/xephyr  /etc/rc2.d/S52xephyr
 
 
 #make it executable
-chmod +x /usr/bin/chromium-browsercaller
+#chmod +x /usr/bin/chromium-browsercaller
 
 #########END BROWSER CALLER CREATION
 
@@ -233,7 +235,7 @@ chmod +x /usr/bin/chromium-browsercaller
 
 
 #make it executable
-chmod +x /etc/init.d/chromium-browser
+#chmod +x /etc/init.d/chromium-browser
 
 #put it in init startup list try early init2
 ln -s  /etc/init.d/chromium-browser /etc/rc2.d/S52chromium-browser
@@ -249,7 +251,7 @@ ln -s  /etc/init.d/chromium-browser /etc/rc2.d/S52chromium-browser
 
 
 #make it executable
-chmod +x /usr/bin/xtermrecoverylauncher
+#chmod +x /usr/bin/xtermrecoverylauncher
 #########END XTERM RECOVERY LAUNCER CALLER####
 
 
@@ -260,7 +262,7 @@ chmod +x /usr/bin/xtermrecoverylauncher
 
 
 #make it executable
-chmod +x /etc/init.d/xtermrecoverylauncher
+#chmod +x /etc/init.d/xtermrecoverylauncher
 
 #put it in init startup list try early init2
 ln -s  /etc/init.d/xtermrecoverylauncher  /etc/rc2.d/S51xtermrecoverylauncher
@@ -281,7 +283,7 @@ ln -s  /etc/init.d/xtermrecoverylauncher  /etc/rc2.d/S51xtermrecoverylauncher
 
 
 #make it executable
-chmod +x /usr/bin/nm-appletcaller
+#chmod +x /usr/bin/nm-appletcaller
 #########END NM-APPLET CALLER#########
 
 
@@ -292,7 +294,7 @@ chmod +x /usr/bin/nm-appletcaller
 
 
 #make it executable
-chmod +x /etc/init.d/nm-applet
+#chmod +x /etc/init.d/nm-applet
 
 #put it in init startup list try early init2
 ln -s  /etc/init.d/nm-applet  /etc/rc2.d/S52nm-applet
@@ -307,7 +309,7 @@ ln -s  /etc/init.d/nm-applet  /etc/rc2.d/S52nm-applet
 
 
 #make it executable
-chmod +x /usr/bin/halcaller
+#chmod +x /usr/bin/halcaller
 #########END HAL CALLER#########
 
 ###USE OLD STYLE INIT SCRIPT TO CALL UP HAL CALLER
@@ -317,7 +319,7 @@ chmod +x /usr/bin/halcaller
 
 
 #make it executable
-chmod +x /etc/init.d/hal
+#chmod +x /etc/init.d/hal
 
 #put it in init startup list try early init2
 ln -s  /etc/init.d/hal  /etc/rc2.d/S52hal
@@ -376,13 +378,13 @@ cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.hardyandlater
 #mv /recoverylauncher /usr/bin
 
 #make it executable
-chmod +x /usr/bin/recoverylauncher
+#chmod +x /usr/bin/recoverylauncher
 
 #move in the script thar runs as recovery chroot PLACEHOLDER! File is now being copied in
 #mv /recoverychrootscript /usr/bin
 
 #make it executable
-chmod +x /usr/bin/recoverychrootscript
+#chmod +x /usr/bin/recoverychrootscript
 ##############################END RECOVERY STUFF SCRIPTS COPY#####################################
 
 
@@ -430,13 +432,13 @@ mkdir -p /root/Desktop
 # /root/Desktop/Change_Xephyr_size
 
 #make it executible
-chmod +x /root/Desktop/Change_Xephyr_size
+#chmod +x /root/Desktop/Change_Xephyr_size
 
 #make script to enable systen shutdown PLACEHOLDER! File is now being copied in
 # /root/Desktop/Turn_Off_Computer
 
 #make it executible
-chmod +x /root/Desktop/Turn_Off_Computer
+#chmod +x /root/Desktop/Turn_Off_Computer
 
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
@@ -451,7 +453,7 @@ chmod +x /root/Desktop/Turn_Off_Computer
 #/usr/recoverystuff/launchers/file_manager
 
 #make the launcher executable
-chmod +x /usr/recoverystuff/launchers/file_manager
+#chmod +x /usr/recoverystuff/launchers/file_manager
 
 
 
@@ -459,7 +461,7 @@ chmod +x /usr/recoverystuff/launchers/file_manager
 # /usr/recoverystuff/launchers/terminal
 
 #make the launcher executable
-chmod +x /usr/recoverystuff/launchers/terminal
+#chmod +x /usr/recoverystuff/launchers/terminal
 
 
 
@@ -467,7 +469,7 @@ chmod +x /usr/recoverystuff/launchers/terminal
 #/usr/recoverystuff/launchers/login_to_user
 
 #make the launcher executable
-chmod +x /usr/recoverystuff/launchers/login_to_user
+#chmod +x /usr/recoverystuff/launchers/login_to_user
 
 
 
@@ -475,14 +477,14 @@ chmod +x /usr/recoverystuff/launchers/login_to_user
 # /usr/recoverystuff/launchers/user_manager
 
 #make the launcher executable
-chmod +x /usr/recoverystuff/launchers/user_manager
+#chmod +x /usr/recoverystuff/launchers/user_manager
 
 
 #create launcher for text_editor PLACEHOLDER! File is now being copied in
 # /usr/recoverystuff/launchers/text_editor
 
 #make the launcher executable
-chmod +x /usr/recoverystuff/launchers/text_editor
+#chmod +x /usr/recoverystuff/launchers/text_editor
 
 
 ##############END CREATION OF LAUNCHER SCRIPTS###############
@@ -505,7 +507,7 @@ chmod +x /usr/recoverystuff/launchers/text_editor
 
 
 #make helper executable
-chmod +x /usr/recoverystuff/launch_file_browser.sh
+#chmod +x /usr/recoverystuff/launch_file_browser.sh
 
 
 #create helper for the launcher file browser PLACEHOLDER! File is now being copied in
@@ -513,7 +515,7 @@ chmod +x /usr/recoverystuff/launch_file_browser.sh
 
 
 #make helper executable
-chmod +x /usr/recoverystuff/launch_launcher_launcher.sh
+#chmod +x /usr/recoverystuff/launch_launcher_launcher.sh
 
 
 #create terminal helper PLACEHOLDER! File is now being copied in
@@ -521,20 +523,20 @@ chmod +x /usr/recoverystuff/launch_launcher_launcher.sh
 
 
 #make helper executable
-chmod +x /usr/recoverystuff/launch_terminal.sh
+#chmod +x /usr/recoverystuff/launch_terminal.sh
 
 #login helper calls this PLACEHOLDER! File is now being copied in
 # /usr/recoverystuff/login_command.sh
 
 #make it executable
-chmod +x /usr/recoverystuff/login_command.sh
+#chmod +x /usr/recoverystuff/login_command.sh
 
 #create login helper PLACEHOLDER! File is now being copied in
 #/usr/recoverystuff/login_to_user.sh
 
 
 #make helper executable
-chmod +x /usr/recoverystuff/login_to_user.sh
+#chmod +x /usr/recoverystuff/login_to_user.sh
 
 
 
@@ -543,7 +545,7 @@ chmod +x /usr/recoverystuff/login_to_user.sh
 
 
 #make helper executable
-chmod +x /usr/recoverystuff/launch_text_editor.sh
+#chmod +x /usr/recoverystuff/launch_text_editor.sh
 
 
 
@@ -552,7 +554,7 @@ chmod +x /usr/recoverystuff/launch_text_editor.sh
 # /usr/recoverystuff/user_manager.sh
 
 #make helper executable
-chmod +x /usr/recoverystuff/user_manager.sh
+#chmod +x /usr/recoverystuff/user_manager.sh
 
 
 
@@ -561,7 +563,7 @@ chmod +x /usr/recoverystuff/user_manager.sh
 
 
 #make helper executable
-chmod +x /usr/recoverystuff/launch_panel.sh
+#chmod +x /usr/recoverystuff/launch_panel.sh
 ##############END CREATION OF HELPER SCRIPTS#################
 
 #get the remastersys source code on the disk 

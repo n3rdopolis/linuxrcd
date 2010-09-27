@@ -1,0 +1,19 @@
+#! /bin/bash
+#This file was last modified 08/04/002010 (Gregorian Calendar) 01:35 UTC 
+##Run the method to safely unmount the target system in case if the user leaves it open
+
+kdialog --yesno "You are about to open up the partition manager.
+
+The partition manager could cause data loss, so use it with caution.
+
+If you are on a laptop, be sure to plug it in before starting any partition operations, as they can take a long time, with heavy battery usage, and if the computer runs out of battery before the operation can finish, then data loss can occur.
+
+Your system must be disconnected, before you can use this tool, otherwise it will show the partitions in use as 'locked' and won't let you work with them.
+
+Do you want to continue?
+"
+
+if (($?==0))
+then
+gparted
+fi

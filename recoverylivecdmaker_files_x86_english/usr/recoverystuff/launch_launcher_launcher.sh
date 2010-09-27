@@ -25,8 +25,8 @@ _recovery_mount_ --bind /opt/recoverystuff/recoverystuff/lib /lib64
 
 #mount the ldconfigs so that the apps know where to find their libraries 
 #mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.cache  /etc/ld.so.cache
-mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf   /etc/ld.so.conf
-mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf.d /etc/ld.so.conf.d
+#mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf   /etc/ld.so.conf
+#mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf.d /etc/ld.so.conf.d
 
 #call the application
 emelfm2 -i  --one=/opt/recoverystuff/recoverystuff/launchers --two=/opt/recoverystuff/recoverystuff/launchers -r echo & 
@@ -42,7 +42,7 @@ umount -lf /bin/_recovery_umount_
 
 
 #unmount the ldconfigs so that they are seen as they should
-umount -lf /etc/ld.so.cache
-umount -lf /etc/ld.so.conf
-umount -lf /etc/ld.so.conf.d
+#umount -lf /etc/ld.so.cache
+#umount -lf /etc/ld.so.conf
+#umount -lf /etc/ld.so.conf.d
 

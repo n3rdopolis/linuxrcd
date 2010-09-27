@@ -14,7 +14,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
-#This file was last modified 08/04/002010 (Gregorian Calendar) 11:40 UTC
 #mount the tools and utilites from the live CD into the /usr folder so that it seems like the program is installed in the system
 mount --bind /opt/recoverystuff                               /usr
 mount --bind /opt/recoverystuff/recoverystuff/bin/mount      /bin/_recovery_mount_
@@ -25,12 +24,13 @@ _recovery_mount_ --bind /opt/recoverystuff/recoverystuff/lib /lib64
 
 #mount the ldconfigs so that the apps know where to find their libraries 
 #mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.cache  /etc/ld.so.cache
-mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf   /etc/ld.so.conf
-mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf.d /etc/ld.so.conf.d
+#mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf   /etc/ld.so.conf
+#mount --bind /opt/recoverystuff/recoverystuff/etc/ld.so.conf.d /etc/ld.so.conf.d
 
 #call the application
 cd /
-lxterminal -e bash & 
+lxterminal -e 'bash --init-file /etc/bash_completion' &
+
 #wait 5 seconds for the app to load the libraries. This may need to change
 sleep 2
 #unmount the /usr folder
@@ -42,7 +42,7 @@ umount -lf /bin/_recovery_mount_
 umount -lf /bin/_recovery_umount_
 
 #unmount the ldconfigs so that they are seen as they should
-umount -lf /etc/ld.so.cache
-umount -lf /etc/ld.so.conf
-umount -lf /etc/ld.so.conf.d
+#umount -lf /etc/ld.so.cache
+#umount -lf /etc/ld.so.conf
+#umount -lf /etc/ld.so.conf.d
 

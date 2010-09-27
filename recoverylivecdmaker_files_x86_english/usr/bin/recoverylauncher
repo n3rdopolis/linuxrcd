@@ -16,8 +16,10 @@
 #
 #This file was last modified 08/04/002010 (Gregorian Calendar) 11:34 UTC
 
-#TODO remove part that says wont work
- kdialog --msgbox  "Welcome to the Ubuntu Recovery CD from http://ubuntuforums.org/showthread.php?t=1254973 
+#wait, so that the welcome dialog is on the top, and display a box saying to wait
+kdialog --passivepopup "If you want to recover a system, please click on this dialog, or wait 45 seconds..." 45
+
+ kdialog --msgbox  "Welcome to the Ubuntu Recovery CD from linuxrcd.sourceforge.net
 
 
 Press OK to continue."
@@ -34,7 +36,10 @@ The CPU architechture of this cd is 32 bit, x86.
 Press OK to contine.
 "
 
-kdialog --msgbox "Be aware that as soon as you mount into your system, it is not like other Live CDs where all modifications go away after reboot. In this Live CD, everything runs as root, except for the web browser that automaticaly starts upon boot. If you create a second window of the web browser from the panel below, it will run as root, (and is not the best idea to do so.) The non root browser, if accedentaly closed will automatialy restart as non-root. The Xephyr program also reopen if closed as root as they are root to begin with. 
+kdialog --msgbox "Be aware that in this Live CD, everything runs as root, except for the web browser that automaticaly starts upon boot. If you create a second window of the web browser from the panel below, it will run as root, (and is not the best idea to do so.) The non root browser, if accedentaly closed will automatialy restart as non-root. The Xephyr program also reopen if closed as root as they are root to begin with.
+
+You should exercise caution of what you do expecailly when your system is connected, do not do anything here that you would not do if your system was running as normal, especially if your system is connected.
+ 
 
 Press OK to contine"
 

@@ -30,7 +30,22 @@ _recovery_mount_ --bind /opt/recoverystuff/recoverystuff/lib /lib64
 
 #call the application
 cd /
-lxterminal -e "login -p" & 
+
+kdialog --yesno "this will open up a terminal window and try help you reconfigure your xserver. Do you want to continue?
+
+Depending on your system config, you may get a terminal screen prompting you for info, or a terminal window that dissapears. 
+
+This is because many distros have begun phasing out the x config file for autodetection of hardware. This tool will only work on Debian like systems."
+fixxserver=$?
+
+
+if [[ $fixxserver -eq 0 ]]
+then
+#open up the x server reconfigure
+lxterminal -e "dpkg-reconfigure xserver-xorg" &
+fi
+ 
+ 
 #wait 5
 sleep 2
 #unmount the /usr folder, revealing the contents of the users /usr again
