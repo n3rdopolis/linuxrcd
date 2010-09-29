@@ -1,5 +1,5 @@
 #! /bin/bash 
-#This file was last modified 08/04/002010 (Gregorian Calendar) 01:34 UTC
+
 kdialog --msgbox "The configuration for te Xephyr window will appear in the Xephyr window itself. It will only affect the Xephyr window, and not your installed system"
 export DISPLAY=:1
 lxrandr

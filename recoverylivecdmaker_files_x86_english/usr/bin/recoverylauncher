@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
-#This file was last modified 08/04/002010 (Gregorian Calendar) 11:34 UTC
+
 
 #wait, so that the welcome dialog is on the top, and display a box saying to wait
 kdialog --passivepopup "If you want to recover a system, please click on this dialog, or wait 45 seconds..." 45
@@ -71,6 +71,8 @@ oscount=$(cat /usr/share/detectedoses | grep : -c)
 if (( 0==oscount ));
 then
 kdialog --msgbox " No OSes found. This process will now quit. If you do have OSes installed, it must be on an strange filesystem, corrupt filesystem, or a more serious problem might exist."
+
+
 exit 0
 fi
 oschoice=$(kdialog --combobox " Choose your OS: " $(cat /usr/share/detectedoses | sed s/" "/"_"/g ))
@@ -92,7 +94,6 @@ then
 kdialog --msgbox "Unable to access your selected system. Either the physical mounting of the filesystem failed, you selected an invalad choice, or you have some critical files missing in your system (the file thats missing is /bin/true).
 
 The choice you selected was: $(cat /usr/share/osline)"
-
 umount /media/RecoveryMount
 kdialog --msgbox "This process will start over, allowing you to select a different OS."
 exit 1

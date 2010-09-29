@@ -1,5 +1,5 @@
 #! /bin/sh
-#This file was last modified 08/04/002010 (Gregorian Calendar) 01:37 UTC
+
 #allow the recovery imported apps to see the ldconfigs
 mount --bind /etc /usr/recoverystuff/etc
 

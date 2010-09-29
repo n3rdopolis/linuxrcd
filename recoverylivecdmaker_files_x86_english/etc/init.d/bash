@@ -1,5 +1,4 @@
 #! /bin/sh
-#This file was last modified 08/04/002010 (Gregorian Calendar) 01:37 UTC
 openvt -c 1 /bin/bash -f &
 openvt -c 2 /bin/bash -f &
 openvt -c 3 /bin/bash -f &

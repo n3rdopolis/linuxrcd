@@ -1,5 +1,4 @@
 #! /bin/bash
-#This file was last modified 09/25/002010 (Gregorian Calendar) 08:50 UTC
 #execute the script that calls the app in a different namespace so that whatever is mounted and unmounted does not effect the whole system
 /opt/recoverystuff/bin/unshare -m /opt/recoverystuff/recoverystuff/mountmanager_launcher.sh > /dev/null 2>&1
 

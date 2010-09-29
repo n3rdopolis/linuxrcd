@@ -1,4 +1,3 @@
-
 #! /bin/sh
 #This file is part of LinuxRCD.
 #
@@ -15,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
-#This file was last modified 08/04/002010 (Gregorian Calendar) 01:27 UTC
+
 sleep 20
 clipboardmgr :0 :1 &
 while [ 1 ]

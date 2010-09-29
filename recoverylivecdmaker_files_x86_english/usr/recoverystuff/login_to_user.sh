@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
-#This file was last modified 08/04/002010 (Gregorian Calendar) 11:43 UTC
+
 #mount the tools and utilites from the live CD into the /usr folder so that it seems like the program is installed in the system
 mount --bind /opt/recoverystuff /usr
 mount --bind /opt/recoverystuff/recoverystuff/bin/mount /bin/_recovery_mount_

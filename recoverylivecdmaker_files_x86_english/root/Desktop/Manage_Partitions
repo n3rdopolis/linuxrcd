@@ -1,5 +1,5 @@
 #! /bin/bash
-#This file was last modified 08/04/002010 (Gregorian Calendar) 01:35 UTC 
+
 ##Run the method to safely unmount the target system in case if the user leaves it open
 
 kdialog --yesno "You are about to open up the partition manager.

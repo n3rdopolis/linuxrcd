@@ -1,5 +1,4 @@
 #! /bin/sh
-#This file was last modified 08/04/002010 (Gregorian Calendar) 01:38 UTC
 startx &
 done
 

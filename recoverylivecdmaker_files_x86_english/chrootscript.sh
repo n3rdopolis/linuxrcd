@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
-#This file was last modified 08/05/002010 (Gregorian Calendar) 00:28 UTC
+
 
 #mount the procfs
 mount -t proc none /proc
@@ -73,8 +73,13 @@ sudo aptitude install chromium-browser --without-recommends -y
 #install recovery/config utilities
 sudo aptitude install  kuser gparted mountmanager  --without-recommends -y
 
+#if this is english set mountmanager to use the English translations
+if (( $(cat /usr/share/linuxrcd/build_language/Language_Name)==English ));
+then
 # Delete all of mountmanager's translations to force it to use the built in English one.
 rm /usr/lib/mountmanager/trans/*
+fi
+
 ###BEGIN REMASTERSYS EDITS####
 
 #filter out Remastersys installing Ubiquity by filtering between 2 decisive comments in the file
@@ -176,6 +181,7 @@ ln -s  /etc/init.d/bash  /etc/rc2.d/S50bash
 
 #put it in init startup list try early init2
 ln -s  /etc/init.d/lxde  /etc/rc2.d/S51lxde
+
 
 ###END OLD STYLE LXDE SCRIPT CREATION
 
