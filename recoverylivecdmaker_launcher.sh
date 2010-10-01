@@ -288,9 +288,9 @@ chgrp  root  -R /media/LiveDiskCreAtionChrootFolDer/temp/
 
 
 #copy the Language selected into the working folder
-rsync "/media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/$Language_Name"/* -r /media/LiveDiskCreAtionChrootFolDer/build_language/
+rsync "/media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/translations/$Language_Name"/* -r /media/LiveDiskCreAtionChrootFolDer/build_language/
 #delete the rest of the languages
-rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/
+rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/translations
 
 
 
@@ -298,7 +298,7 @@ rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/
 
 #search for any folder containing a file "TRANSLATION_DATA" in /media/LiveDiskCreAtionChrootFolDer/build_language/file_translations/ 
 #this will tell what files will need to be translated.
-find /media/LiveDiskCreAtionChrootFolDer/build_language/file_translations/ | awk -F"/file_translations" '{print $2}' | grep TRANSLATION_DATA | awk -F"TRANSLATION_DATA" '{print $1}' |sed s/.$// > /media/LiveDiskCreAtionChrootFolDer/tmp/convertingfiles
+find /media/LiveDiskCreAtionChrootFolDer/build_language/file_translations/ | awk -F"/file_translations" '{print $2}' | grep TRANSLATION_DATA | awk -F"TRANSLATION_DATA" '{print $1}' |sed s/.$//g >> /media/LiveDiskCreAtionChrootFolDer/tmp/convertingfiles
  
 
 
@@ -315,27 +315,55 @@ do
 translationname=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep -v @@@TRANSLATORS_NOTE:@@@ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}')
 translationtext=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep -v @@@TRANSLATORS_NOTE:@@@ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}')
 
-sed -i  "s/$translationname/$translationtext/" "/media/LiveDiskCreAtionChrootFolDer/temp$translationfile"
+
+#replace contents of the file
+sed -i  "s/$translationname/$translationtext/g" "/media/LiveDiskCreAtionChrootFolDer/temp$translationfile"
+
+#replace contents of the files rename translation information
+if [ -f "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILEFOLDERNAME" ]
+then
+sed -i  "s/$translationname/$translationtext/g" "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILEFOLDERNAME"
+fi
+
 let $(( stringworkcount=stringworkcount-1 )) 
 done
 
 #rename the file if it has renaming data
-if [ -f "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILENAME" ]
-then
-origname=$(echo $translationfile | rev | awk -F"/" '{print $1}' |rev)
- newname=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILENAME" | awk 'NR==1')
- dirname=$(dirname "/media/LiveDiskCreAtionChrootFolDer/temp$translationfile")
-mv "$dirname"/"$origname" "$dirname"/"$newname"
-fi
+#if [ -f "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILENAME" ]
+#then
+#origname=$(echo $translationfile | rev | awk -F"/" '{print $1}' |rev)
+# newname=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILENAME" | awk 'NR==1')
+# dirname=$(dirname "/media/LiveDiskCreAtionChrootFolDer/temp$translationfile")
+#mv "$dirname"/"$origname" "$dirname"/"$newname"
+#fi
 
 
 let $(( fileworkcount=fileworkcount-1 ))
 done
 
+
+
+#Find files/folders that want to be renamed                                                                
+find /media/LiveDiskCreAtionChrootFolDer/build_language/file_translations/ | awk -F"/file_translations" '{print $2}'   | grep "FILEFOLDERNAME" | awk -F"/FILEFOLDERNAME" '{print $1}'  >> /media/LiveDiskCreAtionChrootFolDer/tmp/renamingfiles
+filerenamecount=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/renamingfiles | wc -l)
+filerenameworkcount=$filerenamecount
+while (( $filerenameworkcount!=0))
+do
+translationfile=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/renamingfiles | awk "NR==$filerenameworkcount")
+origname=$(echo $translationfile | rev | awk -F"/" '{print $1}' |rev)
+ newname=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILEFOLDERNAME" | awk 'NR==1' | awk -F"~~~~~~~~~~~" '{print $1}')
+ dirname=$(dirname /media/LiveDiskCreAtionChrootFolDer/temp$translationfile)
+mv "$dirname"/"$origname" "$dirname"/"$newname"
+let $(( filerenameworkcount=filerenameworkcount-1 ))
+done
+
+
+
+
+
 ##############################################
 
-####Get the global translation string information and apply it to the files
-
+####Get the global translation string information
 ls /media/LiveDiskCreAtionChrootFolDer/build_language/ -1Ap | grep -v / > /media/LiveDiskCreAtionChrootFolDer/tmp/filelisting
 
 filecount=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/filelisting | wc -l)
@@ -345,27 +373,56 @@ while (( $fileworkcount!=0))
 do
 filename=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/filelisting | awk "NR==$fileworkcount")
 
-echo @$filename@ |tr -d "\n" >> /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable   
+echo $filename |tr -d "\n" >> /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable   
 echo '~~~~~~~~~~~' | tr -d "\n" >> /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable
-cat "/media/LiveDiskCreAtionChrootFolDer/build_language/$filename" | awk 'NR==1'>> /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable
-
-
+cat "/media/LiveDiskCreAtionChrootFolDer/build_language/$filename" | awk 'NR==1' |awk -F"~~~~~~~~~~~" '{print $1}'>> /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable
 let $(( fileworkcount=fileworkcount-1 ))
 done
 
 
-
-#replace Global strings
+#replace Global strings in the files
 fileworkcount=$filecount
 while (( $fileworkcount!=0))
 do
 translationname=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}')
 translationtext=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}')
-find /media/LiveDiskCreAtionChrootFolDer/temp/ -name \* -exec sed -i  "s/$translationname/$translationtext/" {} \;
+find /media/LiveDiskCreAtionChrootFolDer/temp/ -name \* -exec sed -i  "s/$translationname/$translationtext/g" {} \;
 let $(( fileworkcount=fileworkcount-1 ))
 done
 
+
+#get information for the files to rename
+fileworkcount=$filecount
+while (( $fileworkcount!=0))
+do
+translationname=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}')
+translationtext=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}')
+find /media/LiveDiskCreAtionChrootFolDer/temp -name \*$translationname\*   >> /media/LiveDiskCreAtionChrootFolDer/tmp/globalrename
+
+stringcount=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globalrename | wc -l)
+
+
+#replace placeholder string in filename with global strings
+stringworkcount=$stringcount
+while (( $stringworkcount!=0))
+do
+oldfilepath=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globalrename | awk "NR==$stringworkcount")
+filedir=$(dirname $oldfilepath)
+oldfilename=$(echo $oldfilepath | awk -F"$filedir/" '{print $2}') 
+newfilename=$(echo $oldfilename | sed "s/$translationname/$translationtext/g")
+
+mv "$oldfilepath" "$filedir"/"$newfilename"
+let $(( stringworkcount=stringworkcount-1 )) 
+done
+
+
+let $(( fileworkcount=fileworkcount-1 ))
+done
 ####END LANGUAGE CHANGER
+
+
+
+
 
 
 
