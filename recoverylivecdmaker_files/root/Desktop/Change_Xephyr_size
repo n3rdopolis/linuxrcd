@@ -1,6 +1,0 @@
-#! /bin/bash 
-
-kdialog --msgbox "The configuration for te Xephyr window will appear in the Xephyr window itself. It will only affect the Xephyr window, and not your installed system"
-export DISPLAY=:1
-lxrandr
-
