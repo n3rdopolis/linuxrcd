@@ -1,1 +1,0 @@
- TThe Ubuntu Recovery CD will automatically boot in 10 seconds (unless you hit a key). If you dont want to boot this CD type hd, then hit enter to boot off your hard drive. If you want to boot to the recovery cd, and accedentaly hit a key, or you want to boot now, make sure there is no text after boot: and hit enter 
