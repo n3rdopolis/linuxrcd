@@ -1,0 +1,207 @@
+#! /bin/bash
+#This file is part of LinuxRCD.
+#
+#    LinuxRCD is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    LinuxRCD is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+
+#wait, so that the welcome dialog is on the top, and display a box saying to wait
+kdialog --passivepopup "@%@recovery launcher wait message@%@" 45
+
+ kdialog --msgbox  "@%@recovery cd welcome message@%@
+
+
+@%@recovery cd continue message@%@"
+
+
+
+kdialog --msgbox "@%@recovery cd introduction message@%@
+
+@%@recovery cd shortcomming notice@%@ 
+
+@%@recovery cd continue message@%@
+"
+
+kdialog --msgbox "@%@recovery cd root warning@%@
+
+@%@recovery cd exercise caution message@%@
+ 
+
+@%@recovery cd continue message@%@"
+
+
+kdialog --msgbox "@%@recovery cd xephyr description@%@ 
+
+@%@recovery cd web browser description@%@
+
+@%@recovery cd dialog description@%@
+
+@%@recovery cd continue message@%@"
+
+
+
+
+kdialog --msgbox "@%@recovery cd dialog description@%@
+
+@%@recovery cd support message@%@
+"
+#list all detected installed into a file
+os-prober > /usr/share/detectedoses
+echo " " >>     /usr/share/detectedoses
+#list the contents of the file for the user 
+#cat /usr/share/detectedoses | awk '{print FNR "   "  $0 }'
+#capture number of oses
+oscount=$(cat /usr/share/detectedoses | grep : -c)
+#if no oses detected then die
+if (( 0==oscount ));
+then
+kdialog --msgbox "@%@recovery cd no os found message@%@"
+
+
+exit 0
+fi
+oschoice=$(kdialog --combobox "@%@recovery cd os choice message@%@" $(cat /usr/share/detectedoses | sed s/" "/"_"/g ))
+ 
+#run os prober again, and grab the entire OS line
+echo $oschoice > /usr/share/osline
+#get the device file name where the OS is installed
+cat /usr/share/osline | sed  's/:.*/ /' > /usr/share/devname
+#make the mountpoint where the system will be mounted
+mkdir /media/RecoveryMount
+#mount the system with the device name as readonly
+mount $(cat /usr/share/devname) /media/RecoveryMount -o ro
+#test chroot,
+chroot /media/RecoveryMount  /bin/true
+#if it failed 
+if [[ $? -ne 0 ]]
+then
+#tell the user something went wrong
+kdialog --msgbox "@%@recovery cd failure message@%@
+
+@%@recovery cd choice string@%@ $(cat /usr/share/osline)"
+umount /media/RecoveryMount
+kdialog --msgbox "@%@recovery cd start over message@%@"
+exit 1
+fi
+
+
+kdialog --yesno "@%@recovery cd fsck prompt@%@"
+checkdisk=$?
+
+
+if [[ $checkdisk -eq 0 ]]
+then
+#unmount the read only file system
+umount /media/RecoveryMount
+#check the specified root file system for errors
+kdialog --msgbox "@%@recovery cd fsck message@%@" &
+fsck -p $(cat /usr/share/devname)
+fi
+
+#unmount the read only file system
+umount /media/RecoveryMount
+
+
+#mount the system with the device name
+mount $(cat /usr/share/devname) /media/RecoveryMount
+
+#mount in the devfs into the mountpoint
+mount --bind /dev /media/RecoveryMount/dev
+
+#mount in dbus so apps work
+mount --bind /var/run/dbus /media/RecoveryMount/var/run/dbus
+
+#mount in X11 authorization folder. 
+mount --bind /tmp/.X11-unix /media/RecoveryMount/tmp/.X11-unix
+
+#make the opt/recoverystuff folder in case if its not there
+mkdir /media/RecoveryMount/opt/recoverystuff
+
+#bind the live cds /usr folder to the targets /opt folder
+mount --rbind /usr /media/RecoveryMount/opt/recoverystuff
+
+#xhost needs this as it does not accept a display argument
+export DISPLAY=:1
+
+#allow all local connections
+xhost +local:
+
+#change the hostname of the live cd session to that of the selected target system
+hostname -F /media/RecoveryMount/etc/hostname
+
+#start the chroot script. Run it as a background task so that this can prompt for done
+chroot /media/RecoveryMount  /opt/recoverystuff/bin/recoverychrootscript &
+
+
+############################################################
+
+export DISPLAY=:0
+
+kdialog --msgbox "@%@recovery cd recovery mode warning@%@
+
+@%@recovery cd fstab multipartition warning@%@"
+
+kdialog --msgbox "@%@recovery cd quit message@%@"
+
+
+kdialog --yesno "@%@recovery cd quit prompt@%@"
+quitanswer=$?
+while [  $quitanswer != 0   ] ; do  kdialog --yesno "@%@recovery cd quit prompt@%@"; quitanswer=$? ; done 
+
+#kill all X apps by destroying the display. Many apps perform a safe exit routine when the X server dies
+killall Xephyr
+
+#gently kill any other processess
+fuser -15 -k /media/RecoveryMount
+
+# TODO this might need to wait, but the command might do that for us
+
+#forcibly kill the processess
+fuser -k /media/RecoveryMount
+
+#change the hostname of the live cd back to the default
+hostname -F /etc/hostname
+
+#unlink the symlink created
+unlink /media/RecoveryMount/FileSystems
+
+#unmount recovery systems /sys
+umount -lf /media/RecoveryMount/sys
+
+#unmount recovery systems /proc
+umount -lf /media/RecoveryMount/proc
+
+#unmount recovery systems /dev/pts
+umount -lf /media/RecoveryMount/dev/pts
+
+#unmount recovery systems /dev
+umount -lf /media/RecoveryMount/dev
+
+#unmount the dbus folder
+umount /media/RecoveryMount/var/run/dbus
+
+#unmount the X11 authroization folder
+umount /media/RecoveryMount/tmp/.X11-unix
+
+#unmount the /usr folder
+umount /media/RecoveryMount/opt/recoverystuff
+
+#unmount all fstab partitions
+chroot /media/RecoveryMount umount -a
+
+#unmount the recovered systems fs
+umount -lf /media/RecoveryMount
+
+kdialog --msgbox "@%@recovery cd finished message@%@"
+exit 0 

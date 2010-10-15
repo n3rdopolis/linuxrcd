@@ -1,0 +1,5 @@
+@%@Partition manager opening@%@~~~~~~~~~~~You are about to open up the partition manager.
+@%@Partition manager data loss warning@%@~~~~~~~~~~~The partition manager could cause data loss, so use it with caution.
+@%@Partition manager plug in battery warning@%@~~~~~~~~~~~If you are on a laptop, be sure to plug it in before starting any partition operations, as they can take a long time, with heavy battery usage, and if the computer runs out of battery before the operation can finish, then data loss can occur.
+@%@Partition manager unmount system warning@%@~~~~~~~~~~~Your system must be disconnected, before you can use this tool, otherwise it will show the partitions in use as 'locked' and won't let you work with them.
+@%@Partition manager continue prompt@%@~~~~~~~~~~~Do you want to continue?

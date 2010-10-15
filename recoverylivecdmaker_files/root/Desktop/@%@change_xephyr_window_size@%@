@@ -1,0 +1,6 @@
+#! /bin/bash 
+
+kdialog --msgbox "@%@Xephyr_Warning@%@"
+export DISPLAY=:1
+lxrandr
+

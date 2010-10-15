@@ -1,0 +1,68 @@
+#! /bin/bash
+#This file is part of LinuxRCD.
+#
+#    LinuxRCD is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    LinuxRCD is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
+#
+#create a mountpoint for the imported mount executable
+touch /bin/_recovery_mount_
+
+#make it executable
+chmod +x /bin/_recovery_mount_
+
+#create a mountpoint for the imported umount executable
+touch /bin/_recovery_umount_
+
+#make it executable
+chmod +x /bin/_recovery_umount_
+
+#try to mount fstab in case user has seperate partions, such as home. (it may not work because the users fstab may be broken)
+mount -a
+
+#mount the procfs
+mount -t proc none /proc
+
+#TODO Mount the devfs here WITHOUT mount --bind!
+
+#mount sysfs
+mount -t sysfs none /sys
+
+#mount /dev/pts
+mount -t devpts none /dev/pts
+
+#mount /dev/shm
+mount -t tmpfs none /dev/shm
+
+#provide a link so that the filesystems such as flash drives can be imported into the recovery system
+ln -s /proc/1/root/media /FileSystems
+
+#set the display variable so that X apps start a GUI
+export DISPLAY=localhost:1
+
+#many apps need the home variable set.
+export HOME=/root
+
+##CALL THE STARTUP APPS
+
+
+
+#call up the file browser opened to the folder containg the launchers 
+/opt/recoverystuff/bin/unshare -m /opt/recoverystuff/recoverystuff/launch_launcher_launcher.sh   >/dev/null  2>&1 &
+
+#call up the panel
+/opt/recoverystuff/bin/unshare -m /opt/recoverystuff/recoverystuff/launch_panel.sh  > /dev/null  2>&1 &
+
+##END STARTUP APPS
+
+
+

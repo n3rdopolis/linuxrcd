@@ -1,0 +1,69 @@
+#! /bin/bash                                
+#This file is part of LinuxRCD.
+#
+#    LinuxRCD is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    LinuxRCD is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+firstxserver=$1                             
+secondxserver=$2                            
+#set the variables to the default           
+echo . | xsel --display $firstxserver -b -i 
+echo . | xsel --display $secondxserver -b -i
+clipboard=.                                 
+
+while [ 1 ]
+do
+#get the values of the clipboard
+firstdislpayclipboard=$(xsel --display $firstxserver -b -o)
+seconddislpayclipboard=$(xsel --display $secondxserver -b -o)
+
+#if the first x servers clipboard chages
+if [ "$firstdislpayclipboard" != "$clipboard" ]
+then
+
+#if it doesnt change to be blank
+if [ $(echo $firstdislpayclipboard | grep ^$ -c) -ne 1 ]
+then
+#set the appropriate variables to be the contents of the first comand
+seconddislpayclipboard=$firstdislpayclipboard
+clipboard=$firstdislpayclipboard
+xsel --display $firstxserver -b -o | xsel --display $secondxserver -b -i
+else
+#if it is blank set it to be .in case if its because the x server went down
+echo . | xsel --display $firstxserver -b -i
+fi
+
+fi
+
+#if the second x servers clipboad chages
+if [ "$seconddislpayclipboard" != "$clipboard" ]
+then
+
+#if it doesnt change to be blank
+if [ $(echo $seconddislpayclipboard | grep ^$ -c) -ne 1 ]
+then
+#set the appropriate variables to be the contents of the first comand
+firstdislpayclipboard=$seconddislpayclipboard
+clipboard=$seconddislpayclipboard
+xsel --display $secondxserver -b -o | xsel --display $firstxserver -b -i
+else
+#if it is blank set it to be .in case if its because the x server went down
+echo . | xsel --display $secondxserver -b -i
+fi
+
+fi
+
+sleep 1
+done
+

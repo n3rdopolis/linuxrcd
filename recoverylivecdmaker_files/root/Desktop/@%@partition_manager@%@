@@ -1,0 +1,19 @@
+#! /bin/bash
+
+##Run the method to safely unmount the target system in case if the user leaves it open
+
+kdialog --yesno "@%@Partition manager opening@%@
+
+@%@Partition manager data loss warning@%@
+
+@%@Partition manager plug in battery warning@%@
+
+@%@Partition manager unmount system warning@%@
+
+@%@Partition manager continue prompt@%@
+"
+
+if (($?==0))
+then
+gparted
+fi
