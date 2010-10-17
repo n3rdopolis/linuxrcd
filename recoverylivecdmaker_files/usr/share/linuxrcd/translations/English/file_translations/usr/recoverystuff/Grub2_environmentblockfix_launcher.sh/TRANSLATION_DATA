@@ -1,14 +1,16 @@
-@%@Grub environment block welcome@%@~~~~~~~~~~~This will attempt to remove the Grub environment block.
+@%@Grub environment block dialog name%@~~~~~~~~~~~Grub Environment Block~~~~~~~~~~~DELIM_FOR_KDIALOG
+@@@COMMENT@@@: this above is for all dialogs in this file
+@%@Grub environment block welcome@%@~~~~~~~~~~~This will attempt to remove the Grub environment block.~~~~~~~~~~~DELIM_FOR_KDIALOG
 
-@%@Grub environment block description@%@~~~~~~~~~~~You would want to try to remove this file if you get the error 'Invalad environment block' when you try to boot your system, or sometimes if you get the error 'out of disk'
+@%@Grub environment block description@%@~~~~~~~~~~~You would want to try to remove this file if you get the error 'Invalad environment block' when you try to boot your system, or sometimes if you get the error 'out of disk'~~~~~~~~~~~DELIM_FOR_KDIALOG
 
-@%@Grub environment block disclaimer@%@~~~~~~~~~~~If the environment block is removed, and your system still fails to boot, then you might either have a full disk or file system error, disk hardware problem, or an older BIOS with a 137GB limit, and Grub is trying to write past 137GB on the drive. If this is the case then you will have to create a small partition at the beginning of your drive. 
+@%@Grub environment block disclaimer@%@~~~~~~~~~~~If the environment block is removed, and your system still fails to boot, then you might either have a full disk or file system error, disk hardware problem, or an older BIOS with a 137GB limit, and Grub is trying to write past 137GB on the drive. If this is the case then you will have to create a small partition at the beginning of your drive.~~~~~~~~~~~DELIM_FOR_KDIALOG 
 @@@COMMENT@@@: the above string must tell the user that if the file is deleted, and they still can't boot that they must have a disk issue, or older bios that can't see above 137GB, and they might have to create a small partition at the beginning of the drive
 
-@%@Grub environment block prompt@%@~~~~~~~~~~~Do you want to try to delete the environment block?
+@%@Grub environment block prompt@%@~~~~~~~~~~~Do you want to try to delete the environment block?~~~~~~~~~~~DELIM_FOR_KDIALOG
 
-@%@Grub environment block failed to remove file@%@~~~~~~~~~~~Attempted to delete the environment block, but the file still exists. Try running a disk check
+@%@Grub environment block failed to remove file@%@~~~~~~~~~~~Attempted to delete the environment block, but the file still exists. Try running a disk check.~~~~~~~~~~~DELIM_FOR_KDIALOG
 
-@%@Grub environment block success@%@~~~~~~~~~~~Grub Environment block was removed
+@%@Grub environment block success@%@~~~~~~~~~~~Grub Environment block was removed~~~~~~~~~~~DELIM_FOR_KDIALOG
 
-@%@Grub environment block file not found@%@~~~~~~~~~~~Grub Environment block does not seem to exist. Either you tried to remove the file earlier, or you might have an issue with your BIOS
+@%@Grub environment block file not found@%@~~~~~~~~~~~Grub Environment block does not seem to exist. Either you tried to remove the file earlier, or you might have an issue with your BIOS.~~~~~~~~~~~DELIM_FOR_KDIALOG

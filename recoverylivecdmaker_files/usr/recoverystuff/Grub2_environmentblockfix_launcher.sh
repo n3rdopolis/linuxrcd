@@ -30,7 +30,7 @@ _recovery_mount_ --bind /opt/recoverystuff/recoverystuff/lib /lib64
 #call the application
 cd /
 
-kdialog --yesno "@%@Grub environment block welcome@%@
+kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --yesno "@%@Grub environment block welcome@%@
 
 @%@Grub environment block description@%@
 
@@ -50,13 +50,13 @@ mv  /boot/grub/grubenv /boot/grub/grubenv$(date +%s).bak
 
 if [ -f  /boot/grub/grubenv ]
 then
-kdialog --error "@%@Grub environment block failed to remove file@%@"
+kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --error "@%@Grub environment block failed to remove file@%@"
 else
-kdialog --msgbox "@%@Grub environment block success@%@"
+kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --msgbox "@%@Grub environment block success@%@"
 fi
 
 else
-kdialog --msgbox "@%@Grub environment block file not found@%@"
+kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --msgbox "@%@Grub environment block file not found@%@"
 fi
 
 

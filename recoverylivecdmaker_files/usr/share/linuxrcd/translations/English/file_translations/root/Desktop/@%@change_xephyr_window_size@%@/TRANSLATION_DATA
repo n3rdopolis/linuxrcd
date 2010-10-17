@@ -1,2 +1,3 @@
-@%@Xephyr_Warning@%@~~~~~~~~~~~The configuration for the Xephyr window will appear in the Xephyr window itself. It will only affect the Xephyr window, and not your installed system
-@@@COMMENT@@@: tell user that the config for changing the Xephyr window size will appear in the Xephyr window, and the Xephyr size change will not effect the resolution settings
+@%@Xephyr dialog name@%@~~~~~~~~~~~Changing Xephyr size~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@Xephyr_Warning@%@~~~~~~~~~~~The configuration for the Xephyr window will appear in the Xephyr window itself. It will only affect the Xephyr window, and not your installed system~~~~~~~~~~~DELIM_FOR_KDIALOG
+@@@COMMENT@@@: tell user that the config for changing the Xephyr window size will appear in the Xephyr window, and the Xephyr size change will not effect the resolution settings~~~~~~~~~~~DELIM_FOR_KDIALOG

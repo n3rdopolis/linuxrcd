@@ -2,7 +2,7 @@
 
 ##Run the method to safely unmount the target system in case if the user leaves it open
 
-kdialog --yesno "@%@Partition manager opening@%@
+kdialog --caption LinuxRCD --yesno "@%@Partition manager opening@%@" --title "@%@Partition manager dialog name@%@"
 
 @%@Partition manager data loss warning@%@
 

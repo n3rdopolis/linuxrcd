@@ -21,7 +21,7 @@ while [ 1 ]
 do
 
 
-kdialog --msgbox "@%@Browser help@%@ " --title " Google Chrome " 
+kdialog --caption LinuxRCD --caption LinuxRCD --msgbox "@%@Browser help@%@ " --title "@%@Browser dialog name@%@" 
 
 #allow any local connections to the xserver
 xhost +LOCAL:

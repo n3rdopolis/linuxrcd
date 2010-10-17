@@ -30,7 +30,7 @@ _recovery_mount_ --bind /opt/recoverystuff/recoverystuff/lib /lib64
 #call the application
 cd /
 
-kdialog --yesno "@%@X server fixer greeting@%@
+kdialog --caption LinuxRCD --yesno "@%@X server fixer greeting@%@" --title "@%@X server fixer dialog name@%@"
 
 @%@X server fixer disclaimer@%@
 

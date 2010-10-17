@@ -2,7 +2,7 @@
 
 ##Run the method to safely unmount the target system in case if the user leaves it open
 
-kdialog --yesno "@%@Shutdown warning prompt@%@"
+kdialog --caption LinuxRCD --yesno "@%@Shutdown warning prompt@%@" --title "@%@Shutdown dialog name@%@"
 
 if (($?==0))
 then

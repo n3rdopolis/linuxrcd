@@ -14,7 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-                                                                                        
+#set -o verbose                                                                                       
 #this script must be run as root.
 if [[ $UID -ne 0 ]]
 then               
@@ -31,38 +31,6 @@ ThIsScriPtSFolDerLoCaTion=$(dirname "$ThIsScriPtSFiLeLoCaTion")
 echo -en \\033[00m\\033[8] > $(tty)
 #####Tell User what script does
 echo "
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 This message repeated mentions 'chroot'. chroot is a program that allows you to run programs in a mounted Unix like system, as if though that mounted system was root. Chroot is NOT a VM, it just sets programs to think that a given folder is the / folder. Chrooting /media/filesystem opens up bash at /media/filesystem/bin/bash. The bash process though thinks it was launched at /bin/bash. /media/filesystem/usr/share/bin is treated by the bash process as /usr/share/bin, ect.
 
@@ -258,18 +226,7 @@ mount --bind /dev /media/LiveDiskCreAtionChrootFolDer/dev/
 
 
 
-#configure remastersys PLACEHOLDER! File is now being copied in
-#remastersys.conf
 
-#CREATE THE RECOVERY CALLER SCRIPT PLACEHOLDER! File is now being copied in
-#recoverylauncher
-
-
-#create the script that the recovery script will call in recovery chroot PLACEHOLDER! File is now being copied in
-#recoverychrootscript
-
-#create the clipboard manager for migration between both displays PLACEHOLDER! File is now being copied in
-#clipboardmgr
 
 #######################################################END RECOVERY CALLER SCRIPT########################################
 
@@ -312,8 +269,15 @@ stringworkcount=$stringcount
 
 while (( $stringworkcount!=0))
 do
-translationname=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep ~~~~~~~~~~~ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}' | perl '-ple$_=quotemeta' )
-translationtext=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep ~~~~~~~~~~~ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}' | perl '-ple$_=quotemeta' )
+translationname=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep ~~~~~~~~~~~ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
+translationtext=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep ~~~~~~~~~~~ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
+translationopts=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep ~~~~~~~~~~~ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $3}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
+#DELIM_FOR_KDIALOG : allow strings to be deliminated for kdialog without the translator worring about certian chars messing it up 
+if [[ $(echo "$translationopts" | grep "DELIM_FOR_KDIALOG" -c) == 1 ]]
+then
+#deliminate all double quotes
+translationtext=$(echo $translationtext | sed 's/\"/\\\"/g' ) 
+fi
 
 
 #replace contents of the file
@@ -361,9 +325,9 @@ done
 
 
 
-##############################################
+#End of single file translations
 
-####Get the global translation string information
+#Get the global translation string information for every file thats part of LinuxRCD
 ls /media/LiveDiskCreAtionChrootFolDer/build_language/ -1Ap | grep -v / > /media/LiveDiskCreAtionChrootFolDer/tmp/filelisting
 
 filecount=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/filelisting | wc -l)
@@ -384,8 +348,16 @@ done
 fileworkcount=$filecount
 while (( $fileworkcount!=0))
 do
-translationname=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}' | perl '-ple$_=quotemeta' )
-translationtext=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}' | perl '-ple$_=quotemeta' )
+translationname=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
+translationtext=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
+translationopts=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $3}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
+#DELIM_FOR_KDIALOG : allow strings to be deliminated for kdialog without the translator worring about certian chars messing it up 
+if [[ $(echo "$translationopts" | grep "DELIM_FOR_KDIALOG" -c) == 1 ]]
+then
+#deliminate all double quotes
+translationtext=$(echo $translationtext | sed 's/\"/\\\"/g' ) 
+fi
+
 find /media/LiveDiskCreAtionChrootFolDer/temp/ -name \* -exec sed -i  "s/$translationname/$translationtext/g" {} \;
 let $(( fileworkcount=fileworkcount-1 ))
 done
@@ -395,8 +367,8 @@ done
 fileworkcount=$filecount
 while (( $fileworkcount!=0))
 do
-translationname=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}'  | perl '-ple$_=quotemeta')
-translationtext=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}'  | perl '-ple$_=quotemeta')
+translationname=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}'  | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
+translationtext=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}'  | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
 find /media/LiveDiskCreAtionChrootFolDer/temp -name \*$translationname\*   >> /media/LiveDiskCreAtionChrootFolDer/tmp/globalrename
 
 stringcount=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globalrename | wc -l)
@@ -432,8 +404,8 @@ rsync /media/LiveDiskCreAtionChrootFolDer/temp/* -a /media/LiveDiskCreAtionChroo
 #delete the temp folder
 rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/
 
-echo "paused"
-read a
+
+
 
 
 #change text to red to not scare user

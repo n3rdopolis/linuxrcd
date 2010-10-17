@@ -29,7 +29,7 @@ _recovery_mount_ --bind /opt/recoverystuff/recoverystuff/lib /lib64
 
 #call the application
 cd /
-lxterminal -e 'bash --init-file /etc/bash_completion' &
+lxterminal --workdir=/ -e 'bash --init-file /etc/bash_completion' &
 
 #wait 5 seconds for the app to load the libraries. This may need to change
 sleep 2

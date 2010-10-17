@@ -17,23 +17,23 @@
 
 
 #wait, so that the welcome dialog is on the top, and display a box saying to wait
-kdialog --passivepopup "@%@recovery launcher wait message@%@" 45
+kdialog --passivepopup "@%@recovery cd dialog notification@%@" 
 
- kdialog --msgbox  "@%@recovery cd welcome message@%@
+ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox  "@%@recovery cd welcome message@%@
 
 
 @%@recovery cd continue message@%@"
 
 
 
-kdialog --msgbox "@%@recovery cd introduction message@%@
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd introduction message@%@
 
 @%@recovery cd shortcomming notice@%@ 
 
 @%@recovery cd continue message@%@
 "
 
-kdialog --msgbox "@%@recovery cd root warning@%@
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd root warning@%@
 
 @%@recovery cd exercise caution message@%@
  
@@ -41,7 +41,7 @@ kdialog --msgbox "@%@recovery cd root warning@%@
 @%@recovery cd continue message@%@"
 
 
-kdialog --msgbox "@%@recovery cd xephyr description@%@ 
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd xephyr description@%@ 
 
 @%@recovery cd web browser description@%@
 
@@ -52,7 +52,7 @@ kdialog --msgbox "@%@recovery cd xephyr description@%@
 
 
 
-kdialog --msgbox "@%@recovery cd dialog description@%@
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd dialog description@%@
 
 @%@recovery cd support message@%@
 "
@@ -66,12 +66,12 @@ oscount=$(cat /usr/share/detectedoses | grep : -c)
 #if no oses detected then die
 if (( 0==oscount ));
 then
-kdialog --msgbox "@%@recovery cd no os found message@%@"
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd no os found message@%@"
 
 
 exit 0
 fi
-oschoice=$(kdialog --combobox "@%@recovery cd os choice message@%@" $(cat /usr/share/detectedoses | sed s/" "/"_"/g ))
+oschoice=$(kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --combobox "@%@recovery cd os choice message@%@" $(cat /usr/share/detectedoses | sed s/" "/"_"/g ))
  
 #run os prober again, and grab the entire OS line
 echo $oschoice > /usr/share/osline
@@ -87,16 +87,16 @@ chroot /media/RecoveryMount  /bin/true
 if [[ $? -ne 0 ]]
 then
 #tell the user something went wrong
-kdialog --msgbox "@%@recovery cd failure message@%@
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd failure message@%@
 
 @%@recovery cd choice string@%@ $(cat /usr/share/osline)"
 umount /media/RecoveryMount
-kdialog --msgbox "@%@recovery cd start over message@%@"
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd start over message@%@"
 exit 1
 fi
 
 
-kdialog --yesno "@%@recovery cd fsck prompt@%@"
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd fsck prompt@%@"
 checkdisk=$?
 
 
@@ -105,7 +105,7 @@ then
 #unmount the read only file system
 umount /media/RecoveryMount
 #check the specified root file system for errors
-kdialog --msgbox "@%@recovery cd fsck message@%@" &
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd fsck message@%@" &
 fsck -p $(cat /usr/share/devname)
 fi
 
@@ -148,16 +148,16 @@ chroot /media/RecoveryMount  /opt/recoverystuff/bin/recoverychrootscript &
 
 export DISPLAY=:0
 
-kdialog --msgbox "@%@recovery cd recovery mode warning@%@
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd recovery mode warning@%@
 
 @%@recovery cd fstab multipartition warning@%@"
 
-kdialog --msgbox "@%@recovery cd quit message@%@"
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd quit message@%@"
 
 
-kdialog --yesno "@%@recovery cd quit prompt@%@"
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@"
 quitanswer=$?
-while [  $quitanswer != 0   ] ; do  kdialog --yesno "@%@recovery cd quit prompt@%@"; quitanswer=$? ; done 
+while [  $quitanswer != 0   ] ; do  kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@"; quitanswer=$? ; done 
 
 #kill all X apps by destroying the display. Many apps perform a safe exit routine when the X server dies
 killall Xephyr
@@ -203,5 +203,5 @@ chroot /media/RecoveryMount umount -a
 #unmount the recovered systems fs
 umount -lf /media/RecoveryMount
 
-kdialog --msgbox "@%@recovery cd finished message@%@"
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd finished message@%@"
 exit 0 

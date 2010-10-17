@@ -1,6 +1,6 @@
 #! /bin/bash 
 
-kdialog --msgbox "@%@Xephyr_Warning@%@"
+kdialog --caption LinuxRCD --msgbox "@%@Xephyr_Warning@%@" --title "@%@Xephyr dialog name@%@"
 export DISPLAY=:1
 lxrandr
 
