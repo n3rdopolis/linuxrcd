@@ -1,0 +1,4 @@
+@%@Shutdown dialog name@%@~~~~~~~~~~~Shutdown Computer~~~~~~~~~~~~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@Shutdown warning prompt@%@~~~~~~~~~~~Are you sure you want to shutdown?~~~~~~~~~~~~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@Shutdown error message@%@~~~~~~~~~~~You must close out of your system that you are trying to recover before shutting down~~~~~~~~~~~~~~~~~~~~~~DELIM_FOR_KDIALOG
+
