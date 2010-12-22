@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #This file is part of LinuxRCD.
 #
 #    LinuxRCD is free software: you can redistribute it and/or modify
@@ -17,19 +17,34 @@
 
 export DISPLAY=:0
 export HOME=/home/repairman
-while [ 1 ]
-do
 
-
-kdialog --caption LinuxRCD --caption LinuxRCD --msgbox "@%@Browser help@%@ " --title "@%@Browser dialog name@%@" 
-
-#allow any local connections to the xserver
-xhost +LOCAL:
 
 #chrome seems to need this
 chmod 777 /dev/shm
 
-su repairman -c " chromium-browser --user-data-dir=/home/repairman --first-run about:blank "
+
+while [ 1 ]
+do
+
+
+
+kdialog --passivepopup " " 1
+xservertest=$?
+
+if [[ $xservertest == 0 ]]
+then 
+
+
+#allow any local connections to the xserver
+xhost +LOCAL:
+
+#kdialog --caption LinuxRCD --caption LinuxRCD --msgbox "@%@Browser help@%@ " --title "@%@Browser dialog name@%@" 
+
+
+
+su repairman -c " chromium-browser --user-data-dir=/home/repairman --first-run "
+fi
+
 sleep 1
 done
 

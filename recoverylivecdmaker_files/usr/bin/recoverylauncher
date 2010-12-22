@@ -14,12 +14,20 @@
 #    You should have received a copy of the GNU General Public License
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
+ 
+while [ 1 ]
+do
+export DISPLAY=:0
 
+kdialog --passivepopup " " 1
+xservertest=$?
 
-#wait, so that the welcome dialog is on the top, and display a box saying to wait
-kdialog --passivepopup "@%@recovery cd dialog notification@%@" 
+if [[ $xservertest == 0 ]]
+then 
+#Tell user that the dialog they need might be hidden
+#kdialog --passivepopup "@%@recovery cd dialog notification@%@" 
 
- kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox  "@%@recovery cd welcome message@%@
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox  "@%@recovery cd welcome message@%@
 
 
 @%@recovery cd continue message@%@"
@@ -96,9 +104,9 @@ exit 1
 fi
 
 
-kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd fsck prompt@%@"
-checkdisk=$?
-
+#kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd fsck prompt@%@"
+#checkdisk=$?
+checkdisk=1
 
 if [[ $checkdisk -eq 0 ]]
 then
@@ -106,7 +114,7 @@ then
 umount /media/RecoveryMount
 #check the specified root file system for errors
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd fsck message@%@" &
-fsck -p $(cat /usr/share/devname)
+lxterminal -e fsck -p $(cat /usr/share/devname)
 fi
 
 #unmount the read only file system
@@ -125,14 +133,30 @@ mount --bind /var/run/dbus /media/RecoveryMount/var/run/dbus
 #mount in X11 authorization folder. 
 mount --bind /tmp/.X11-unix /media/RecoveryMount/tmp/.X11-unix
 
-#make the opt/recoverystuff folder in case if its not there
-mkdir /media/RecoveryMount/opt/recoverystuff
+
+#make the usr/recoverystuff folder in case if its not there
+mkdir /media/RecoveryMount/usr/recoverystuff
 
 #bind the live cds /usr folder to the targets /opt folder
-mount --rbind /usr /media/RecoveryMount/opt/recoverystuff
+mount --rbind /usr/recoverystuff /media/RecoveryMount/usr/recoverystuff
+
+#lock shutdown
+touch /tmp/noshutdown
+
+#start Xephyr
+Xephyr :1 &
+
+#wait for Xephyr to start
+sleep 5
+
+#kill old clipboardmgr, start it again.
+killall clipboardmgr
+clipboardmgr :0 :1 &
 
 #xhost needs this as it does not accept a display argument
 export DISPLAY=:1
+
+openbox &
 
 #allow all local connections
 xhost +local:
@@ -140,9 +164,17 @@ xhost +local:
 #change the hostname of the live cd session to that of the selected target system
 hostname -F /media/RecoveryMount/etc/hostname
 
-#start the chroot script. Run it as a background task so that this can prompt for done
-chroot /media/RecoveryMount  /opt/recoverystuff/bin/recoverychrootscript &
+#mount all fses in the target folder, running as the target system
+chroot /media/RecoveryMount  /bin/mount -a
 
+#unionize /usr/share on the live cd with /usr/share on the target system. writes to /usr/share will be sent to the target system, and files on the target system's /usr/share will be the ones that are used.
+mount -t aufs -o br=/media/RecoveryMount/usr/share:/rofs/usr/share  none  /media/RecoveryMount/usr/share
+
+
+#start the chroot script. Run it as a background task so that this can prompt for done
+chroot /media/RecoveryMount  /usr/recoverystuff/recoverychrootscript &
+
+sleep 10
 
 ############################################################
 
@@ -158,6 +190,9 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@"
 quitanswer=$?
 while [  $quitanswer != 0   ] ; do  kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@"; quitanswer=$? ; done 
+
+#stop the clipboardmgr
+killall clipboardmgr
 
 #kill all X apps by destroying the display. Many apps perform a safe exit routine when the X server dies
 killall Xephyr
@@ -176,6 +211,10 @@ hostname -F /etc/hostname
 #unlink the symlink created
 unlink /media/RecoveryMount/FileSystems
 
+#unmount the /usr/share union
+umount -lf /media/RecoveryMount/usr/share
+
+
 #unmount recovery systems /sys
 umount -lf /media/RecoveryMount/sys
 
@@ -184,6 +223,9 @@ umount -lf /media/RecoveryMount/proc
 
 #unmount recovery systems /dev/pts
 umount -lf /media/RecoveryMount/dev/pts
+
+#unmount recovery systems /dev/pts
+umount -lf /media/RecoveryMount/dev/shm
 
 #unmount recovery systems /dev
 umount -lf /media/RecoveryMount/dev
@@ -194,8 +236,8 @@ umount /media/RecoveryMount/var/run/dbus
 #unmount the X11 authroization folder
 umount /media/RecoveryMount/tmp/.X11-unix
 
-#unmount the /usr folder
-umount /media/RecoveryMount/opt/recoverystuff
+#unmount the /usr/recoverystuff folder
+umount /media/RecoveryMount/usr/recoverystuff
 
 #unmount all fstab partitions
 chroot /media/RecoveryMount umount -a
@@ -203,5 +245,10 @@ chroot /media/RecoveryMount umount -a
 #unmount the recovered systems fs
 umount -lf /media/RecoveryMount
 
+#allow shutdown
+rm /tmp/noshutdown
+
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd finished message@%@"
-exit 0 
+fi
+sleep 1
+done

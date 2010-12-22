@@ -22,7 +22,7 @@ then
   exit 1                       
 fi
 
-#arch=x86
+CPU_ARCHITECTURE=i386  
 Language_Name=English
 
 ThIsScriPtSFiLeLoCaTion=$(readlink -f $0)
@@ -52,13 +52,13 @@ NOTE THAT THE FOLDERS LISTED BELOW ARE DELETED OR OVERWRITTEN ALONG WITH THE CON
    Folder:            ${HOME}/LiveDiskCreAtionCacheFolDer/
    File:              ${HOME}/LiveDiskCreAtionWasPVNotInStalled
    File:              ${HOME}/LiveDiskCreAtionWasDeBootStrapNotInStalled
-   File:              ${HOME}/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_x86.iso
+   File:              ${HOME}/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
    
 NOTE THAT SOME GUI FILE BROWSERS MAY CALL THE FOLDER  ${HOME}/ just plain old 'home' so be careful 
 
 As you can tell its unlikley you have any files named like this, but just check to be sure, because if they exist they will be erased.
 
-Creates a recovery oriented live CD based on ubuntu lucid (10.04) packages for x86"
+Creates a recovery oriented live CD based on ubuntu lucid (10.04)"
 
 
 
@@ -215,13 +215,13 @@ mount ./livecdfs /media/LiveDiskCreAtionChrootFolDer -o loop
 
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
-#install a really basic Ubuntu installation in the new fs
-debootstrap --arch i386 lucid /media/LiveDiskCreAtionChrootFolDer http://archive.ubuntu.com/ubuntu/
+#install a really basic Ubuntu installation in the new fs  
+debootstrap --arch $CPU_ARCHITECTURE lucid /media/LiveDiskCreAtionChrootFolDer http://archive.ubuntu.com/ubuntu/
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
 
-#mounting devfs on chrooted fs with bind TODO do it without bind, a cleaner sort of fashon
+#mounting devfs on chrooted fs with bind 
 mount --bind /dev /media/LiveDiskCreAtionChrootFolDer/dev/
 
 
@@ -251,7 +251,8 @@ rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/translations
 
 
 
-
+#CPU is part of 
+echo $CPU_ARCHITECTURE > /media/LiveDiskCreAtionChrootFolDer/build_language/@%@CPU_ARCHITECTURE@%@
 
 #search for any folder containing a file "TRANSLATION_DATA" in /media/LiveDiskCreAtionChrootFolDer/build_language/file_translations/ 
 #this will tell what files will need to be translated.
@@ -417,15 +418,16 @@ chroot /media/LiveDiskCreAtionChrootFolDer /chrootscript.sh
 echo -en \\033[00m\\033[8] > $(tty)
 
 
-#delete the old copy of the ISO
-rm ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_x86.iso
-#move the iso out of the chroot fs
-cp /media/LiveDiskCreAtionChrootFolDer/home/remastersys/remastersys/custombackup.iso ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_x86.iso
 
-#allow the user to actually read the iso
-chown $LOGNAME ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_x86.iso
-chgrp $LOGNAME ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_x86.iso
-chmod 777 ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_x86.iso
+#delete the old copy of the ISO 
+rm ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
+#move the iso out of the chroot fs    
+cp /media/LiveDiskCreAtionChrootFolDer/home/remastersys/remastersys/custombackup.iso ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
+
+#allow the user to actually read the iso   
+chown $LOGNAME ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
+chgrp $LOGNAME ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
+chmod 777 ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
 
 
 #go back to the users home folder
@@ -474,16 +476,16 @@ apt-get purge pv -y
 fi
 rm ~/LiveDiskCreAtionWasPVNotInStalled
 
-#If the live cd did not build then tell user
-if [ ! -f ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_x86.iso ];
+#If the live cd did not build then tell user  
+if [ ! -f ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso ];
 then  
 echo "The Live CD did not succesfuly build. if you did not edit this script please make sure you are conneced to 'the Internet', and be able to reach the Ubuntu archives, and Remastersys's archives and try agian. if you did edit it, check your syntax"
 exit 1
 fi 
 
-#If the live cd did  build then tell user
-if [  -f ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_x86.iso ];
+#If the live cd did  build then tell user   
+if [  -f ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso ];
 then  
-echo "Live CD image build was successful. It was created at ${HOME}/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_x86.iso"
+echo "Live CD image build was successful. It was created at ${HOME}/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso"
 exit 1
 fi

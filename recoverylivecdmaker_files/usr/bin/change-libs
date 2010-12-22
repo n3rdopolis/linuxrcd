@@ -1,0 +1,41 @@
+#! /bin/bash 
+#This file is part of LinuxRCD.
+#
+#    LinuxRCD is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    LinuxRCD is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+#File to handle the translation of the libraries so that the programs can run in the target system. 
+#takes one argument, the path of the executable ELF file to patch. The dependant libraries of the executable ELF passed will also be copied and patched
+mkdir /tmp/change-libs
+ldd $1 | grep -v linux-gate | grep -v ld-linux.so | awk '{print $3}' > libraries
+#ldd $1 | grep ld-linux.so |  awk '{print $1}' >> libraries
+interpretername=$(ldd $1 | grep ld-linux.so |  awk '{print $1}' | rev | awk -F '/' '{print $1}' | rev )
+cat libraries | while read library
+do
+cp  $library /tmp/change-libs
+
+done
+cp  $1 /tmp/change-libs
+
+rm libraries
+
+ls /tmp/change-libs/ | while read exefile
+do
+patchelf --force-rpath  /tmp/change-libs/$exefile
+patchelf --set-rpath  /usr/recoverystuff /tmp/change-libs/$exefile
+patchelf --set-interpreter /usr/recoverystuff/$interpretername /tmp/change-libs/$exefile 
+done
+
+mv /tmp/change-libs/* /usr/recoverystuff/
+cp $(ldd $1 | grep ld-linux.so |  awk '{print $1}') /usr/recoverystuff

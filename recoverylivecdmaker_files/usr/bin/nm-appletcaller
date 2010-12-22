@@ -15,7 +15,7 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-sleep 20
+
 export DISPLAY=:0
 while [ 1 ]
 do

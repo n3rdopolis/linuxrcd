@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #This file is part of LinuxRCD.
 #
 #    LinuxRCD is free software: you can redistribute it and/or modify
@@ -14,12 +14,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
-sleep 30
-export DISPLAY=:0
-while [ 1 ]
-do
-xterm  -e recoverylauncher 
-sleep 1
-done
 
+##Run the method to safely unmount the target system in case if the user leaves it open
+if [[ ! -f /tmp/noshutdown ]]
+then
+kdialog --caption LinuxRCD --yesno "@%@Shutdown warning prompt@%@" --title "@%@Shutdown dialog name@%@"
 
+if (($?==0))
+then
+
+shutdown -P now
+fi
+else
+kdialog --caption LinuxRCD --msgbox "@%@Shutdown error message@%@" --title "@%@Shutdown dialog name@%@"
+fi

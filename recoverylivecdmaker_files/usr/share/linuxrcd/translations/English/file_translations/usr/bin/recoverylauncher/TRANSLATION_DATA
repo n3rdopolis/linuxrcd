@@ -1,7 +1,7 @@
 @%@recovery cd dialog name@%@~~~~~~~~~~~System Recovery~~~~~~~~~~~DELIM_FOR_KDIALOG
 @@@COMMENT@@@ this above is for all dialogs in this file
-@%@recovery cd dialog notification@%@~~~~~~~~~~~Press OK to continue.~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@recovery launcher wait message@%@~~~~~~~~~~~To recovery your system, look for the "System Recovery - LinuxRCD" window, it will give you directions on how to recover your system~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@recovery cd continue message@%@~~~~~~~~~~~Press OK to continue.~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@recovery cd dialog notification@%@~~~~~~~~~~~To recover your system, look for the "System Recovery - LinuxRCD" window, it will give you directions on how to recover your system~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd welcome message@%@~~~~~~~~~~~Welcome to LinuxRCD from linuxrcd.sourceforge.net~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd quit prompt@%@~~~~~~~~~~~Are you sure you want to exit out of your system?~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd quit message@%@~~~~~~~~~~~When you are done recovering your system press OK in this dialog to quit.~~~~~~~~~~~DELIM_FOR_KDIALOG

@@ -23,7 +23,7 @@ mount -t proc none /proc
 #mount sysfs
 mount -t sysfs none /sys
 
-# TODO Mount the devfs here WITHOUT mount --bind!
+
 
 #mount /dev/pts
 mount -t devpts none /dev/pts
@@ -47,6 +47,9 @@ fi
 #install a kernel for the Live disk
 aptitude install linux-generic  --without-recommends -y
 
+#install gdebi for installing external debs not found on any ppas.
+aptitude install gdebi  --without-recommends -y
+
 #install an xserver
 aptitude install xserver-xorg  --without-recommends -y
 
@@ -57,8 +60,8 @@ yes Yes | aptitude install remastersys  --without-recommends -y
 yes Yes | aptitude install xinit  --without-recommends -y
 
 
-#install minmimal desktop GUI LXDE and related dependancies, and minimal display manager for some reason it wants xrdb which is in x11-xserver-utils, and screenshot handler and text editor. 
-aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit lxterminal x11-xserver-utils xsel gedit emelfm2   kdebase-bin fspanel ksnapshot --without-recommends -y
+#install minmimal desktop GUI LXDE and related dependancies, and minimal display manager for some reason it wants xrdb which is in x11-xserver-utils, and screenshot handler and text editor, and file browser. 
+aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit lxterminal x11-xserver-utils xsel gedit emelfm2   kdebase-bin fspanel ksnapshot  --without-recommends -y
 
 #install lxdes utilities
 yes Yes | aptitude install lxde  --without-recommends -y
@@ -72,10 +75,22 @@ yes Yes | aptitude install network-manager-gnome hicolor-icon-theme -y
 #install web browser 
 aptitude install chromium-browser --without-recommends -y
 
+
+##################################################################################################################
+
 #install recovery/config utilities
 aptitude install  kuser gparted mountmanager konsole --without-recommends -y
 
 
+#install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/view/patchelf/trunk/689190
+wget http://hydra.nixos.org/build/689172/download/1/patchelf_0.6pre23458-1_@%@CPU_ARCHITECTURE@%@.deb
+gdebi -n patchelf*
+rm patchelf*
+
+#install aufs-tools for unionising /usr/share. Unionising /usr/share should not the same problems as /usr/lib or /usr/bin
+wget https://launchpad.net/ubuntu/+archive/primary/+files/aufs-tools_0%2B20090302-2_@%@CPU_ARCHITECTURE@%@.deb
+gdebi -n aufs-tools*
+rm aufs-tools*
 
 #if this is english set mountmanager to use the English translations
 if [ "@%@Language_Name@%@" == "English" ];
@@ -110,6 +125,8 @@ rm /etc/init.d/gdm
 rm /etc/init/gdm.conf
 ####END GDM STARTUP REMOVAL###
 
+
+
 ##########CONFIGURE TTYS TO USE BASH INSTEAD OF GETTY
 
 
@@ -140,9 +157,6 @@ ln -s  /etc/init.d/bash  /etc/rc2.d/S50bash
 
 #add lxde startup script to runlevel 2
 ln -s  /etc/init.d/lxde  /etc/rc2.d/S51lxde
-
-#add xephyr startup script to runlevel 2
-ln -s  /etc/init.d/xephyr  /etc/rc2.d/S52xephyr
 
 #add non root web browser startup script to runlevel 2
 ln -s  /etc/init.d/chromium-browser /etc/rc2.d/S52chromium-browser
@@ -197,6 +211,10 @@ cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.hardyandlater
 #
 ###################################################BEGIN SYSTEM COFIGURATION################################################## 
 
+#replace the shutdown item with the custom one
+rm /usr/bin/lxde-logout
+cp /usr/bin/linuxrcd_shutdown /usr/bin/lxde-logout
+
 #add the user account that will call up a web browser.
 useradd repairman -s /bin/bash
 
@@ -229,16 +247,25 @@ chmod 777       /home/repairman
 sudo apt-get autoclean
 sudo apt-get clean
 
-#make the root desktop folder
-mkdir -p /root/Desktop
 
+###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
+change-libs $(which kdialog)
+change-libs $(which lxterminal)
+change-libs $(which kuser)
+change-libs $(which emelfm2)
+change-libs $(which gedit)
+change-libs $(which mountmanager)
+change-libs $(which openbox)
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
 #
 
 
 #get the remastersys source code on the disk 
-wget https://sourceforge.net/projects/remastersys/files/remastersys-ubuntu-gutsy/remastersys_2.0.11-1_all.deb/download
+wget https://sourceforge.net/projects/remastersys/files/remastersys-ubuntu-gutsy/remastersys_2.0.11-1_all.deb
+
+#Delete the language files used for translation. they are no longer needed, as they have been used.
+rm -rf /build_language
 
 #make the iso using remastersys############################################
 remastersys backup
