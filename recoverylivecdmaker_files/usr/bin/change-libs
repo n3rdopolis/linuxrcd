@@ -15,27 +15,45 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#File to handle the translation of the libraries so that the programs can run in the target system. 
-#takes one argument, the path of the executable ELF file to patch. The dependant libraries of the executable ELF passed will also be copied and patched
-mkdir /tmp/change-libs
-ldd $1 | grep -v linux-gate | grep -v ld-linux.so | awk '{print $3}' > libraries
-#ldd $1 | grep ld-linux.so |  awk '{print $1}' >> libraries
-interpretername=$(ldd $1 | grep ld-linux.so |  awk '{print $1}' | rev | awk -F '/' '{print $1}' | rev )
-cat libraries | while read library
-do
-cp  $library /tmp/change-libs
+#File to handle the translation of the libraries so that the programs can run in the target system. takes one argument, the path of the executable ELF file to patch. The dependant libraries of the executable ELF passed will also be copied and patched
 
+#create the holding file for the libraries that will be patched
+mkdir /tmp/change-libs
+
+#get the number of seconds into a variable so that multiple copies of this script can run  at once
+secondsstart=(date +%s)
+
+#get the library depenancies of the binary file that was passed as the argument, and output that list.
+ldd $1 | grep -v linux-gate | grep -v ld-linux.so | awk '{print $3}' > /tmp/libraries$secondsstart
+
+#grab the name of the interpreter, or the main library/program that handles the loading of the program's library depenancies, before starting the program. 
+interpretername=$(ldd $1 | grep ld-linux.so |  awk '{print $1}' | rev | awk -F '/' '{print $1}' | rev )
+
+#read the list of the files, and copy them into the working location
+cat /tmp/libraries$secondsstart | while read library
+do
+#copy the current library
+cp  $library /tmp/change-libs
 done
+
+#copy the executable passed as an argument into the working location
 cp  $1 /tmp/change-libs
 
-rm libraries
+#delete the list of libraries
+rm /tmp/libraries$secondsstart
 
+#change the search path for libraries, in every libary, and executable in the working location (or rpath). add the rpath to the files if its not there, and set it. also attempt to set the interpreter. Not all libraries have one so there might be errors from patchelf 
 ls /tmp/change-libs/ | while read exefile
 do
+#add the rpath
 patchelf --force-rpath  /tmp/change-libs/$exefile
+#set the rpath
 patchelf --set-rpath  /usr/recoverystuff /tmp/change-libs/$exefile
+#try to set the interpreter
 patchelf --set-interpreter /usr/recoverystuff/$interpretername /tmp/change-libs/$exefile 
 done
 
+#move the files from the working location, into the actual location.
 mv /tmp/change-libs/* /usr/recoverystuff/
+#copy the interpreter into the actual location. Don't move it because it was not copied into the working location. the source interpreter is still in its system location.
 cp $(ldd $1 | grep ld-linux.so |  awk '{print $1}') /usr/recoverystuff

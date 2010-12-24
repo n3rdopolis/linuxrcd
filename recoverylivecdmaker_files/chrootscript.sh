@@ -158,12 +158,6 @@ ln -s  /etc/init.d/bash  /etc/rc2.d/S50bash
 #add lxde startup script to runlevel 2
 ln -s  /etc/init.d/lxde  /etc/rc2.d/S51lxde
 
-#add non root web browser startup script to runlevel 2
-ln -s  /etc/init.d/chromium-browser /etc/rc2.d/S52chromium-browser
-
-#add recovery agent to startup script
-ln -s  /etc/init.d/recoveryagent  /etc/rc2.d/S51recoveryagent
-
 #add network manager startup script to runlevel 2
 ln -s  /etc/init.d/nm-applet  /etc/rc2.d/S52nm-applet
 
@@ -247,7 +241,9 @@ chmod 777       /home/repairman
 sudo apt-get autoclean
 sudo apt-get clean
 
-
+#replace the browser executable with a caller, that runs the renamed browser as a standard user
+mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
+cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
 change-libs $(which kdialog)
 change-libs $(which lxterminal)
@@ -256,6 +252,7 @@ change-libs $(which emelfm2)
 change-libs $(which gedit)
 change-libs $(which mountmanager)
 change-libs $(which openbox)
+change-libs $(which fspanel)
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
 #

@@ -9,10 +9,14 @@ Problems:
 As far as I can remember, most of these times, though I played with it a little more. the live is set to unmount 
 the file system upon shutdown. 
 
-  Its pre-alpha. its not mature, and may cause unknown breakage...
+  Its still in development, and may cause unknown breakage...
 
 TODO:
   add more programs/scripts for recovery
+
+  Document more things
+
+  Script for making translations
 
 How to use the ISO:
   burn it, (or put it in a VM), reboot, set the BIOS to boot from the CD if it does not already, 

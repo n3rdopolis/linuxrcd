@@ -2,7 +2,7 @@
 
 ##Run the method to safely unmount the target system in case if the user leaves it open
 
-kdialog --caption LinuxRCD --yesno "@%@Partition manager opening@%@" --title "@%@Partition manager dialog name@%@"
+kdialog --caption LinuxRCD --yesno "@%@Partition manager opening@%@
 
 @%@Partition manager data loss warning@%@
 
@@ -10,10 +10,10 @@ kdialog --caption LinuxRCD --yesno "@%@Partition manager opening@%@" --title "@%
 
 @%@Partition manager unmount system warning@%@
 
-@%@Partition manager continue prompt@%@
-"
+@%@Partition manager continue prompt@%@ " --title "@%@Partition manager dialog name@%@"
 
-if (($?==0))
+
+if (( $?==0 ))
 then
 gparted
 fi

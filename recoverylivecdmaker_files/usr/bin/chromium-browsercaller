@@ -23,16 +23,11 @@ export HOME=/home/repairman
 chmod 777 /dev/shm
 
 
-while [ 1 ]
-do
 
 
 
-kdialog --passivepopup " " 1
-xservertest=$?
 
-if [[ $xservertest == 0 ]]
-then 
+
 
 
 #allow any local connections to the xserver
@@ -42,10 +37,6 @@ xhost +LOCAL:
 
 
 
-su repairman -c " chromium-browser --user-data-dir=/home/repairman --first-run "
-fi
-
-sleep 1
-done
+su repairman -c " chromium-webbrowser --user-data-dir=/home/repairman --first-run "
 
 

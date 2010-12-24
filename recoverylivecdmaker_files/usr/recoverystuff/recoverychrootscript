@@ -54,9 +54,7 @@ export PATH=$PATH:/usr/recoverystuff
 emelfm2 -i  --one=/usr/recoverystuff/launchers --two=/usr/recoverystuff/launchers &
 
 #call up the panel
-#/opt/recoverystuff/bin/unshare -m /opt/recoverystuff/recoverystuff/launch_panel.sh  > /dev/null  2>&1 & # TODO NEED MORE USER FRIENDLY PANEL, that stays on top of all the windows, adjusts with the screen, with no ability to open apps
-#fspanel &   > /dev/null  2>&1 &
-##END STARTUP APPS
+fspanel &
 
 
 

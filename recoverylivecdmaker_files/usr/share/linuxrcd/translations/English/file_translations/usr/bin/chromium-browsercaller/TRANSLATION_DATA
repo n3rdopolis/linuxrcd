@@ -1,3 +1,0 @@
-@%@Browser dialog name@%@~~~~~~~~~~~Web Browser~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@Browser help@%@~~~~~~~~~~~The default browser dialog will not effect your installed systems. It will only effect this live CD, and the settings on the dialog dont matter, just pick one, and then hit the start chromium button to start the web browser.~~~~~~~~~~~DELIM_FOR_KDIALOG
-@@@COMMENT@@@ This should say to the user to not worry about what setting they choose for the default browser, as it will not effect their system

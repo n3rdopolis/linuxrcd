@@ -15,17 +15,20 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
  
-while [ 1 ]
-do
+#This script file comes up upon launch and manages the recovery of the system. It prompts the user for the system to mount, and then it tries to chroot into the system, and  it calls up the programs in the chroot.
+
+if [ -f /tmp/system_recovery_lock ]
+then
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox  "@%@recovery cd in use message@%@"
+exit 1
+fi 
+
+touch /tmp/system_recovery_lock
+
 export DISPLAY=:0
 
-kdialog --passivepopup " " 1
-xservertest=$?
 
-if [[ $xservertest == 0 ]]
-then 
-#Tell user that the dialog they need might be hidden
-#kdialog --passivepopup "@%@recovery cd dialog notification@%@" 
+
 
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox  "@%@recovery cd welcome message@%@
 
@@ -76,7 +79,7 @@ if (( 0==oscount ));
 then
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd no os found message@%@"
 
-
+rm /tmp/system_recovery_lock
 exit 0
 fi
 oschoice=$(kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --combobox "@%@recovery cd os choice message@%@" $(cat /usr/share/detectedoses | sed s/" "/"_"/g ))
@@ -99,14 +102,17 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 
 @%@recovery cd choice string@%@ $(cat /usr/share/osline)"
 umount /media/RecoveryMount
-kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd start over message@%@"
+
+rm /tmp/system_recovery_lock
 exit 1
 fi
 
 
+#fsck is now set to off for now, as it can potentialy damage mounted filesystems, spook users with the "already mounted prompt" and if the file system is corrupt, give them errors they wont understand.
+checkdisk=1
 #kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd fsck prompt@%@"
 #checkdisk=$?
-checkdisk=1
+
 
 if [[ $checkdisk -eq 0 ]]
 then
@@ -144,7 +150,7 @@ mount --rbind /usr/recoverystuff /media/RecoveryMount/usr/recoverystuff
 touch /tmp/noshutdown
 
 #start Xephyr
-Xephyr :1 &
+Xephyr :1 -keybd ephyr,,,xkbmodel=evdev &
 
 #wait for Xephyr to start
 sleep 5
@@ -240,7 +246,7 @@ umount /media/RecoveryMount/tmp/.X11-unix
 umount /media/RecoveryMount/usr/recoverystuff
 
 #unmount all fstab partitions
-chroot /media/RecoveryMount umount -a
+chroot /media/RecoveryMount umount -alf
 
 #unmount the recovered systems fs
 umount -lf /media/RecoveryMount
@@ -248,7 +254,8 @@ umount -lf /media/RecoveryMount
 #allow shutdown
 rm /tmp/noshutdown
 
+
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd finished message@%@"
-fi
-sleep 1
-done
+
+
+rm /tmp/system_recovery_lock
