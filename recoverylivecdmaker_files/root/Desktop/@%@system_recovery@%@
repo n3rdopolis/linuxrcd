@@ -1,2 +1,6 @@
 #! /bin/bash
+
+#@@@TRANSLATABLE_FILE@@@
+#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say: Recover an installed System~~~~~~~~~~~
+#bring up the recovery agent to allow the user to select a system.
 /usr/bin/recoverylauncher 

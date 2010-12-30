@@ -15,5 +15,9 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#@@@TRANSLATABLE_FILE@@@
+#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "terminal"~~~~~~~~~~~
+
+#call up the terminal
 cd /
 lxterminal  --working-directory=/ -e 'bash --init-file /etc/bash_completion' &

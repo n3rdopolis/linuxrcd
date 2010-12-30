@@ -16,10 +16,8 @@
 #
 
 
+#This script is called up by the script that promts the user for what system to mount. It is carried into the users target system with a binded mount, and then chrooted to do some work to prep the target system for recovery, and then calls up the apps.
 
-
-#try to mount fstab in case user has seperate partions, such as home. (it may not work because the users fstab may be broken) DOING THIS OUTSIDE NOW.
-#mount -a
 
 #mount the procfs
 mount -t proc none /proc
@@ -35,8 +33,6 @@ mount -t devpts none /dev/pts
 #mount /dev/shm
 mount -t tmpfs none /dev/shm
 
-#provide a link so that the filesystems such as flash drives can be imported into the recovery system
-ln -s /proc/1/root/media /FileSystems
 
 #set the display variable so that X apps start a GUI
 export DISPLAY=localhost:1
@@ -50,11 +46,14 @@ export PATH=$PATH:/usr/recoverystuff
 #call up the windowing manager
 #openbox
 
-#call up the file browser opened to the folder containg the launchers TODO a more user friendly file browser could be found...
-emelfm2 -i  --one=/usr/recoverystuff/launchers --two=/usr/recoverystuff/launchers &
+
+#call up xsettings manager, GTK apps like this.
+lxsession &
+
+#call up the file browser opened to the folder containg the launchers 
+pcmanfm --no-desktop /usr/recoverystuff/launchers &
 
 #call up the panel
 fspanel &
-
 
 

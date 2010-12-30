@@ -15,28 +15,31 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#Calls up the chromium web browser, only not as root, but as a limited user for security. 
+
 export DISPLAY=:0
-export HOME=/home/repairman
+export HOME=browser
 
 
 #chrome seems to need this
 chmod 777 /dev/shm
 
-
-
-
-
-
-
-
-
 #allow any local connections to the xserver
 xhost +LOCAL:
 
-#kdialog --caption LinuxRCD --caption LinuxRCD --msgbox "@%@Browser help@%@ " --title "@%@Browser dialog name@%@" 
 
 
+#if being passed with run, then it is probably called by itself, and can be unshared, to hide the users system, and mounted drives from the browser
+if [[ $1 == "run" ]]
+then
+mount /srv /media
+su browser -c " chromium-webbrowser --user-data-dir=/home/browser --first-run "
+fi
 
-su repairman -c " chromium-webbrowser --user-data-dir=/home/repairman --first-run "
+#if not passed with run, then it did not call itself with a new mount space, and it not save to bind mount the empty folder over /media
+if [[ $1 != "run" ]]
+then
+unshare -m $0 run
+fi
 
 

@@ -15,16 +15,26 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-##Run the method to safely unmount the target system in case if the user leaves it open
+#This script replaces the shutdown for lxde. (its copied as a different name by the build chroot script to replace the executable) It detects a file created by the recovery launcher script to disable shutdown if a system is being recovered. It only shuts down if the file is not there
+
+#@@@TRANSLATABLE_FILE@@@
+
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Shutdown dialog name@%@~~~~~~~~~~~Title for the dialogs should just say Shutting Down Computer~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Shutdown warning prompt@%@~~~~~~~~~~~Ask user if they really want to shut down~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Shutdown error message@%@~~~~~~~~~~~Tell user to exit from recovering from their system before shutting down~~~~~~~~~~~DELIM_FOR_KDIALOG
+
+##detect file created by recovery launcher
 if [[ ! -f /tmp/noshutdown ]]
 then
+#if its there, prompt for shutdown
 kdialog --caption LinuxRCD --yesno "@%@Shutdown warning prompt@%@" --title "@%@Shutdown dialog name@%@"
-
+#if the user says yes to shutdown
 if (($?==0))
 then
-
+#shutdown
 shutdown -P now
 fi
 else
+#if its not tell user to quit out of the recovery system before trying to shut down.
 kdialog --caption LinuxRCD --msgbox "@%@Shutdown error message@%@" --title "@%@Shutdown dialog name@%@"
 fi

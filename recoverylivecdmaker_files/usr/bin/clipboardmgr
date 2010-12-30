@@ -15,13 +15,17 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#This script runs in the background, and it syncs the clipboards between the Xephyr and the main Xserver. This feature is not provided by Xephyr, so this script make it so that users could copy and paste things into and out of the programs running in the Xephyr window.
+
+#the arguments passed, which are the two x servers to sync the clipboards
 firstxserver=$1                             
 secondxserver=$2                            
-#set the variables to the default           
+#set the variables to the default so that this script works from a clean slate          
 echo . | xsel --display $firstxserver -b -i 
 echo . | xsel --display $secondxserver -b -i
 clipboard=.                                 
 
+#loop "forever".
 while [ 1 ]
 do
 #get the values of the clipboard
@@ -63,7 +67,7 @@ echo . | xsel --display $secondxserver -b -i
 fi
 
 fi
-
+#wait a bit so the the script does not use all CPU cycles
 sleep 1
 done
 

@@ -15,13 +15,25 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#this scriipt attempts to give Ubuntu/Debain users a reconfigured X server in case if they messed up the xorg.conf. It only works on ubuntu/debian because of dpkg
+#xorg.conf is also starting to become irrelevant, as KMS and autodetection are working on more systems
+
+#@@@TRANSLATABLE_FILE@@@
+
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@X server fixer dialog name@%@~~~~~~~~~~~Title should say "Fixing the X server"~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@X server fixer prompt@%@~~~~~~~~~~~Ask user if they want to continue~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@X server fixer disclaimer@%@~~~~~~~~~~~Tell user that depending on the system configuration, they might get a terminal window prompting for information, or a terminal window that appears for a short while, and that this only works on Debain like systems.~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@X server fixer greeting@%@~~~~~~~~~~~Tell user that a terminal window will be opened to allow them to fix the X server.~~~~~~~~~~~DELIM_FOR_KDIALOG
+
+
 cd /
 
-kdialog --caption LinuxRCD --yesno "@%@X server fixer greeting@%@" --title "@%@X server fixer dialog name@%@"
+kdialog --caption LinuxRCD --title "@%@X server fixer dialog name@%@"  --yesno "@%@X server fixer greeting@%@
 
 @%@X server fixer disclaimer@%@
 
-@%@X server fixer prompt@%@
+@%@X server fixer prompt@%@"
+
 fixxserver=$?
 
 

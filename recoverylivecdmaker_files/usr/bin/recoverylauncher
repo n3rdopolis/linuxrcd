@@ -17,19 +17,50 @@
  
 #This script file comes up upon launch and manages the recovery of the system. It prompts the user for the system to mount, and then it tries to chroot into the system, and  it calls up the programs in the chroot.
 
+#@@@TRANSLATABLE_FILE@@@
+
+
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd dialog name@%@~~~~~~~~~~~Title of the dialog, say: system recovery~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd in use message@%@~~~~~~~~~~~Say that there is an instance of the system recovery tool open, and that to run the recovery tool again, the other instace will need to close~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~%@recovery cd welcome message@%@~~~~~~~~~~~Say Welcome to LinuxRCD from linuxrcd.sourceforge.net~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd introduction message@%@~~~~~~~~~~~Tell user that this will help them recover unusable linux installs, but has only been tested on Ubuntu. Tell them that this is not an offical Ubuntu CD, and tell them not to use this disk if they wanted to recover data from broken file systems as this cd does not have those kinds of tools ~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd continue message@%@~~~~~~~~~~~Tell user to press OK to continue~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd quit prompt@%@~~~~~~~~~~~Ask user if they want to exit from their system~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd quit message@%@~~~~~~~~~~~Tell user that when they are done working in their system, press OK in this dialog~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd recovery mode warning@%@~~~~~~~~~~~Tell user that their system is now able to be worked in, and to not shut down their computer, untill exit from thier system~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd fstab multipartition warning@%@~~~~~~~~~~~Tell user that if they have multiple partitions, the mount might fail if the file that handles automatic mounts is corrupt, and might cause unexpected results~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd fsck message@%@~~~~~~~~~~~Tell user that a terminal window will appear showing progress of the disk check, and that once the check is done, their system will be ready to recover~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd fsck prompt@%@~~~~~~~~~~~Ask user if they want to perform a disk check before they continue~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd failure message@%@~~~~~~~~~~~Tell user that the loading of their system failed, and it could be because of a too corrupted install, or one of a different CPU architecture, or they selected the blank entry.~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd choice string@%@~~~~~~~~~~~Tell user that the following text is the choice they selected~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd finished message@%@~~~~~~~~~~~Tell user they have exited out of the system, and may hit OK in this dialog.~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd os choice message@%@~~~~~~~~~~~Tell user to choose their OS to recover~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd no os found message@%@~~~~~~~~~~~Tell user that no operating sytems where found, and that it could be because of corrupted data, partitions, or on an unreconginzed file system~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd shortcomming notice@%@~~~~~~~~~~~Tell user that more exotic installs such as Wubi will not work, and LVM and encrypted partitions have not been tested~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd root warning@%@~~~~~~~~~~~Warn user that everything except the web browser is running as root in this live cd session~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd exercise caution message@%@~~~~~~~~~~~Warn user to be aware of what they do, as running some rouge commands can cause dammage even on a live cd, and to be even more careful when they are recovering a system~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd xephyr description@%@~~~~~~~~~~~Tell user that when thier system is successfuly mounted, that the interface will appear in a window called "Xephyr", and tell user that the programs might appear different from the ones they are used too.~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd web browser description@%@~~~~~~~~~~~Tell user that the web browser does not run as root, so they can use it to search for information on how to fix their system~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd dialog description@%@~~~~~~~~~~~Tell user that a set of dialogs will appear that will help the user find and recover their system~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd os selector description@%@~~~~~~~~~~~Tell user that they will soon be able to select the OS they want to recover, and that only Linux ones will be listed. Tell them that it might take a while for the next dialog to appear as it is populating the list~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd support message@%@~~~~~~~~~~~Tell user that if they don't see thier intended linux install, to report to linuxrcd.sourceforge.net, as their might be strange issue with thier file system.~~~~~~~~~~~DELIM_FOR_KDIALOG
+
+#detect if the lock file was created, if it was, tell the user, and then exit the script
 if [ -f /tmp/system_recovery_lock ]
 then
+
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox  "@%@recovery cd in use message@%@"
 exit 1
 fi 
-
+#create the lock file so the no new instance can be created.
 touch /tmp/system_recovery_lock
 
+#set the X display to use
 export DISPLAY=:0
 
 
 
-
+#greet the user
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox  "@%@recovery cd welcome message@%@
 
 
@@ -67,14 +98,13 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 
 @%@recovery cd support message@%@
 "
-#list all detected installed into a file
-os-prober > /usr/share/detectedoses
+#find all detected oses, and filter out for Linux ones 
+os-prober | grep :linux$ > /usr/share/detectedoses
 echo " " >>     /usr/share/detectedoses
-#list the contents of the file for the user 
-#cat /usr/share/detectedoses | awk '{print FNR "   "  $0 }'
+
 #capture number of oses
 oscount=$(cat /usr/share/detectedoses | grep : -c)
-#if no oses detected then die
+#if no oses detected then quit this script
 if (( 0==oscount ));
 then
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd no os found message@%@"
@@ -113,32 +143,41 @@ checkdisk=1
 #kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd fsck prompt@%@"
 #checkdisk=$?
 
+#unmount the read only file system
+umount /media/RecoveryMount
 
 if [[ $checkdisk -eq 0 ]]
 then
-#unmount the read only file system
-umount /media/RecoveryMount
 #check the specified root file system for errors
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd fsck message@%@" &
 lxterminal -e fsck -p $(cat /usr/share/devname)
 fi
 
-#unmount the read only file system
-umount /media/RecoveryMount
+
 
 
 #mount the system with the device name
 mount $(cat /usr/share/devname) /media/RecoveryMount
 
+#mount all fses in the target folder, running as the target system
+chroot /media/RecoveryMount  /bin/mount -a
+
 #mount in the devfs into the mountpoint
 mount --bind /dev /media/RecoveryMount/dev
 
 #mount in dbus so apps work
+mkdir /media/RecoveryMount/var/run/dbus
 mount --bind /var/run/dbus /media/RecoveryMount/var/run/dbus
 
 #mount in X11 authorization folder. 
+mkdir /media/RecoveryMount/tmp/.X11-unix
 mount --bind /tmp/.X11-unix /media/RecoveryMount/tmp/.X11-unix
 
+#make the folder where external media will be seen by the process
+mkdir /media/RecoveryMount/LinuxRCD-media
+
+#mount the media folder seen by a non chrooted process. This will allow the chrooted system to see external media. 
+mount --rbind /proc/1/root/media /media/RecoveryMount/LinuxRCD-media
 
 #make the usr/recoverystuff folder in case if its not there
 mkdir /media/RecoveryMount/usr/recoverystuff
@@ -149,7 +188,7 @@ mount --rbind /usr/recoverystuff /media/RecoveryMount/usr/recoverystuff
 #lock shutdown
 touch /tmp/noshutdown
 
-#start Xephyr
+#start Xephyr with the correct keyboard model so that arrow keys work
 Xephyr :1 -keybd ephyr,,,xkbmodel=evdev &
 
 #wait for Xephyr to start
@@ -170,12 +209,14 @@ xhost +local:
 #change the hostname of the live cd session to that of the selected target system
 hostname -F /media/RecoveryMount/etc/hostname
 
-#mount all fses in the target folder, running as the target system
-chroot /media/RecoveryMount  /bin/mount -a
+
 
 #unionize /usr/share on the live cd with /usr/share on the target system. writes to /usr/share will be sent to the target system, and files on the target system's /usr/share will be the ones that are used.
 mount -t aufs -o br=/media/RecoveryMount/usr/share:/rofs/usr/share  none  /media/RecoveryMount/usr/share
 
+#unionize pango libraries. They are not picked up by ldd, and they also are not strict with versioning, as much as normal libraries are. Whatever is missing, this will fill in for. what ever is installed in the system already will be used. 
+mkdir /media/RecoveryMount/usr/lib/pango
+mount -t aufs -o br=/media/RecoveryMount/usr/lib/pango:/rofs/usr/lib/pango  none  /media/RecoveryMount/usr/lib/pango
 
 #start the chroot script. Run it as a background task so that this can prompt for done
 chroot /media/RecoveryMount  /usr/recoverystuff/recoverychrootscript &
@@ -214,12 +255,14 @@ fuser -k /media/RecoveryMount
 #change the hostname of the live cd back to the default
 hostname -F /etc/hostname
 
-#unlink the symlink created
-unlink /media/RecoveryMount/FileSystems
+#unlink the link to the mounted file systems
+umount -lf /media/RecoveryMount/LinuxRCD-media
 
 #unmount the /usr/share union
 umount -lf /media/RecoveryMount/usr/share
 
+#unmount the pango library union
+umount -lf /media/RecoveryMount/usr/lib/pango
 
 #unmount recovery systems /sys
 umount -lf /media/RecoveryMount/sys

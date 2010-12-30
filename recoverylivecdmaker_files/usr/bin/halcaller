@@ -1,4 +1,4 @@
-#! /bin/sh
+#! /bin/bash
 #This file is part of LinuxRCD.
 #
 #    LinuxRCD is free software: you can redistribute it and/or modify
@@ -15,5 +15,8 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#Simple statup script to call up hal so that automounting works.
+
+#call up hal 
 hald
 

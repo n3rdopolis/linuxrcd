@@ -1,3 +1,4 @@
 @%@Xephyr dialog name@%@~~~~~~~~~~~Changing Xephyr size~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@Xephyr_Warning@%@~~~~~~~~~~~The configuration for the Xephyr window will appear in the Xephyr window itself. It will only affect the Xephyr window, and not your installed system~~~~~~~~~~~DELIM_FOR_KDIALOG
 @@@COMMENT@@@: tell user that the config for changing the Xephyr window size will appear in the Xephyr window, and the Xephyr size change will not effect the resolution settings~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@Xephyr error message@%@~~~~~~~~~~~Unable to bring up the dialog to set the Xephyr window size. Its possible that Xephyr is not running. Xephyr comes up when you are recovering a system.~~~~~~~~~~~DELIM_FOR_KDIALOG

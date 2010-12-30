@@ -14,6 +14,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
+
+#@@@TRANSLATABLE_FILE@@@
+
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Grub environment block dialog name%@~~~~~~~~~~~Title should just say "Grub Environment Block Recovery"~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Grub environment block welcome@%@~~~~~~~~~~~Tell user that this will try to remove the Grub Environment Block~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Grub environment block description@%@~~~~~~~~~~~Tell user that this will try to fix grub Invalad Environment Block and sometimes Out Of Disk errors~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Grub environment block disclaimer@%@~~~~~~~~~~~Tell the user that if the environment block is successfuly deleted, and they still can't boot that they must have a disk issue, or older bios that can't see above 137GB, and they might have to create a small boot partition at the beginning of the drive, which is a non trival task, could be risky.~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Grub environment block prompt@%@~~~~~~~~~~~Ask user if they want to try deleting the environment block~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Grub environment block failed to remove file@%@~~~~~~~~~~~Say that the deletion of the environment block was tried, and not successful~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Grub environment block success@%@~~~~~~~~~~~Say that the removal of the environment block was successful~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Grub environment block file not found@%@~~~~~~~~~~~Say that the grub environemt block was already removed, and if the user is still having issues with GRUB then it might be a BIOS, or disk issue~~~~~~~~~~~DELIM_FOR_KDIALOG
 cd /
 
 kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --yesno "@%@Grub environment block welcome@%@

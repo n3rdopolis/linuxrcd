@@ -15,4 +15,8 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-emelfm2 -i  --one=/ --two=/FileSystems &
+#@@@TRANSLATABLE_FILE@@@
+#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say "file manager"
+
+#start the file manager for the user inside the folder with the exported mounts. Do not let the file manager become the desktop
+pcmanfm --no-desktop /LinuxRCD-media &

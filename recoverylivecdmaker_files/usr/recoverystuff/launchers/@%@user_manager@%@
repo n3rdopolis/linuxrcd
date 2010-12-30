@@ -15,4 +15,8 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#@@@TRANSLATABLE_FILE@@@
+#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say: "manage users"~~~~~~~~~~~
+
+#callup the graphical user account editor
 kuser &

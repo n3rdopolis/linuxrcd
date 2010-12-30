@@ -15,6 +15,10 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
+#@@@TRANSLATABLE_FILE@@@
+#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "login to user"~~~~~~~~~~~
+
+#call up a login prompt in a terminal
 cd /
 lxterminal -e "login -p" & 
 

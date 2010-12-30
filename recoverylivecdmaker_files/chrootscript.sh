@@ -209,8 +209,13 @@ cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.hardyandlater
 rm /usr/bin/lxde-logout
 cp /usr/bin/linuxrcd_shutdown /usr/bin/lxde-logout
 
-#add the user account that will call up a web browser.
-useradd repairman -s /bin/bash
+#create a default user that the live cd startup script, casper, needs a UID of 1000
+useradd linuxrcd -s /bin/bash
+#add the user account that will call up a web browser. Give it a high UID so that it probably will not have write access to the users system
+useradd browser -u 999999999 -s /bin/bash
+
+#make the folder where the recovery system will be mounted
+mkdir /media/RecoveryMount
 
 #make the target for the recovery tools backend scripts
 mkdir /usr/recoverystuff
@@ -218,24 +223,14 @@ mkdir /usr/recoverystuff
 #make the target folder for the recovery tools launcher scripts
 mkdir  /usr/recoverystuff/launchers
 
-#make a folder in /usr so that the ld configs can be seen by the imported apps
-mkdir /usr/recoverystuff/etc
 
-#make a folder so that base executable can be seen by the imported apps
-mkdir /usr/recoverystuff/bin
+#make the browser user a folder with permissions so that the browser will work
+mkdir /home/browser
 
-#make targets for base /lib folders
-mkdir /usr/recoverystuff/lib
-mkdir /usr/recoverystuff/lib32
-mkdir /usr/recoverystuff/lib64
-
-#make the repairman user a folder with permissions so that the browser will work
-mkdir /home/repairman
-
-#give repairman user rights to the folder
-chown repairman /home/repairman
-chgrp repairman /home/repairman
-chmod 777       /home/repairman
+#give browser user rights to the folder
+chown browser /home/browser
+chgrp browser /home/browser
+chmod 777       /home/browser
 
 #try to salvage some space from apt and aptitiude
 sudo apt-get autoclean
@@ -248,11 +243,13 @@ cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 change-libs $(which kdialog)
 change-libs $(which lxterminal)
 change-libs $(which kuser)
-change-libs $(which emelfm2)
+change-libs $(which pcmanfm)
 change-libs $(which gedit)
 change-libs $(which mountmanager)
 change-libs $(which openbox)
 change-libs $(which fspanel)
+change-libs $(which lxsession)
+change-libs $(which xarchiver)
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
 #

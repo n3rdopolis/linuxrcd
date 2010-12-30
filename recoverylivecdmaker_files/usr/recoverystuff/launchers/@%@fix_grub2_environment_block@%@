@@ -15,8 +15,10 @@
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-#execute the script that calls the app.
-/usr/recoverystuff/Grub2_environmentblockfix_launcher.sh  > /dev/null 2>&1 &
+#@@@TRANSLATABLE_FILE@@@
+#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Fix Grub2 environment block~~~~~~~~~~~
 
-								   
+#execute the script that calls the grub recovery tool.
+/usr/recoverystuff/Grub2_environmentblockfix_launcher.sh  > /dev/null 2>&1 &
+   
 

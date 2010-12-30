@@ -52,7 +52,7 @@ NOTE THAT THE FOLDERS LISTED BELOW ARE DELETED OR OVERWRITTEN ALONG WITH THE CON
    Folder:            ${HOME}/LiveDiskCreAtionCacheFolDer/
    File:              ${HOME}/LiveDiskCreAtionWasPVNotInStalled
    File:              ${HOME}/LiveDiskCreAtionWasDeBootStrapNotInStalled
-   File:              ${HOME}/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
+   File:              ${HOME}/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
    
 NOTE THAT SOME GUI FILE BROWSERS MAY CALL THE FOLDER  ${HOME}/ just plain old 'home' so be careful 
 
@@ -420,14 +420,14 @@ echo -en \\033[00m\\033[8] > $(tty)
 
 
 #delete the old copy of the ISO 
-rm ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
+rm ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 #move the iso out of the chroot fs    
-cp /media/LiveDiskCreAtionChrootFolDer/home/remastersys/remastersys/custombackup.iso ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
+cp /media/LiveDiskCreAtionChrootFolDer/home/remastersys/remastersys/custombackup.iso ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 
 #allow the user to actually read the iso   
-chown $LOGNAME ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
-chgrp $LOGNAME ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
-chmod 777 ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso
+chown $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
+chgrp $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
+chmod 777 ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 
 
 #go back to the users home folder
@@ -477,15 +477,15 @@ fi
 rm ~/LiveDiskCreAtionWasPVNotInStalled
 
 #If the live cd did not build then tell user  
-if [ ! -f ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso ];
+if [ ! -f ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso ];
 then  
 echo "The Live CD did not succesfuly build. if you did not edit this script please make sure you are conneced to 'the Internet', and be able to reach the Ubuntu archives, and Remastersys's archives and try agian. if you did edit it, check your syntax"
 exit 1
 fi 
 
 #If the live cd did  build then tell user   
-if [  -f ~/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso ];
+if [  -f ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso ];
 then  
-echo "Live CD image build was successful. It was created at ${HOME}/LiveDiskCreAtedFromLiveDiskCreAtionScript_${Language_Name}_${CPU_ARCHITECTURE}.iso"
+echo "Live CD image build was successful. It was created at ${HOME}/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso"
 exit 1
 fi

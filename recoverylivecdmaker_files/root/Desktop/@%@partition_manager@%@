@@ -2,6 +2,17 @@
 
 ##Run the method to safely unmount the target system in case if the user leaves it open
 
+#@@@TRANSLATABLE_FILE@@@
+#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say "Partition Manager~~~~~~~~~~~
+
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Partition manager dialog name@%@~~~~~~~~~~~Should just say "partition manager"~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Partition manager opening@%@~~~~~~~~~~~Should tell user that the user are about to open the partition manager that handles the division, and organization of their disks space.~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Partition manager data loss warning@%@~~~~~~~~~~~Should tell the user that the partition manager may cause data loss, and that the user should only continue if they know what they are doing, and to make sure they have s backup before they continue~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Partition manager plug in battery warning@%@~~~~~~~~~~~Tell user that partition operations take a while, and tell them that the computer needs to be plugged in, as if a partition operation is stopped then severe data loss might happen~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Partition manager unmount system warning@%@~~~~~~~~~~~Tell user their system, and drives need to be unmounted, and a system can not be repared during partition operations.~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Partition manager continue prompt@%@~~~~~~~~~~~Ask user if they want to continue
+
+#warn the user about the severe damage partition managing can do, and ask if they want to continue
 kdialog --caption LinuxRCD --yesno "@%@Partition manager opening@%@
 
 @%@Partition manager data loss warning@%@
@@ -12,8 +23,9 @@ kdialog --caption LinuxRCD --yesno "@%@Partition manager opening@%@
 
 @%@Partition manager continue prompt@%@ " --title "@%@Partition manager dialog name@%@"
 
-
+#if they answer yes
 if (( $?==0 ))
 then
+#bring up the partition manager
 gparted
 fi

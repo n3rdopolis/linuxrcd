@@ -1,2 +1,6 @@
 #! /bin/bash
+#@@@TRANSLATABLE_FILE@@@
+#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say: Open Web browser~~~~~~~~~~~
+
+#call up the web browser (web browser launcher script)
 /usr/bin/chromium-browser
