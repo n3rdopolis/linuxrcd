@@ -232,7 +232,7 @@ mount --bind /dev /media/LiveDiskCreAtionChrootFolDer/dev/
 
 
 #copy in the files needed
-rsync "$ThIsScriPtSFolDerLoCaTion"/recoverylivecdmaker_files/* -Cr /media/LiveDiskCreAtionChrootFolDer/temp/
+rsync "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_files/* -Cr /media/LiveDiskCreAtionChrootFolDer/temp/
 rsync "$ThIsScriPtSFolDerLoCaTion"/*                           -Cr /media/LiveDiskCreAtionChrootFolDer/build_source
 
 
