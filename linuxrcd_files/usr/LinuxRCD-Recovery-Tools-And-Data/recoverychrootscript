@@ -40,7 +40,7 @@ export DISPLAY=localhost:1
 #many apps need the home variable set.
 export HOME=/root
 
-export PATH=$PATH:/usr/recoverystuff
+export PATH=$PATH:/usr/LinuxRCD-Recovery-Tools-And-Data
 ##CALL THE STARTUP APPS
 
 #call up the windowing manager
@@ -51,7 +51,7 @@ export PATH=$PATH:/usr/recoverystuff
 lxsession &
 
 #call up the file browser opened to the folder containg the launchers 
-pcmanfm --no-desktop /usr/recoverystuff/launchers &
+pcmanfm --no-desktop /usr/LinuxRCD-Recovery-Tools-And-Data/launchers &
 
 #call up the panel
 fspanel &

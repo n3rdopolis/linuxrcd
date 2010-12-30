@@ -179,11 +179,11 @@ mkdir /media/RecoveryMount/LinuxRCD-media
 #mount the media folder seen by a non chrooted process. This will allow the chrooted system to see external media. 
 mount --rbind /proc/1/root/media /media/RecoveryMount/LinuxRCD-media
 
-#make the usr/recoverystuff folder in case if its not there
-mkdir /media/RecoveryMount/usr/recoverystuff
+#make the usr/LinuxRCD-Recovery-Tools-And-Data folder in case if its not there
+mkdir /media/RecoveryMount/usr/LinuxRCD-Recovery-Tools-And-Data
 
 #bind the live cds /usr folder to the targets /opt folder
-mount --rbind /usr/recoverystuff /media/RecoveryMount/usr/recoverystuff
+mount --rbind /usr/LinuxRCD-Recovery-Tools-And-Data /media/RecoveryMount/usr/LinuxRCD-Recovery-Tools-And-Data
 
 #lock shutdown
 touch /tmp/noshutdown
@@ -219,7 +219,7 @@ mkdir /media/RecoveryMount/usr/lib/pango
 mount -t aufs -o br=/media/RecoveryMount/usr/lib/pango:/rofs/usr/lib/pango  none  /media/RecoveryMount/usr/lib/pango
 
 #start the chroot script. Run it as a background task so that this can prompt for done
-chroot /media/RecoveryMount  /usr/recoverystuff/recoverychrootscript &
+chroot /media/RecoveryMount  /usr/LinuxRCD-Recovery-Tools-And-Data/recoverychrootscript &
 
 sleep 10
 
@@ -285,8 +285,8 @@ umount /media/RecoveryMount/var/run/dbus
 #unmount the X11 authroization folder
 umount /media/RecoveryMount/tmp/.X11-unix
 
-#unmount the /usr/recoverystuff folder
-umount /media/RecoveryMount/usr/recoverystuff
+#unmount the /usr/LinuxRCD-Recovery-Tools-And-Data folder
+umount /media/RecoveryMount/usr/LinuxRCD-Recovery-Tools-And-Data
 
 #unmount all fstab partitions
 chroot /media/RecoveryMount umount -alf

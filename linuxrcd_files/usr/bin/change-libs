@@ -48,12 +48,12 @@ do
 #add the rpath
 patchelf --force-rpath  /tmp/change-libs/$exefile
 #set the rpath
-patchelf --set-rpath  /usr/recoverystuff /tmp/change-libs/$exefile
+patchelf --set-rpath  /usr/LinuxRCD-Recovery-Tools-And-Data /tmp/change-libs/$exefile
 #try to set the interpreter
-patchelf --set-interpreter /usr/recoverystuff/$interpretername /tmp/change-libs/$exefile 
+patchelf --set-interpreter /usr/LinuxRCD-Recovery-Tools-And-Data/$interpretername /tmp/change-libs/$exefile 
 done
 
 #move the files from the working location, into the actual location.
-mv /tmp/change-libs/* /usr/recoverystuff/
+mv /tmp/change-libs/* /usr/LinuxRCD-Recovery-Tools-And-Data/
 #copy the interpreter into the actual location. Don't move it because it was not copied into the working location. the source interpreter is still in its system location.
-cp $(ldd $1 | grep ld-linux.so |  awk '{print $1}') /usr/recoverystuff
+cp $(ldd $1 | grep ld-linux.so |  awk '{print $1}') /usr/LinuxRCD-Recovery-Tools-And-Data

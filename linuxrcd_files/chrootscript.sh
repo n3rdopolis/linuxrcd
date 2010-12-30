@@ -218,10 +218,10 @@ useradd browser -u 999999999 -s /bin/bash
 mkdir /media/RecoveryMount
 
 #make the target for the recovery tools backend scripts
-mkdir /usr/recoverystuff
+mkdir /usr/LinuxRCD-Recovery-Tools-And-Data
 
 #make the target folder for the recovery tools launcher scripts
-mkdir  /usr/recoverystuff/launchers
+mkdir  /usr/LinuxRCD-Recovery-Tools-And-Data/launchers
 
 
 #make the browser user a folder with permissions so that the browser will work

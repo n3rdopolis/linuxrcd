@@ -19,4 +19,4 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Fix X server"~~~~~~~~~~~
 
 #execute the script that calls the x server recovery tool
-/usr/recoverystuff/xserver_fix_launcher.sh  > /dev/null 2>&1 &
+/usr/LinuxRCD-Recovery-Tools-And-Data/xserver_fix_launcher.sh  > /dev/null 2>&1 &
