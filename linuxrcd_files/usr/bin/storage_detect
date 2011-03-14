@@ -1,0 +1,148 @@
+#! /bin/bash
+#This file is part of LinuxRCD.
+#
+#    LinuxRCD is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    LinuxRCD is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter dialog name@%@~~~~~~~~~~~Title of the dialog, say: Encrypted drive detected~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter enter password@%@~~~~~~~~~~~Say enter password for the encrypted drive:~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter wrong password@%@~~~~~~~~~~~Say wrong password entered. enter password for the encrypted drive:~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter already unlocked@%@~~~~~~~~~~~Say that this encrypted drive was already unlocked~~~~~~~~~~~DELIM_FOR_KDIALOG
+
+#this script is part of the recovery tools. 
+
+#delete files that this script left behind to start with fresh information, if the script was run before
+rm /tmp/allvolumes
+rm /tmp/linuxinstalls
+
+#LVM volumes are detected automatically
+
+#detect all RAID devices 
+mdadm --examine --scan > /etc/mdadm/mdadm.conf
+
+#assemble the RAIDS
+mdadm --assemble --scan
+
+#detect LVM devices, that might be on the RAIDS
+lvm vgchange -P -a y
+
+
+# I don't know if there are RAID volumes ON LVM volumes.
+#detect all RAID devices, that might be on the LVM volumes.
+mdadm --examine --scan > /etc/mdadm/mdadm.conf
+
+#assemble the RAIDS
+mdadm --assemble --scan
+
+
+
+
+#get a list of all usable volumes
+lvmdiskscan | grep -v "] L" | grep ] | awk -F [ '{print $1}' | sed 's/^  //g' > /tmp/allvolumes
+encrypteddrivenumber=0
+#detect LVM encryption on the list of volumes
+cat /tmp/allvolumes | while read VOLUME
+do
+#detect if its encrypted
+cryptsetup isLuks "$VOLUME"
+#get the return status
+driveencrypted=$?
+if [ $driveencrypted = 0 ]
+then
+
+#get the number of ecrypted drives, and then add this one. The name is not found automatically
+encrypteddrivenumber=$(( $driveencryptednumber + 1 ))
+
+#prompt for the password, and pipe it into the command that will unlock the drive
+kdialog --title "@%@storage mounter dialog name@%@" --caption LinuxRCD --password  "@%@storage mounter enter password@%@ $VOLUME" | cryptsetup luksOpen $VOLUME ENCRYPTEDDRIVE$encrypteddrivenumber
+
+#save the status of the pipe
+passwordentrystatus=${PIPESTATUS[@]}
+
+#grab the return values into an individual variable for each command on the pipe
+passwordsuccessful=$(echo $passwordentrystatus | awk '{print $2}')
+kdialogvalue=$(echo $passwordentrystatus | awk '{print $1}')
+
+#keep asking until the user gets the password correct, or hits cancel
+while [ $passwordsuccessful != 0 -a $passwordsuccessful != 239 ]
+do
+if [ $kdialogvalue = 0 ]
+then
+#ask the user
+kdialog --title "@%@storage mounter dialog name@%@" --caption LinuxRCD --password  "@%@storage mounter wrong password@%@ $VOLUME" | cryptsetup luksOpen $VOLUME ENCRYPTEDDRIVE$encrypteddrivenumber
+#save the status of the pipe
+passwordentrystatus=${PIPESTATUS[@]}
+
+#grab the return values into an individual variable for each command on the pipe
+passwordsuccessful=$(echo $passwordentrystatus | awk '{print $2}')
+kdialogvalue=$(echo $passwordentrystatus | awk '{print $1}')
+else
+passwordsuccessful=0
+fi
+if [ $passwordsuccessful == 239 ]
+then
+echo "Encrypted drive was already unlocked"
+fi
+done
+fi
+done 
+
+#detect LVM devices, that might be on the RAIDS (detect again in case if a password protected drive has other volumes)
+lvm vgchange -P -a y
+
+
+# I don't know if there are RAID volumes ON LVM volumes.     (detect again in case if a password protected drive has other volumes)
+#detect all RAID devices, that might be on the LVM volumes.
+mdadm --examine --scan > /etc/mdadm/mdadm.conf
+
+#assemble the RAIDS 
+mdadm --assemble --scan
+
+
+#get a list of all usable volumes
+lvmdiskscan | grep -v "] L" | grep ] | awk -F [ '{print $1}' | sed 's/^  //g' > /tmp/allvolumes
+
+#make a mountpoint folder for the volumes
+mkdir /tmp/volumemountpoint
+
+#delete the file os-prober makes
+rm /var/lib/os-prober/labels
+
+#detect OSes on the list of volumes
+cat /tmp/allvolumes | while read VOLUME
+do
+#mount the volume read only
+mount -o ro  "$VOLUME" /tmp/volumemountpoint
+
+#use an os-prober sub-utility to detect lsb info (/etc/lsb-release) first. Put it into a file which will be read after its done
+/usr/lib/os-probes/mounted/40lsb "$VOLUME" /tmp/volumemountpoint  >> /tmp/linuxinstalls
+#get the status of the lsb detection
+lsbstatus=$?
+#if the lsb detection failed
+if [ $lsbstatus = 1 ]
+then
+#use another sub-utility of os-prober to detect linux install information. This one is for linux installs that have no lsb information.
+/usr/lib/os-probes/mounted/90linux-distro "$VOLUME" /tmp/volumemountpoint >> /tmp/linuxinstalls
+fi
+#if there is no other information, then it is probably not a linux distro.
+
+#unmount the test drive
+umount /tmp/volumemountpoint
+
+#force the unmount
+umount -lf /tmp/volumemountpoint
+done
+
+#delete the temporary file created by this script
+rm /tmp/allvolumes

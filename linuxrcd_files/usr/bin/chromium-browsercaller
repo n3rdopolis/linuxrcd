@@ -29,11 +29,11 @@ xhost +LOCAL:
 
 
 
-#if being passed with run, then it is probably called by itself, and can be unshared, to hide the users system, and mounted drives from the browser
+#if being passed with run, then it is probably called by itself, and can be unshared, to hide the users system from the browser
 if [[ $1 == "run" ]]
 then
-mount /srv /media
-su browser -c " chromium-webbrowser --user-data-dir=/home/browser --first-run "
+mount --bind /srv /media/RecoveryMount
+su browser -c " chromium-webbrowser --user-data-dir=/home/browser --first-run file:///usr/share/linuxrcd/data_files/html_files/download_notice.html"
 fi
 
 #if not passed with run, then it did not call itself with a new mount space, and it not save to bind mount the empty folder over /media

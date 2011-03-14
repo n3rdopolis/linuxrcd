@@ -53,6 +53,9 @@ aptitude install gdebi  --without-recommends -y
 #install an xserver
 aptitude install xserver-xorg  --without-recommends -y
 
+#install utilities for handling filesystems, raid, and lvm
+aptitude install lvm2 mdadm dmraid cryptsetup parted  --without-recommends -y
+
 #install remastersys 
 yes Yes | aptitude install remastersys  --without-recommends -y
 
@@ -75,7 +78,10 @@ yes Yes | aptitude install network-manager-gnome hicolor-icon-theme -y
 #install web browser 
 aptitude install chromium-browser --without-recommends -y
 
+#install storage tools 
+yes Yes |  aptitude install  cryptsetup lvm2 mdadm jfsutils reiser4progs xfsprogs dmraid kpartx --without-recommends -y
 
+yes Yes |  aptitude install gnome-settings-daemon --without-recommends -y
 ##################################################################################################################
 
 #install recovery/config utilities
@@ -164,6 +170,9 @@ ln -s  /etc/init.d/nm-applet  /etc/rc2.d/S52nm-applet
 #add HAL to startup script
 ln -s  /etc/init.d/hal  /etc/rc2.d/S52hal
 
+#add the preparer to startup script
+ln -s  /etc/init.d/prepare  /etc/rc2.d/S52prepare
+
 #########END OLD STYLE INIT SCRIPT EDITS###################
 
 
@@ -186,13 +195,7 @@ rm /usr/share/initramfs-tools/scripts/casper-bottom/25configure_init
 #################END CASPER EDITS###########################
 
 
-#copy in the imported files into the needed location. These files are managed by the remastersys package, so they need to be copied here after the remastersys package makes these files
-cp /usr/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.gutsyandbefore
-cp /usr/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.hardyandlater
 
-cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.gutsyandbefore
-cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.hardyandlater
-####End ISOLINUX Configuration
 
 
 
@@ -204,7 +207,16 @@ cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.hardyandlater
 #
 #
 ###################################################BEGIN SYSTEM COFIGURATION################################################## 
+#copy in the imported files into the needed location. These files are managed by the remastersys package, so they need to be copied here after the remastersys package makes these files
+cp /usr/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.gutsyandbefore
+cp /usr/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.hardyandlater
 
+cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.gutsyandbefore
+cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.hardyandlater
+#change the background into one light blue color
+cp /usr/import/lxde_blue.jpg /usr/share/lxde/wallpapers/lxde_blue.jpg
+#remove the panel background, making it all white.
+rm /usr/share/lxpanel/images/background.png
 #replace the shutdown item with the custom one
 rm /usr/bin/lxde-logout
 cp /usr/bin/linuxrcd_shutdown /usr/bin/lxde-logout
@@ -214,18 +226,10 @@ useradd linuxrcd -s /bin/bash
 #add the user account that will call up a web browser. Give it a high UID so that it probably will not have write access to the users system
 useradd browser -u 999999999 -s /bin/bash
 
-#make the folder where the recovery system will be mounted
-mkdir /media/RecoveryMount
-
-#make the target for the recovery tools backend scripts
-mkdir /usr/LinuxRCD-Recovery-Tools-And-Data
-
-#make the target folder for the recovery tools launcher scripts
-mkdir  /usr/LinuxRCD-Recovery-Tools-And-Data/launchers
 
 
-#make the browser user a folder with permissions so that the browser will work
-mkdir /home/browser
+
+
 
 #give browser user rights to the folder
 chown browser /home/browser
@@ -235,6 +239,8 @@ chmod 777       /home/browser
 #try to salvage some space from apt and aptitiude
 sudo apt-get autoclean
 sudo apt-get clean
+
+
 
 #replace the browser executable with a caller, that runs the renamed browser as a standard user
 mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
@@ -248,7 +254,6 @@ change-libs $(which gedit)
 change-libs $(which mountmanager)
 change-libs $(which openbox)
 change-libs $(which fspanel)
-change-libs $(which lxsession)
 change-libs $(which xarchiver)
 #####################################################END SYSTEM CONFIGURATION##################################################
 #

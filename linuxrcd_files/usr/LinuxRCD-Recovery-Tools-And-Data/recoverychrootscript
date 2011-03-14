@@ -16,22 +16,10 @@
 #
 
 
-#This script is called up by the script that promts the user for what system to mount. It is carried into the users target system with a binded mount, and then chrooted to do some work to prep the target system for recovery, and then calls up the apps.
-
-
-#mount the procfs
-mount -t proc none /proc
+#This script is called up by the script that promts the user for what system to mount. It is carried into the users target system with a binded mount in a non standard location, and then chrooted to do some work to prep the target system for recovery, and then calls up the apps.
 
 
 
-#mount sysfs
-mount -t sysfs none /sys
-
-#mount /dev/pts
-mount -t devpts none /dev/pts
-
-#mount /dev/shm
-mount -t tmpfs none /dev/shm
 
 
 #set the display variable so that X apps start a GUI
