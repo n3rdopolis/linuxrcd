@@ -14,13 +14,17 @@
 #    You should have received a copy of the GNU General Public License
 #    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
 #
-
+#@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter dialog name@%@~~~~~~~~~~~Title of the dialog, say: Encrypted drive detected~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter enter password@%@~~~~~~~~~~~Say enter password for the encrypted drive:~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter wrong password@%@~~~~~~~~~~~Say wrong password entered. enter password for the encrypted drive:~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter already unlocked@%@~~~~~~~~~~~Say that this encrypted drive was already unlocked~~~~~~~~~~~DELIM_FOR_KDIALOG
 
 #this script is part of the recovery tools. 
+
+#setup these by default
+volumeunlocked=0
+touch /tmp/unlockedvolumes 
 
 #delete files that this script left behind to start with fresh information, if the script was run before
 rm /tmp/allvolumes
@@ -50,6 +54,7 @@ mdadm --assemble --scan
 
 #get a list of all usable volumes
 lvmdiskscan | grep -v "] L" | grep ] | awk -F [ '{print $1}' | sed 's/^  //g' > /tmp/allvolumes
+
 encrypteddrivenumber=0
 #detect LVM encryption on the list of volumes
 cat /tmp/allvolumes | while read VOLUME
@@ -58,7 +63,12 @@ do
 cryptsetup isLuks "$VOLUME"
 #get the return status
 driveencrypted=$?
-if [ $driveencrypted = 0 ]
+
+#count the number of times the volume was unlocked
+volumeunlocked=$( grep -c "$VOLUME" /tmp/unlockedvolumes )
+
+#if the drive is encrypted, and has not been already unlocked, try to unlock it.
+if [ $driveencrypted = 0 -a $volumeunlocked = 0 ]
 then
 
 #get the number of ecrypted drives, and then add this one. The name is not found automatically
@@ -72,6 +82,11 @@ passwordentrystatus=${PIPESTATUS[@]}
 
 #grab the return values into an individual variable for each command on the pipe
 passwordsuccessful=$(echo $passwordentrystatus | awk '{print $2}')
+if [ $passwordsuccessful = 0 ]
+then
+#list this  as a unlocked drive
+echo $VOLUME >> /tmp/unlockedvolumes
+fi
 kdialogvalue=$(echo $passwordentrystatus | awk '{print $1}')
 
 #keep asking until the user gets the password correct, or hits cancel
@@ -86,6 +101,11 @@ passwordentrystatus=${PIPESTATUS[@]}
 
 #grab the return values into an individual variable for each command on the pipe
 passwordsuccessful=$(echo $passwordentrystatus | awk '{print $2}')
+if [ $passwordsuccessful == 0 ]
+then
+#list this  as a unlocked drive
+echo $VOLUME >> /tmp/unlockedvolumes
+fi
 kdialogvalue=$(echo $passwordentrystatus | awk '{print $1}')
 else
 passwordsuccessful=0

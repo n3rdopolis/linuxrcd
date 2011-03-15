@@ -26,6 +26,7 @@
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd introduction message@%@~~~~~~~~~~~Tell user that this will help them recover unusable linux installs, but has only been tested on Ubuntu. Tell them that this is not an offical Ubuntu CD, and tell them not to use this disk if they wanted to recover data from broken file systems as this cd does not have those kinds of tools ~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd continue message@%@~~~~~~~~~~~Tell user to press OK to continue~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd quit prompt@%@~~~~~~~~~~~Ask user if they want to exit from their system~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd disk find@%@~~~~~~~~~~~Tell user that OS storage disks will be found, and if it finds a encrypted drive it will search for a password~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd quit message@%@~~~~~~~~~~~Tell user that when they are done working in their system, press OK in this dialog~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd recovery mode warning@%@~~~~~~~~~~~Tell user that their system is now able to be worked in, and to not shut down their computer, untill exit from thier system~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd fstab multipartition warning@%@~~~~~~~~~~~Tell user that if they have multiple partitions, the mount might fail if the file that handles automatic mounts is corrupt, and might cause unexpected results~~~~~~~~~~~DELIM_FOR_KDIALOG
@@ -98,6 +99,8 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 
 @%@recovery cd support message@%@
 "
+
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd disk find@%@"
 #find all detected oses.
 storage_detect
 #take the information from storage_detect, and put it in the file the script searches
