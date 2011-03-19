@@ -1,0 +1,3 @@
+@%@Xephyr_Warning@%@~~~~~~~~~~~The settings dialog for changing the Xephyr size will appear in the Xephyr window. Only when Xephyr is running will this dialog appear. It will not affect any files on your installs.~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@Xephyr dialog name@%@~~~~~~~~~~~Changing Xephyr Size~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@Xephyr error message@%@~~~~~~~~~~~There was an error running the program. Xephyr needs to be running, which will run when you start recovering a system.~~~~~~~~~~~DELIM_FOR_KDIALOG

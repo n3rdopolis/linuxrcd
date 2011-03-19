@@ -99,7 +99,7 @@ gdebi -n aufs-tools*
 rm aufs-tools*
 
 #if this is english set mountmanager to use the English translations
-if [ "@%@Language_Name@%@" == "English" ];
+if [ "@%@Language_Name@%@" == "en_us" ];
 then
 # Delete all of mountmanager's translations to force it to use the built in English one.
 rm /usr/lib/mountmanager/trans/*

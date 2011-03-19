@@ -23,7 +23,7 @@ then
 fi
 
 CPU_ARCHITECTURE=i386  
-Language_Name=English
+Language_Name=en_us
 
 ThIsScriPtSFiLeLoCaTion=$(readlink -f "$0")
 ThIsScriPtSFolDerLoCaTion=$(dirname "$ThIsScriPtSFiLeLoCaTion")

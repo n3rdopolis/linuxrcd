@@ -1,0 +1,6 @@
+@%@Partition manager dialog name@%@~~~~~~~~~~~Partition Manager~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@Partition manager opening@%@~~~~~~~~~~~You are about to open the partition manager, that handles the division and organization of your disk space.~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@Partition manager data loss warning@%@~~~~~~~~~~~Changing settings in the partition manager may cause data loss, and you should only continue if you know what you are doing. You should have made backups before you continue.~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@Partition manager plug in battery warning@%@~~~~~~~~~~~Partitioning operations may take a while, and your computer will need to be plugged in (if this is a laptop), as if the partition operation is stopped, severe data loss can happen.~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@Partition manager unmount system warning@%@~~~~~~~~~~~Your system, and drives will need to be unmounted, and you can not do any operations with your hard disks as they are partitioning.~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@Partition manager continue prompt@%@~~~~~~~~~~~Do you want to continue?~~~~~~~~~~~
