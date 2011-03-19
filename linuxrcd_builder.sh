@@ -25,7 +25,7 @@ fi
 CPU_ARCHITECTURE=i386  
 Language_Name=English
 
-ThIsScriPtSFiLeLoCaTion=$(readlink -f $0)
+ThIsScriPtSFiLeLoCaTion=$(readlink -f "$0")
 ThIsScriPtSFolDerLoCaTion=$(dirname "$ThIsScriPtSFiLeLoCaTion")
 #set terminal color to default to keep consistancy
 echo -en \\033[00m\\033[8] > $(tty)
