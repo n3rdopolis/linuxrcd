@@ -1,5 +1,0 @@
-@%@X server fixer dialog name@%@~~~~~~~~~~~Fixing the X Server~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@X server fixer greeting@%@~~~~~~~~~~~This will open up a terminal window and try help you reconfigure your xserver. Do you want to continue?~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@X server fixer disclaimer@%@~~~~~~~~~~~Depending on your system config, you may get a terminal screen prompting you for info, or a terminal window that dissapears. This is because many distros have begun phasing out the X config file to be replaced with autodetection of hardware. This tool will only work on Debian like systems.~~~~~~~~~~~DELIM_FOR_KDIALOG
-@@@COMMENT@@@ this should say that a terminal window might come up for a short while, and appear to do nothing, or may come up with a prompt. it should say because of hardware detection phasing out xorg.conf with autodetection.~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@X server fixer prompt@%@~~~~~~~~~~~Do you want to continue?~~~~~~~~~~~DELIM_FOR_KDIALOG
