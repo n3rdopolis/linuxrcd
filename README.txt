@@ -16,7 +16,7 @@ TODO:
 
   Document more things
 
-  Script for making translations
+  Fix the issues with data in /usr/share messing with package managers
 
 How to use the ISO:
   burn it, (or put it in a VM), reboot, set the BIOS to boot from the CD if it does not already, 

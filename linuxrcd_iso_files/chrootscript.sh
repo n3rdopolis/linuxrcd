@@ -88,15 +88,15 @@ yes Yes |  aptitude install gnome-settings-daemon --without-recommends -y
 aptitude install  kuser gparted mountmanager konsole --without-recommends -y
 
 
-#install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/view/patchelf/trunk/689190
-wget http://hydra.nixos.org/build/689172/download/1/patchelf_0.6pre23458-1_@%@CPU_ARCHITECTURE@%@.deb
+#install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/
+wget http://hydra.nixos.org/build/912157/download/1/patchelf_0.6pre25969-1_@%@CPU_ARCHITECTURE@%@.deb
 gdebi -n patchelf*
 rm patchelf*
 
 #install aufs-tools for unionising /usr/share. Unionising /usr/share should not the same problems as /usr/lib or /usr/bin
-wget https://launchpad.net/ubuntu/+archive/primary/+files/aufs-tools_0%2B20090302-2_@%@CPU_ARCHITECTURE@%@.deb
-gdebi -n aufs-tools*
-rm aufs-tools*
+#wget https://launchpad.net/ubuntu/+archive/primary/+files/aufs-tools_0%2B20090302-2_@%@CPU_ARCHITECTURE@%@.deb
+#gdebi -n aufs-tools*
+#rm aufs-tools*
 
 #if this is english set mountmanager to use the English translations
 if [ "@%@Language_Name@%@" == "en_us" ];
