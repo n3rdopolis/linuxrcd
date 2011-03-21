@@ -38,7 +38,7 @@ aptitude install binutils wget --without-recommends -y
 
 
 #install a language pack
-if [ "@%@Language_Name@%@" == "English" ];
+if [ "@%@Language_Name@%@" == "en_us" ];
 then
 #If this is set to use English translations install the English translations
 aptitude install language-pack-en --without-recommends -y
