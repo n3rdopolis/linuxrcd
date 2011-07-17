@@ -1,6 +1,7 @@
-#! /bin/bash
+[Desktop Entry]
 
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say: Recover an installed System~~~~~~~~~~~
-#bring up the recovery agent to allow the user to select a system.
-/usr/bin/recoverylauncher 
+
+Exec=/usr/bin/recoverylauncher 
+Type=Application

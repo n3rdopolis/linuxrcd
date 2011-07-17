@@ -1,25 +1,7 @@
-#! /bin/bash 
+[Desktop Entry]
 
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say: Change Xephyr Size~~~~~~~~~~~
-#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Xephyr_Warning@%@~~~~~~~~~~~Should say that the setting dialog for changing the size will appear in the Xephyr window, only when Xephyr is running when a system is being recovered, and that the dialog will not affect any files on the users install.~~~~~~~~~~~DELIM_FOR_KDIALOG
-#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Xephyr dialog name@%@~~~~~~~~~~~Should say "Changing Xephyr Size"~~~~~~~~~~~DELIM_FOR_KDIALOG
-#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Xephyr error message@%@~~~~~~~~~~~Should say there was an error running the program, and say that Xephyr needs to be running when a system is being recovered.~~~~~~~~~~~DELIM_FOR_KDIALOG
-#tell user the size changer for the Xephyr window will appear in the Xephyr window
-kdialog --caption LinuxRCD --msgbox "@%@Xephyr_Warning@%@" --title "@%@Xephyr dialog name@%@"
-#configure the next command to run in the Xephyr window's display
-export DISPLAY=:1
-#call up the program that will allow the user to change the size
-lxrandr
-#grab the result from the program that allows the user to change the size
-result=$?
-#if it failed then its probably because Xephyr is not running
-if [[ $result != 0 ]]
-#set the display to be the normal one
-export DISPLAY=:0
-#tell user that it failed, and that Xephyr is not running, and Xephyr comes up when a system is being recovered
-then
-kdialog  --caption LinuxRCD --msgbox "@%@Xephyr error message@%@" --title "@%@Xephyr dialog name@%@"
 
-fi
-
+Exec=xephyrcaller
+Type=Application
