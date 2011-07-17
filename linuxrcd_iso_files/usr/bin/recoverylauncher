@@ -46,9 +46,7 @@
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd os selector description@%@~~~~~~~~~~~Tell user that they will soon be able to select the OS they want to recover, and that only Linux ones will be listed. Tell them that it might take a while for the next dialog to appear as it is populating the list~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd support message@%@~~~~~~~~~~~Tell user that if they don't see thier intended linux install, to report to linuxrcd.sourceforge.net, as their might be strange issue with thier file system.~~~~~~~~~~~DELIM_FOR_KDIALOG
 
-#make this for kdialog so it does not nag and confuse the user
-mkdir -p /.kde/share/config
-touch    /.kde/share/config/knotifyrc 
+
 
 #detect if the lock file was created, if it was, tell the user, and then exit the script
 if [ -f /tmp/system_recovery_lock ]

@@ -5,3 +5,7 @@ mkdir /media/RecoveryMount
 
 #allow the browser user to save to the Downloads folder in /media
 chmod 777 /media/Downloads
+
+#make this for kdialog so it does not nag and confuse the user
+mkdir -p /.kde/share/config
+touch    /.kde/share/config/knotifyrc 
