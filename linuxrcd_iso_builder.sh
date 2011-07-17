@@ -145,9 +145,9 @@ fi
 
 #get the size of the users home file system. 
 HomeFileSysTemFSFrEESpaCe=$(df ~ | awk '{print $4}' |  grep -v Av)
-#if there is 3gb or less tell the user and quit. If not continue.
-if [[ $HomeFileSysTemFSFrEESpaCe -le 3000000 ]]; then               
-  echo "You have less then 3gb of free space on the partition that contains your home folder. Please free up some space." 
+#if there is 5gb or less tell the user and quit. If not continue.
+if [[ $HomeFileSysTemFSFrEESpaCe -le 5000000 ]]; then               
+  echo "You have less then 5gb of free space on the partition that contains your home folder. Please free up some space." 
   echo "The script will now abort."
   echo "free space:"
   df ~ -h | awk '{print $4}' |  grep -v Av
@@ -417,8 +417,6 @@ chroot /media/LiveDiskCreAtionChrootFolDer /chrootscript.sh
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
-# TODO Temporary pause
-read a
 
 
 #delete the old copy of the ISO 

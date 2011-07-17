@@ -207,6 +207,10 @@ mount --rbind /usr/LinuxRCD-Recovery-Tools-And-Data /media/RecoveryMount/usr/Lin
 #lock shutdown
 touch /tmp/noshutdown
 
+
+#get the current keyboard layout for the host display
+xmodmap -pke > /tmp/keyboardlayout
+
 #start Xephyr with the correct keyboard model so that arrow keys work
 Xephyr :1 -keybd evdev,,,xkbmodel=evdev &
 
@@ -219,6 +223,9 @@ clipboardmgr :0 :1 &
 
 #xhost needs this as it does not accept a display argument
 export DISPLAY=:1
+
+#set the keyboard layout for Xephyr's display based on the hosts display
+xmodmap /tmp/keyboardlayout
 
 #start the window manager 
 openbox &
