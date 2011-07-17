@@ -58,7 +58,7 @@ NOTE THAT SOME GUI FILE BROWSERS MAY CALL THE FOLDER  ${HOME}/ just plain old 'h
 
 As you can tell its unlikley you have any files named like this, but just check to be sure, because if they exist they will be erased.
 
-Creates Lucid packages for LinuxRCD that are recompiled to not use /usr/share"
+Creates Natty packages for LinuxRCD that are recompiled to not use /usr/share"
 
 
 
@@ -209,7 +209,7 @@ mount ./livecdfs /media/PackAgeCreAtionChrootFolDer -o loop
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
 #install a really basic Ubuntu installation in the new fs  
-debootstrap --arch $CPU_ARCHITECTURE lucid /media/PackAgeCreAtionChrootFolDer http://archive.ubuntu.com/ubuntu/
+debootstrap --arch $CPU_ARCHITECTURE natty /media/PackAgeCreAtionChrootFolDer http://archive.ubuntu.com/ubuntu/
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 

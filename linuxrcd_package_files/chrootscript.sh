@@ -32,9 +32,11 @@ mount -t devpts none /dev/pts
 #update the apt cache
 apt-get update
 
+#install aptitude
+echo Y | apt-get install aptitude --without-recommends
 
 #install utilites that will help the rebuild of packages
-aptitude install binutils devscripts bzr build-essential fakeroot debian-builder  --without-recommends -y
+aptitude install binutils devscripts bzr build-essential fakeroot debian-builder  -y
 
 #make the folder that the source files will be downloaded and built
 mkdir /builddir

@@ -22,7 +22,7 @@
 
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd dialog name@%@~~~~~~~~~~~Title of the dialog, say: system recovery~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd in use message@%@~~~~~~~~~~~Say that there is an instance of the system recovery tool open, and that to run the recovery tool again, the other instace will need to close~~~~~~~~~~~DELIM_FOR_KDIALOG
-#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~%@recovery cd welcome message@%@~~~~~~~~~~~Say Welcome to LinuxRCD from linuxrcd.sourceforge.net~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd welcome message@%@~~~~~~~~~~~Say Welcome to LinuxRCD from linuxrcd.sourceforge.net~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd introduction message@%@~~~~~~~~~~~Tell user that this will help them recover unusable linux installs, but has only been tested on Ubuntu. Tell them that this is not an offical Ubuntu CD, and tell them not to use this disk if they wanted to recover data from broken file systems as this cd does not have those kinds of tools ~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd continue message@%@~~~~~~~~~~~Tell user to press OK to continue~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd quit prompt@%@~~~~~~~~~~~Ask user if they want to exit from their system~~~~~~~~~~~DELIM_FOR_KDIALOG
@@ -45,6 +45,10 @@
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd dialog description@%@~~~~~~~~~~~Tell user that a set of dialogs will appear that will help the user find and recover their system~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd os selector description@%@~~~~~~~~~~~Tell user that they will soon be able to select the OS they want to recover, and that only Linux ones will be listed. Tell them that it might take a while for the next dialog to appear as it is populating the list~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd support message@%@~~~~~~~~~~~Tell user that if they don't see thier intended linux install, to report to linuxrcd.sourceforge.net, as their might be strange issue with thier file system.~~~~~~~~~~~DELIM_FOR_KDIALOG
+
+#make this for kdialog so it does not nag and confuse the user
+mkdir -p /.kde/share/config
+touch    /.kde/share/config/knotifyrc 
 
 #detect if the lock file was created, if it was, tell the user, and then exit the script
 if [ -f /tmp/system_recovery_lock ]
@@ -206,7 +210,7 @@ mount --rbind /usr/LinuxRCD-Recovery-Tools-And-Data /media/RecoveryMount/usr/Lin
 touch /tmp/noshutdown
 
 #start Xephyr with the correct keyboard model so that arrow keys work
-Xephyr :1 -keybd ephyr,,,xkbmodel=evdev &
+Xephyr :1 -keybd evdev,,,xkbmodel=evdev &
 
 #wait for Xephyr to start
 sleep 5

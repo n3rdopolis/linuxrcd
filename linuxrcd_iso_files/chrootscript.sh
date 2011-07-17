@@ -32,6 +32,8 @@ mount -t devpts none /dev/pts
 #update the apt cache
 apt-get update
 
+#install aptitude
+echo Y | apt-get install aptitude
 
 #install wget and binutils
 aptitude install binutils wget --without-recommends -y

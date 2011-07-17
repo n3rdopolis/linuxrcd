@@ -58,7 +58,7 @@ NOTE THAT SOME GUI FILE BROWSERS MAY CALL THE FOLDER  ${HOME}/ just plain old 'h
 
 As you can tell its unlikley you have any files named like this, but just check to be sure, because if they exist they will be erased.
 
-Creates a recovery oriented live CD based on ubuntu lucid (10.04)"
+Creates a recovery oriented live CD based on ubuntu natty (11.04)"
 
 
 
@@ -194,7 +194,7 @@ cd ~/LiveDiskCreAtionCacheFolDer
 
 echo "creating virtual hard disk image. This could take some time. The target size of the file is 2 GB"
 #make the super large image at 2gb and show the progress
-dd if=/dev/zero bs=1048576  count=2048 | pv | dd of=livecdfs 
+dd if=/dev/zero bs=1048576  count=4096 | pv | dd of=livecdfs 
 
 
 #change text to red to not scare user
@@ -216,7 +216,7 @@ mount ./livecdfs /media/LiveDiskCreAtionChrootFolDer -o loop
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
 #install a really basic Ubuntu installation in the new fs  
-debootstrap --arch $CPU_ARCHITECTURE lucid /media/LiveDiskCreAtionChrootFolDer http://archive.ubuntu.com/ubuntu/
+debootstrap --arch $CPU_ARCHITECTURE natty /media/LiveDiskCreAtionChrootFolDer http://archive.ubuntu.com/ubuntu/
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
@@ -417,6 +417,8 @@ chroot /media/LiveDiskCreAtionChrootFolDer /chrootscript.sh
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
+# TODO Temporary pause
+read a
 
 
 #delete the old copy of the ISO 

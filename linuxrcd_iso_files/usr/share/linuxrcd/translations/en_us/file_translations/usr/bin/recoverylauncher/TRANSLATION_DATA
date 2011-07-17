@@ -1,6 +1,6 @@
 @%@recovery cd dialog name@%@~~~~~~~~~~~System Recovery~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd in use message@%@~~~~~~~~~~~There is already an instance of the system recovery tool open. To run the system recovery tool again, the first instance will need to close.~~~~~~~~~~~DELIM_FOR_KDIALOG
-%@recovery cd welcome message@%@~~~~~~~~~~~Welcome to LinuxRCD from LinuxRCD.sourceforge.net~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@recovery cd welcome message@%@~~~~~~~~~~~Welcome to LinuxRCD from LinuxRCD.sourceforge.net~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd introduction message@%@~~~~~~~~~~~This live cd will help users recover unusable Linux installs, but so far, it has only been tested on Ubunt. This is not an offical Ubuntu CD, and is not a data recovery cd like SystemRescueCD is.~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd continue message@%@~~~~~~~~~~~Press OK to continue.~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd quit prompt@%@~~~~~~~~~~~Do you want to exit from your system?~~~~~~~~~~~DELIM_FOR_KDIALOG
