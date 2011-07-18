@@ -234,7 +234,7 @@ mount --bind /dev /media/LiveDiskCreAtionChrootFolDer/dev/
 #copy in the files needed
 rsync "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_iso_files/* -Cr /media/LiveDiskCreAtionChrootFolDer/temp/
 rsync "$ThIsScriPtSFolDerLoCaTion"/*                           -Cr /media/LiveDiskCreAtionChrootFolDer/build_source
-rsync  ~/LinuxRCDPackAgeS/*  -Cr /media/LiveDiskCreAtionChrootFolDer/usr/import/packages
+
 
 #make the chroot script executable.
 #chmod +x /media/LiveDiskCreAtionChrootFolDer/temp/chrootscript.sh
@@ -402,6 +402,10 @@ done
 
 #copy the new translated executable files to where they belong
 rsync /media/LiveDiskCreAtionChrootFolDer/temp/* -a /media/LiveDiskCreAtionChrootFolDer/
+
+#copy in any LinuxRCD built packages as a local repo
+rsync  ~/LinuxRCDPackAgeS/*  -Cr /media/LiveDiskCreAtionChrootFolDer/usr/import/packages
+
 #delete the temp folder
 rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/
 
