@@ -66,7 +66,7 @@ yes Yes | aptitude install xinit  --without-recommends -y
 
 
 #install minmimal desktop GUI LXDE and related dependancies, and minimal display manager for some reason it wants xrdb which is in x11-xserver-utils, and screenshot handler and text editor, and file browser. 
-aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit lxterminal x11-xserver-utils xsel gedit emelfm2   kdebase-bin fspanel ksnapshot  --without-recommends -y
+yes Yes | aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit lxterminal x11-xserver-utils xsel gedit emelfm2   kdebase-bin fspanel ksnapshot  --without-recommends -y
 
 #install lxdes utilities
 yes Yes | aptitude install lxde  --without-recommends -y
@@ -78,7 +78,7 @@ yes Yes | aptitude install xserver-xephyr  --without-recommends -y
 yes Yes | aptitude install network-manager-gnome hicolor-icon-theme -y
 
 #install web browser 
-aptitude install chromium-browser --without-recommends -y
+yes Yes | aptitude install chromium-browser --without-recommends -y
 
 #install storage tools 
 yes Yes |  aptitude install  cryptsetup lvm2 mdadm jfsutils reiser4progs xfsprogs dmraid kpartx --without-recommends -y
@@ -87,7 +87,7 @@ yes Yes |  aptitude install gnome-settings-daemon --without-recommends -y
 ##################################################################################################################
 
 #install recovery/config utilities
-aptitude install  kuser gparted mountmanager konsole --without-recommends -y
+yes Yes | aptitude install  kuser gparted mountmanager konsole --without-recommends -y
 
 
 #install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/
