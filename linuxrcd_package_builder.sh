@@ -50,9 +50,10 @@ NOTE THAT THE FOLDERS LISTED BELOW ARE DELETED OR OVERWRITTEN ALONG WITH THE CON
 
 !! VOLUME MOUNTPOINT: /media/PackAgeCreAtionChrootFolDer/   !!!!          
    Folder:            ${HOME}/PackAgeCreAtionCacheFolDer/
+   Folder:            ${HOME}/LinuxRCDPackAgeS
    File:              ${HOME}/PackAgeCreAtionWasPVNotInStalled
    File:              ${HOME}/PackAgeCreAtionWasDeBootStrapNotInStalled
-   File:              ${HOME}/LinuxRCDPackAgeS
+
    
 NOTE THAT SOME GUI FILE BROWSERS MAY CALL THE FOLDER  ${HOME}/ just plain old 'home' so be careful 
 
@@ -99,6 +100,9 @@ rm -rf /media/PackAgeCreAtionChrootFolDer
 
 #remove the PackAgeCreAtionCacheFolDer folder 
 rm -rf ~/PackAgeCreAtionCacheFolDer
+
+#remove the folder where the build packages are.
+rm -rf ~/LinuxRCDPackAgeS
 
 #was debootstrap installed before the script was first run? if not uninstall it to keep everything clean.
 WasDeBootStrapNotInstalledBefore=$(cat PackAgeCreAtionWasDeBootStrapNotInStalled)
@@ -177,6 +181,9 @@ if (( 0==PVStatus ));
 then
 apt-get install pv
 fi
+
+#make a folder that will contain all the built packages.
+~/LinuxRCDPackAgeS
 
 #make a folder containing the live cd tools in the users local folder
 mkdir ~/PackAgeCreAtionCacheFolDer
@@ -260,6 +267,9 @@ read a
 
 #go back to the users home folder
 cd ~
+
+#copy out all of the built packages.
+rsync /media/PackAgeCreAtionChrootFolDer/usr/packageoutput/* -Cr ~/LinuxRCDPackAgeS
 
 #unmount the chrooted procfs from the outside 
 umount -lf /media/PackAgeCreAtionChrootFolDer/proc

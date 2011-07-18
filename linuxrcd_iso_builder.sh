@@ -234,7 +234,7 @@ mount --bind /dev /media/LiveDiskCreAtionChrootFolDer/dev/
 #copy in the files needed
 rsync "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_iso_files/* -Cr /media/LiveDiskCreAtionChrootFolDer/temp/
 rsync "$ThIsScriPtSFolDerLoCaTion"/*                           -Cr /media/LiveDiskCreAtionChrootFolDer/build_source
-
+rsync  ~/LinuxRCDPackAgeS/*  -Cr /media/LiveDiskCreAtionChrootFolDer/usr/import/packages
 
 #make the chroot script executable.
 #chmod +x /media/LiveDiskCreAtionChrootFolDer/temp/chrootscript.sh

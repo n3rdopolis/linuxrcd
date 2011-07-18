@@ -1,0 +1,24 @@
+#! /bin/bash
+#this script will take one argument, that is the package name to be built
+buildpackage=$1
+
+#create a directory for building the selected package in the current dircetory. 
+mkdir $buildpackage
+#switch into the new directory
+cd $buildpackage
+#get the source for the package
+apt-get source $buildpackage
+#get all the build requirements for the package
+echo Y | apt-get build-dep $buildpackage
+#change into the directory of the source code folder
+cd $buildpackage*
+#copy customized files into this source code tree. LinuxRCD will use this to customize where the data files will be placed, instead of /usr/share.
+cp -r /usr/packageinput/$buildpackage/* .
+#build the package
+debuild
+#go back one directory into the directory made for the selected package
+cd ..
+#copy all build debs out of this folder and into the folder that will be be copied before the rest of the chroot environment gets deleted
+cp *.deb /usr/packageoutput
+#go back one directory into the directory this script was started.
+cd .. 

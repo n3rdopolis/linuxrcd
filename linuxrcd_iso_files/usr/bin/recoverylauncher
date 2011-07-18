@@ -212,7 +212,7 @@ touch /tmp/noshutdown
 xmodmap -pke > /tmp/keyboardlayout
 
 #start Xephyr with the correct keyboard model so that arrow keys work
-Xephyr :1 -keybd evdev,,,xkbmodel=evdev &
+Xephyr :1  &
 
 #wait for Xephyr to start
 sleep 5
@@ -224,11 +224,11 @@ clipboardmgr :0 :1 &
 #xhost needs this as it does not accept a display argument
 export DISPLAY=:1
 
-#set the keyboard layout for Xephyr's display based on the hosts display
-xmodmap /tmp/keyboardlayout
-
 #start the window manager 
 openbox &
+
+#set the keyboard layout for Xephyr's display based on the hosts display
+xmodmap /tmp/keyboardlayout
 
 #start an Xsettings manager
 lxsession -s xephyr &

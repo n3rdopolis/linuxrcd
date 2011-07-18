@@ -33,30 +33,24 @@ mount -t devpts none /dev/pts
 apt-get update
 
 #install aptitude
-echo Y | apt-get install aptitude --without-recommends
+echo Y | apt-get install aptitude 
 
 #install utilites that will help the rebuild of packages
-aptitude install binutils devscripts bzr build-essential fakeroot debian-builder  -y
+aptitude install binutils devscripts bzr build-essential fakeroot debian-builder  -y --without-recommends
 
 #make the folder that the source files will be downloaded and built
 mkdir /builddir
 
-#make the folder that the .debs will be copied to, so that the caller script can move them out.
-mkdir /builtpackages
 
 
 cd builddir
 
-
-#
-#
-###################################################BEGIN SYSTEM COFIGURATION################################################## 
+#build the packages using the packagebuild script.
 
 
-
-#####################################################END SYSTEM CONFIGURATION##################################################
-#
-#
+#Prepare the folder for being a local repo
+cd /usr/packageoutput
+dpkg-scanpackages . /dev/null | gzip -c9 > Packages.gz
 
 
 #unmount the procfs from the chrooted system
