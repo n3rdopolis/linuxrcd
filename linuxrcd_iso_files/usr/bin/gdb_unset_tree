@@ -1,0 +1,33 @@
+#! /bin/bash
+
+#save the first argument as a variable
+parentprocess=$1
+
+#create a fuction
+function listtree {
+#save the first argument as a variable
+treeprocess=$1
+
+while read TREEPROCESS
+do
+GDB_UNSET=$(echo $TREEPROCESS | awk '{print $2}')
+#remove the variable from the process
+gdb --pid=$GDB_UNSET -x /usr/bin/gdb_unset_PANGO_RC_FILE
+listtree $(echo $TREEPROCESS | awk '{print $2}' )
+
+
+done < <( ps -fA | awk "{ if( \$3 == treeprocess=$1 ) {print $2 } }" )
+}
+
+while read PROCESS
+do
+GDB_UNSET=$(echo $PROCESS | awk '{print $2}')
+#remove the variable from the process
+gdb --pid=$GDB_UNSET -x /usr/bin/gdb_unset_PANGO_RC_FILE
+listtree $(echo $PROCESS | awk '{print $2}' )
+
+
+done < <( ps -fA | awk "{ if( \$3 == $parentprocess ) { print $2 } }" )
+
+#remove the variable from the parent process
+gdb --pid=$parentprocess -x /usr/bin/gdb_unset_PANGO_RC_FILE

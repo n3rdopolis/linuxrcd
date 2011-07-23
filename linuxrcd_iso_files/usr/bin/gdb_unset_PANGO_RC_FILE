@@ -1,0 +1,3 @@
+call unsetenv ("PANGO_RC_FILE") 
+detach
+Quit

@@ -146,8 +146,8 @@ fi
 #get the size of the users home file system. 
 HomeFileSysTemFSFrEESpaCe=$(df ~ | awk '{print $4}' |  grep -v Av)
 #if there is 5gb or less tell the user and quit. If not continue.
-if [[ $HomeFileSysTemFSFrEESpaCe -le 5000000 ]]; then               
-  echo "You have less then 5gb of free space on the partition that contains your home folder. Please free up some space." 
+if [[ $HomeFileSysTemFSFrEESpaCe -le 4000000 ]]; then               
+  echo "You have less then 4gb of free space on the partition that contains your home folder. Please free up some space." 
   echo "The script will now abort."
   echo "free space:"
   df ~ -h | awk '{print $4}' |  grep -v Av
@@ -192,7 +192,7 @@ mkdir ~/LiveDiskCreAtionCacheFolDer
 cd ~/LiveDiskCreAtionCacheFolDer
 
 
-echo "creating virtual hard disk image. This could take some time. The target size of the file is 2 GB"
+echo "creating virtual hard disk image. This could take some time. The target size of the file is 4 GB"
 #make the super large image at 2gb and show the progress
 dd if=/dev/zero bs=1048576  count=4096 | pv | dd of=livecdfs 
 

@@ -80,6 +80,12 @@ yes Yes | aptitude install network-manager-gnome hicolor-icon-theme -y
 #install web browser 
 yes Yes | aptitude install chromium-browser --without-recommends -y
 
+#install tool for querying pango modules
+yes Yes | aptitude install libpango1.0-dev --without-recommends -y
+
+#install gdb for changing processess enviroment variables
+yes Yes | aptitude install gdb --without-recommends -y
+
 #install storage tools 
 yes Yes |  aptitude install  cryptsetup lvm2 mdadm jfsutils reiser4progs xfsprogs dmraid kpartx --without-recommends -y
 
@@ -175,6 +181,9 @@ ln -s  /etc/init.d/hal  /etc/rc2.d/S52hal
 #add the preparer to startup script
 ln -s  /etc/init.d/prepare  /etc/rc2.d/S52prepare
 
+#add the external command helper to the startup script
+ln -s /etc/init.d/chroot_external_helper /etc/rc2.d/S52chroot_helper
+
 #########END OLD STYLE INIT SCRIPT EDITS###################
 
 
@@ -257,6 +266,12 @@ change-libs $(which mountmanager)
 change-libs $(which openbox)
 change-libs $(which fspanel)
 change-libs $(which xarchiver)
+change-libs $(which menu-cached)
+
+#prepare PANGO TODO 64 bit?
+cp /usr/lib/*/pango/1.6.0/modules/* /usr/LinuxRCD-Recovery-Tools-And-Data/pango
+pango-querymodules /usr/LinuxRCD-Recovery-Tools-And-Data/pango/* > /usr/LinuxRCD-Recovery-Tools-And-Data/pango/pango.modules
+
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
 #

@@ -18,5 +18,16 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say "file manager"
 
+export PATH=$PATH:"/usr/LinuxRCD-Recovery-Tools-And-Data"
+
+#set the Pangorc file
+export PANGO_RC_FILE=/usr/LinuxRCD-Recovery-Tools-And-Data/pango/pangorc
+
+
 #start the file manager for the user inside the folder with the exported mounts. Do not let the file manager become the desktop
 pcmanfm --no-desktop /LinuxRCD-media &
+
+#grab the previous PID
+pid=$!
+#use GDB to unset the PANGO_RC_FILE variable on the process and its current child processess so it isn't used anymore
+echo "unset_pango:$pid" > /usr/LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket

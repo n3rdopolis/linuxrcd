@@ -142,9 +142,9 @@ fi
 
 #get the size of the users home file system. 
 HomeFileSysTemFSFrEESpaCe=$(df ~ | awk '{print $4}' |  grep -v Av)
-#if there is 3gb or less tell the user and quit. If not continue.
-if [[ $HomeFileSysTemFSFrEESpaCe -le 3000000 ]]; then               
-  echo "You have less then 3gb of free space on the partition that contains your home folder. Please free up some space." 
+#if there is 4gb or less tell the user and quit. If not continue.
+if [[ $HomeFileSysTemFSFrEESpaCe -le 4000000 ]]; then               
+  echo "You have less then 4gb of free space on the partition that contains your home folder. Please free up some space." 
   echo "The script will now abort."
   echo "free space:"
   df ~ -h | awk '{print $4}' |  grep -v Av
@@ -194,14 +194,14 @@ cd ~/PackAgeCreAtionCacheFolDer
 
 echo "creating virtual hard disk image. This could take some time. The target size of the file is 2 GB"
 #make the super large image at 2gb and show the progress
-dd if=/dev/zero bs=1048576  count=2048 | pv | dd of=livecdfs 
+dd if=/dev/zero bs=1048576  count=4096 | pv | dd of=packagebuilderfs 
 
 
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
 echo "creating a file system on the virtual image. Not on your real file system."
 #create a file system on the image 
-yes y | mkfs.ext3 ./livecdfs
+yes y | mkfs.ext3 ./packagebuilderfs 
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
@@ -210,7 +210,7 @@ echo -en \\033[00m\\033[8] > $(tty)
 mkdir /media/PackAgeCreAtionChrootFolDer
 
 #mount the image created above at the mountpoint as a loop deivce
-mount ./livecdfs /media/PackAgeCreAtionChrootFolDer -o loop
+mount ./packagebuilderfs  /media/PackAgeCreAtionChrootFolDer -o loop
 
 
 #change text to red to not scare user

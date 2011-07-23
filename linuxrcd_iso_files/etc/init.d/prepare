@@ -1,7 +1,7 @@
 # /bin/bash
 #Remastersys seems to not copy folders in /media... Create the folders needed for some tools later on.
 mkdir /media/Downloads
-mkdir /media/RecoveryMount 
+mkdir /mnt/RecoveryMount 
 
 #allow the browser user to save to the Downloads folder in /media
 chmod 777 /media/Downloads

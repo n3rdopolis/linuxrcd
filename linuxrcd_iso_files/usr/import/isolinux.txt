@@ -145,3 +145,4 @@
 @%@Boot linuxrcd message@%@
 
 @%@Boot hd message@%@
+

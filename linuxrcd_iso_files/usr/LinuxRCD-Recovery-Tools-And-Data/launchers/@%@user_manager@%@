@@ -18,5 +18,8 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say: "manage users"~~~~~~~~~~~
 
+export PATH=$PATH:"/usr/LinuxRCD-Recovery-Tools-And-Data"
+
 #callup the graphical user account editor
 kuser &
+

@@ -18,7 +18,8 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Fix Grub2 environment block~~~~~~~~~~~
 
+export PATH=$PATH:"/usr/LinuxRCD-Recovery-Tools-And-Data"
+
 #execute the script that calls the grub recovery tool.
 /usr/LinuxRCD-Recovery-Tools-And-Data/Grub2_environmentblockfix_launcher.sh  > /dev/null 2>&1 &
    
-

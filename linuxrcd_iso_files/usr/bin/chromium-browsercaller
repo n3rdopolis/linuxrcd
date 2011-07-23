@@ -32,7 +32,7 @@ xhost +LOCAL:
 #if being passed with run, then it is probably called by itself, and can be unshared, to hide the users system from the browser
 if [[ $1 == "run" ]]
 then
-mount --bind /srv /media/RecoveryMount
+mount --bind /srv /mnt/RecoveryMount
 su browser -c " chromium-webbrowser --user-data-dir=/home/browser --first-run file:///usr/share/linuxrcd/data_files/html_files/download_notice.html"
 fi
 

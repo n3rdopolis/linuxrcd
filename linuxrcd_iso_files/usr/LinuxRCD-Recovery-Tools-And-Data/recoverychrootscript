@@ -28,20 +28,40 @@ export DISPLAY=localhost:1
 #many apps need the home variable set.
 export HOME=/root
 
-export PATH=$PATH:/usr/LinuxRCD-Recovery-Tools-And-Data
+export PATH=$PATH:"/usr/LinuxRCD-Recovery-Tools-And-Data"
 ##CALL THE STARTUP APPS
 
 #call up the windowing manager
 #openbox
 
+#set the Pangorc file
+export PANGO_RC_FILE=/usr/LinuxRCD-Recovery-Tools-And-Data/pango/pangorc
 
 #call up xsettings manager, GTK apps like this.
 lxsession &
 
+#grab the previous PID
+pid=$!
+#use GDB to unset the PANGO_RC_FILE variable on the process and its current child processess so it isn't used anymore
+echo "unset_pango:$pid" > /usr/LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket 
+
 #call up the file browser opened to the folder containg the launchers 
 pcmanfm --no-desktop /usr/LinuxRCD-Recovery-Tools-And-Data/launchers &
 
+#grab the previous PID
+pid=$!
+#use GDB to unset the PANGO_RC_FILE variable on the process and its current child processess so it isn't used anymore
+echo "unset_pango:$pid" > /usr/LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket
+
 #call up the panel
 fspanel &
+
+#grab the previous PID
+pid=$!
+#use GDB to unset the PANGO_RC_FILE variable on the process and its current child processess so it isn't used anymore
+echo "unset_pango:$pid" > /usr/LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket
+
+#unset the pangorc file. all child processess will use the  system default
+unset PANGO_RC_FILE
 
 

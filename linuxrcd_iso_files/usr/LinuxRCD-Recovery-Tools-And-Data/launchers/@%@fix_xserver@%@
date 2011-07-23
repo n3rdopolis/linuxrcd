@@ -18,5 +18,16 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Fix X server"~~~~~~~~~~~
 
+export PATH=$PATH:"/usr/LinuxRCD-Recovery-Tools-And-Data"
+
+#set the Pangorc file
+export PANGO_RC_FILE=/usr/LinuxRCD-Recovery-Tools-And-Data/pango/pangorc
+
 #execute the script that calls the x server recovery tool
 /usr/LinuxRCD-Recovery-Tools-And-Data/xserver_fix_launcher.sh  > /dev/null 2>&1 &
+
+
+#grab the previous PID
+pid=$!
+#use GDB to unset the PANGO_RC_FILE variable on the process and its current child processess so it isn't used anymore
+echo "unset_pango:$pid" > /usr/LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket

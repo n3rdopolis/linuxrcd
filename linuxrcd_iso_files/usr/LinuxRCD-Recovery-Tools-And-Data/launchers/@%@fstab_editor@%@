@@ -17,6 +17,9 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "graphical fstab editor"~~~~~~~~~~~
 
+export PATH=$PATH:"/usr/LinuxRCD-Recovery-Tools-And-Data"
+
 #execute mountmanager, the graphical fstab editor
 mountmanager & 
-								   
+
+						   

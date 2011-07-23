@@ -11,7 +11,7 @@ the file system upon shutdown.
 
   Its still in development, and may cause unknown breakage...
 
-  Some packages might fail to install, due to runtime differences in the runtimes like kernel versions and init systems not working in chroot, and the AUFS union in /usr/share.
+  Some packages might fail to install, due to runtime differences in the runtimes like kernel versions and init systems not working in chroot.
 
 TODO:
   add more programs/scripts for recovery
@@ -20,7 +20,7 @@ TODO:
 
   Fix the issues with data in /usr/share messing with package managers
 
-  Find solutiion for packages that start Upstart/systemd jobs after starting, are going to fail in the chroot, and cause the package to report failure and bomb out the package manager. This needs a fix
+  Upstart might be fixed as far as package managers starting jobs, but systemd is not yet.
 
 How to use the ISO:
   burn it, (or put it in a VM), reboot, set the BIOS to boot from the CD if it does not already, 

@@ -18,5 +18,19 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "text editor"~~~~~~~~~~~
 
+export PATH=$PATH:"/usr/LinuxRCD-Recovery-Tools-And-Data"
+
+#set the Pangorc file
+export PANGO_RC_FILE=/usr/LinuxRCD-Recovery-Tools-And-Data/pango/pangorc
+
 #call up the text editor
 gedit & 
+
+
+#grab the previous PID
+pid=$!
+#use GDB to unset the PANGO_RC_FILE variable on the process and its current child processess so it isn't used anymore
+echo "unset_pango:$pid" > /usr/LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket
+
+#unset the pangorc file. all child processess will use the  system default
+unset PANGO_RC_FILE
