@@ -19,8 +19,8 @@
 #This script is called up by the script that promts the user for what system to mount. It is carried into the users target system with a binded mount in a non standard location, and then chrooted to do some work to prep the target system for recovery, and then calls up the apps.
 
 
-
-
+#change to the LinuxRCD Directory
+cd /usr/LinuxRCD-Recovery-Tools-And-Data
 
 #set the display variable so that X apps start a GUI
 export DISPLAY=localhost:1
@@ -42,6 +42,10 @@ lxsession &
 
 #grab the previous PID
 pid=$!
+
+#wait for 10 seconds
+sleep 10
+
 #use GDB to unset the PANGO_RC_FILE variable on the process and its current child processess so it isn't used anymore
 echo "unset_pango:$pid" > /usr/LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket 
 
@@ -50,6 +54,10 @@ pcmanfm --no-desktop /usr/LinuxRCD-Recovery-Tools-And-Data/launchers &
 
 #grab the previous PID
 pid=$!
+
+#wait for 10 seconds
+sleep 10
+
 #use GDB to unset the PANGO_RC_FILE variable on the process and its current child processess so it isn't used anymore
 echo "unset_pango:$pid" > /usr/LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket
 
@@ -58,6 +66,10 @@ fspanel &
 
 #grab the previous PID
 pid=$!
+
+#wait for 10 seconds
+sleep 10
+
 #use GDB to unset the PANGO_RC_FILE variable on the process and its current child processess so it isn't used anymore
 echo "unset_pango:$pid" > /usr/LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket
 

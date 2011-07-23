@@ -18,6 +18,9 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say: "manage users"~~~~~~~~~~~
 
+#change to the LinuxRCD Directory
+cd /usr/LinuxRCD-Recovery-Tools-And-Data
+
 export PATH=$PATH:"/usr/LinuxRCD-Recovery-Tools-And-Data"
 
 #callup the graphical user account editor
