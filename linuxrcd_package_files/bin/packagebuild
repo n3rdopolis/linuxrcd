@@ -11,9 +11,19 @@ apt-get source $buildpackage
 #get all the build requirements for the package
 echo Y | apt-get build-dep $buildpackage
 #change into the directory of the source code folder
-cd $buildpackage*
+cd *
+
+#Change all references to /usr to /usr/LinuxRCD-Recovery-Tools-And-Data
+find . -name "*" |while read FILE
+do
+#sed -i 's/usr/usr\/LinuxRCD-Recovery-Tools-And-Data/g' $FILE  
+sed -i 's/\/usr/\/usr\/LinuxRCD-Recovery-Tools-And-Data/g' $FILE
+sed -i 's/usr\//usr\/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
+sed -i 's/\/usr\//\/usr\/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
+done
+
 #copy customized files into this source code tree. LinuxRCD will use this to customize where the data files will be placed, instead of /usr/share.
-cp -r /usr/packageinput/$buildpackage/* .
+cp -Rv /usr/packageinput/"$buildpackage"/* .
 #build the package
 debuild
 #go back one directory into the directory made for the selected package
@@ -22,3 +32,11 @@ cd ..
 cp *.deb /usr/packageoutput
 #go back one directory into the directory this script was started.
 cd .. 
+
+#clean up the builddir
+rm -rf $buildpackage
+#remove the cached downloaded files.
+apt-get clean
+
+#Revert to the packages used for building
+dpkg --set-selections < /usr/packages_for_building

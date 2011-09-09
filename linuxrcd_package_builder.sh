@@ -183,7 +183,7 @@ apt-get install pv
 fi
 
 #make a folder that will contain all the built packages.
-~/LinuxRCDPackAgeS
+mkdir ~/LinuxRCDPackAgeS
 
 #make a folder containing the live cd tools in the users local folder
 mkdir ~/PackAgeCreAtionCacheFolDer

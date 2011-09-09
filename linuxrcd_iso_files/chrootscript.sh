@@ -66,7 +66,7 @@ yes Yes | aptitude install xinit  --without-recommends -y
 
 
 #install minmimal desktop GUI LXDE and related dependancies, and minimal display manager for some reason it wants xrdb which is in x11-xserver-utils, and screenshot handler and text editor, and file browser. 
-yes Yes | aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit lxterminal x11-xserver-utils xsel gedit emelfm2   kdebase-bin fspanel ksnapshot  --without-recommends -y
+yes Yes | aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit roxterm x11-xserver-utils xsel gedit emelfm2   kdebase-bin fspanel ksnapshot pcmanfm qtfm --without-recommends -y
 
 #install lxdes utilities
 yes Yes | aptitude install lxde  --without-recommends -y
@@ -258,15 +258,15 @@ mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
 cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
 change-libs $(which kdialog)
-change-libs $(which lxterminal)
+change-libs $(which roxterm)
 change-libs $(which kuser)
-change-libs $(which pcmanfm)
+change-libs $(which emelfm2)
 change-libs $(which gedit)
 change-libs $(which mountmanager)
 change-libs $(which openbox)
 change-libs $(which fspanel)
 change-libs $(which xarchiver)
-change-libs $(which menu-cached)
+
 
 #prepare PANGO TODO 64 bit?
 cp /usr/lib/*/pango/1.6.0/modules/* /usr/LinuxRCD-Recovery-Tools-And-Data/pango

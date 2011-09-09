@@ -40,5 +40,5 @@ fixxserver=$?
 if [[ $fixxserver -eq 0 ]]
 then
 #open up the x server reconfigure
-lxterminal -e "dpkg-reconfigure xserver-xorg" &
+roxterm -e "dpkg-reconfigure xserver-xorg" &
 fi

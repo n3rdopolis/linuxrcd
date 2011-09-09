@@ -35,18 +35,35 @@ apt-get update
 #install aptitude
 echo Y | apt-get install aptitude 
 
+#Capture the list of all the default installed packages
+dpkg --get-selections > /usr/packages_in_minimal
+
+#install the CD's packages here
+
+#capture the list of all installed packages. They are the ones that will be built.
+dpkg --get-selections | grep -v deinstall | awk '{print $1}' > /usr/packages_to_build
+
+#Put the contents of /usr into /usr/LinuxRCD-Recovery-Tools-And-Data as packages that are being built will have ALL references to /usr changed to /usr/LinuxRCD-Recovery-Tools-And-Data
+ln -s /usr /usr/LinuxRCD-Recovery-Tools-And-Data
+
+
+#Capture the list of all the default installed packages
+dpkg --set-selections < /usr/packages_in_minimal
+
 #install utilites that will help the rebuild of packages
 aptitude install binutils devscripts bzr build-essential fakeroot debian-builder  -y --without-recommends
 
-#make the folder that the source files will be downloaded and built
-mkdir /builddir
+#Capture the list of all the installed packages for building
+dpkg --get-selections > /usr/packages_for_building
 
-
-
-cd builddir
+#change into the packagebuild folder
+cd /usr/packagebuild
 
 #build the packages using the packagebuild script.
-
+cat /usr/packages_to_build | while read PACKAGE
+do
+packagebuild $PACKAGE
+done
 
 #Prepare the folder for being a local repo
 cd /usr/packageoutput

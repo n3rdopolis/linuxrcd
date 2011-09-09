@@ -159,7 +159,7 @@ if [[ $checkdisk -eq 0 ]]
 then
 #check the specified root file system for errors
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd fsck message@%@" &
-lxterminal -e fsck -p $(cat /usr/share/devname)
+roxterm -e fsck -p $(cat /usr/share/devname)
 fi
 
 

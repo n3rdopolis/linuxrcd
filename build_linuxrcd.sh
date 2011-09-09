@@ -1,9 +1,12 @@
 #! /bin/bash
 
-echo enter desired CPU arch to build the live CD. (32 bit systems can not build 64 bit systems)
+ThIsScriPtSFiLeLoCaTion=$(readlink -f "$0")
+ThIsScriPtSFolDerLoCaTion=$(dirname "$ThIsScriPtSFiLeLoCaTion")
+
+echo "enter desired CPU arch to build the live CD. (32 bit systems can not build 64 bit systems)"
 read CPU_ARCHITECTURE
 
-echo enter desired language
+echo "enter desired language"
 read Language_Name
 
 
@@ -34,14 +37,14 @@ read a
 
 #was debootstrap installed before the script was first run? if not uninstall it to keep everything clean.
 WasDeBootStrapNotInstalledBefore=$(cat LiveDiskCreAtionWasDeBootStrapNotInStalled)
-if (( 1==WasDeBootStrapNotInstalledBefore ));
+if (( 1 == WasDeBootStrapNotInstalledBefore ));
 then
 apt-get purge debootstrap -y
 fi
 
 #was pv installed before the script was first run? if not uninstall it to keep everything clean.
 WasPVNotInstalledBefore=$(cat LiveDiskCreAtionWasPVNotInStalled)
-if (( 1==WasPVNotInstalledBefore ));
+if (( 1 == WasPVNotInstalledBefore ));
 then
 apt-get purge pv -y
 fi
@@ -117,8 +120,8 @@ then
 apt-get install pv
 fi
 
-./linuxrcd_package_builder.sh $CPU_ARCHITECTURE  $Language_Name
-./linuxrcd_iso_builder.sh     $CPU_ARCHITECTURE  $Language_Name
+"$ThIsScriPtSFolDerLoCaTion"/linuxrcd_package_builder.sh $CPU_ARCHITECTURE  $Language_Name
+"$ThIsScriPtSFolDerLoCaTion"/linuxrcd_iso_builder.sh     $CPU_ARCHITECTURE  $Language_Name
 
 
 
