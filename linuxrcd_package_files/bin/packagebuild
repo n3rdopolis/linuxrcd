@@ -10,23 +10,46 @@ cd $buildpackage
 apt-get source $buildpackage
 #get all the build requirements for the package
 echo Y | apt-get build-dep $buildpackage
+
+
 #change into the directory of the source code folder
 cd *
 
-#Change all references to /usr to /usr/LinuxRCD-Recovery-Tools-And-Data
+#apply the patches that come with the source files TODO DEBIAN QUILT AND OTHER DEBIAN STUFF
+dpatch apply-all
+gunzip ../*.gz
+#patch -p1 < ../*.diff
+rm ../*
+rm debian/patches/*
+
+#APPLY AND DELETE DEBIAN PATCHES HERE TODO
+
+#Change all references to /usr to /LinuxRCD-Recovery-Tools-And-Data
 find . -name "*" |while read FILE
 do
-#sed -i 's/usr/usr\/LinuxRCD-Recovery-Tools-And-Data/g' $FILE  
+#sed -i 's/usr/LinuxRCD-Recovery-Tools-And-Data/g' $FILE  
 sed -i 's/\/usr\//USR_FOLDER_NAME_WITH_DUAL_SLASHES/g' $FILE
 sed -i 's/\/usr/USR_FOLDER_NAME_WITH_START_SLASH/g' $FILE
 sed -i 's/usr\//USR_FOLDER_NAME_WITH_END_SLASH/g' $FILE
+sed -i 's/\<usr\>/USR_FOLDER_NAME_ISOLATED/g' $FILE
 
-sed -i 's/USR_FOLDER_NAME_WITH_DUAL_SLASHES/\/usr\/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
-sed -i 's/USR_FOLDER_NAME_WITH_START_SLASH/\/usr\/LinuxRCD-Recovery-Tools-And-Data/g' $FILE
-sed -i 's/USR_FOLDER_NAME_WITH_END_SLASH/usr\/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
+sed -i 's/USR_FOLDER_NAME_WITH_DUAL_SLASHES/\/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
+sed -i 's/USR_FOLDER_NAME_WITH_START_SLASH/\/LinuxRCD-Recovery-Tools-And-Data/g' $FILE
+sed -i 's/USR_FOLDER_NAME_WITH_END_SLASH/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
+sed -i 's/USR_FOLDER_NAME_ISOLATED/LinuxRCD-Recovery-Tools-And-Data/g' $FILE
 done
 
-#copy customized files into this source code tree. LinuxRCD will use this to customize where the data files will be placed, instead of /usr/share.
+find . -name usr | while read FILEPATH
+do
+#FILEPATH=$(readlink -f $FILEPATH) 
+oldfilepath=$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)
+newfilepath=$(echo $oldfilepath |sed 's/usr/LinuxRCD-Recovery-Tools-And-Data/g')
+filename=$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)
+mkdir -p $newfilepath/LinuxRCD-Recovery-Tools-And-Data
+cp -R $oldfilepath/usr/* $newfilepath/LinuxRCD-Recovery-Tools-And-Data
+done
+
+#copy customized files into this source code tree. 
 cp -Rv /usr/packageinput/"$buildpackage"/* .
 
 #build the package
@@ -36,6 +59,7 @@ buildstatus=$?
 cd ..
 #copy all build debs out of this folder and into the folder that will be be copied before the rest of the chroot environment gets deleted
 cp *.deb /usr/packageoutput
+cp *.udeb /usr/packageoutput
 #go back one directory into the directory this script was started.
 cd .. 
 
@@ -46,7 +70,7 @@ apt-get clean
 
 #Revert to the packages used for building
 dpkg --set-selections < /usr/packages_for_building
-
+echo y | apt-get -u dselect-upgrade
 if [ $buildstatus -eq 0 ]
 then
 exit 0
