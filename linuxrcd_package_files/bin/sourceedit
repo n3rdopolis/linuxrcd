@@ -1,0 +1,36 @@
+#! /bin/bash
+
+#apply the patches that come with the source files 
+rm debian/patches/*
+
+
+
+#Change all references to /usr to /LinuxRCD-Recovery-Tools-And-Data
+find . -name "*" |while read FILE
+do
+#sed -i 's/usr/LinuxRCD-Recovery-Tools-And-Data/g' $FILE  
+sed -i 's/\/usr\//USR_FOLDER_NAME_WITH_DUAL_SLASHES/g' $FILE
+sed -i 's/\/usr/USR_FOLDER_NAME_WITH_START_SLASH/g' $FILE
+sed -i 's/usr\//USR_FOLDER_NAME_WITH_END_SLASH/g' $FILE
+sed -i 's/\<usr\>/USR_FOLDER_NAME_ISOLATED/g' $FILE
+
+sed -i 's/USR_FOLDER_NAME_WITH_DUAL_SLASHES/\/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
+sed -i 's/USR_FOLDER_NAME_WITH_START_SLASH/\/LinuxRCD-Recovery-Tools-And-Data/g' $FILE
+sed -i 's/USR_FOLDER_NAME_WITH_END_SLASH/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
+sed -i 's/USR_FOLDER_NAME_ISOLATED/LinuxRCD-Recovery-Tools-And-Data/g' $FILE
+done
+
+find . -name usr | while read FILEPATH
+do
+#FILEPATH=$(readlink -f $FILEPATH) 
+oldfilepath=$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)
+newfilepath=$(echo $oldfilepath |sed 's/usr/LinuxRCD-Recovery-Tools-And-Data/g')
+filename=$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)
+mkdir -p $newfilepath/LinuxRCD-Recovery-Tools-And-Data
+cp -R $oldfilepath/usr/* $newfilepath/LinuxRCD-Recovery-Tools-And-Data
+done
+
+
+
+#copy customized files into this source code tree. 
+cp -Rv /usr/packageinput/"$buildpackage"/* .

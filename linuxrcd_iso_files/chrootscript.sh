@@ -269,8 +269,8 @@ change-libs $(which xarchiver)
 
 
 #prepare PANGO TODO 64 bit?
-cp /usr/lib/*/pango/1.6.0/modules/* /usr/LinuxRCD-Recovery-Tools-And-Data/pango
-pango-querymodules /usr/LinuxRCD-Recovery-Tools-And-Data/pango/* > /usr/LinuxRCD-Recovery-Tools-And-Data/pango/pango.modules
+cp /usr/lib/*/pango/1.6.0/modules/* /LinuxRCD-Recovery-Tools-And-Data/pango
+pango-querymodules /LinuxRCD-Recovery-Tools-And-Data/pango/* > /LinuxRCD-Recovery-Tools-And-Data/pango/pango.modules
 
 #####################################################END SYSTEM CONFIGURATION##################################################
 #

@@ -2,55 +2,43 @@
 #this script will take one argument, that is the package name to be built
 buildpackage=$1
 
-#create a directory for building the selected package in the current dircetory. 
-mkdir $buildpackage
-#switch into the new directory
-cd $buildpackage
-#get the source for the package
-apt-get source $buildpackage
-#get all the build requirements for the package
-echo Y | apt-get build-dep $buildpackage
+#apply the patches that come with the source files 
+rm ../*.diff.gz
+rm ../*.dsc
+
+#patch up the .tar.gz files as some packages like to use them
+find . -name "*.tar.gz"  | while read TARFILE
+do
+TARFILE=$(readlink -f $TARFILE)
+#create a folder for modifying the original tar file, as debian quilt wants it
+mkdir ORIGTAR
+
+#change into the folder
+cd ORIGTAR
+
+#extract the orig.tar.gz file
+tar -zxvf $TARFILE
+
+#modify the source tree
+sourceedit
+
+#recreate the orig.tar.gz with the modified source
+tar -zcvf  $TARFILE .
+#change back
+cd ..
+
+#delete the folder for the orginal tar
+rm -rf ORIGTAR
+done
+
+
 
 
 #change into the directory of the source code folder
 cd *
 
-#apply the patches that come with the source files TODO DEBIAN QUILT AND OTHER DEBIAN STUFF
-dpatch apply-all
-gunzip ../*.gz
-#patch -p1 < ../*.diff
-rm ../*
-rm debian/patches/*
-
-#APPLY AND DELETE DEBIAN PATCHES HERE TODO
-
-#Change all references to /usr to /LinuxRCD-Recovery-Tools-And-Data
-find . -name "*" |while read FILE
-do
-#sed -i 's/usr/LinuxRCD-Recovery-Tools-And-Data/g' $FILE  
-sed -i 's/\/usr\//USR_FOLDER_NAME_WITH_DUAL_SLASHES/g' $FILE
-sed -i 's/\/usr/USR_FOLDER_NAME_WITH_START_SLASH/g' $FILE
-sed -i 's/usr\//USR_FOLDER_NAME_WITH_END_SLASH/g' $FILE
-sed -i 's/\<usr\>/USR_FOLDER_NAME_ISOLATED/g' $FILE
-
-sed -i 's/USR_FOLDER_NAME_WITH_DUAL_SLASHES/\/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
-sed -i 's/USR_FOLDER_NAME_WITH_START_SLASH/\/LinuxRCD-Recovery-Tools-And-Data/g' $FILE
-sed -i 's/USR_FOLDER_NAME_WITH_END_SLASH/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
-sed -i 's/USR_FOLDER_NAME_ISOLATED/LinuxRCD-Recovery-Tools-And-Data/g' $FILE
-done
-
-find . -name usr | while read FILEPATH
-do
-#FILEPATH=$(readlink -f $FILEPATH) 
-oldfilepath=$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)
-newfilepath=$(echo $oldfilepath |sed 's/usr/LinuxRCD-Recovery-Tools-And-Data/g')
-filename=$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)
-mkdir -p $newfilepath/LinuxRCD-Recovery-Tools-And-Data
-cp -R $oldfilepath/usr/* $newfilepath/LinuxRCD-Recovery-Tools-And-Data
-done
-
-#copy customized files into this source code tree. 
-cp -Rv /usr/packageinput/"$buildpackage"/* .
+#modify the source tree
+sourceedit
 
 #build the package
 yes | debuild -us -uc
@@ -63,14 +51,11 @@ cp *.udeb /usr/packageoutput
 #go back one directory into the directory this script was started.
 cd .. 
 
-#clean up the builddir
+#clean up the builddir 
 rm -rf $buildpackage
-#remove the cached downloaded files.
-apt-get clean
 
-#Revert to the packages used for building
-dpkg --set-selections < /usr/packages_for_building
-echo y | apt-get -u dselect-upgrade
+
+
 if [ $buildstatus -eq 0 ]
 then
 exit 0

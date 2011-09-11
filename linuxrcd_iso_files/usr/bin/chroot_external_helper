@@ -4,10 +4,10 @@
 while [ 1 ]
 do
 #make a file in file out
-mkfifo /usr/LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket
+mkfifo /LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket
 
 #
-input=$(cat /usr/LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket)
+input=$(cat /LinuxRCD-Recovery-Tools-And-Data/chroot_helper_command_socket)
 
 command=$(echo $input | awk -F ':' '{print $1}')
 argument=$(echo $input | awk -F ':' '{print $2}')

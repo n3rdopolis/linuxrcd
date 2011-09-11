@@ -23,9 +23,6 @@ mount -t sysfs none /sys
 #mount /dev/pts
 mount -t devpts none /dev/pts
 
-
-
-
 #update the apt cache
 apt-get update
 
@@ -43,17 +40,14 @@ dpkg --get-selections > /usr/packages_in_minimal
 #capture the list of all installed packages. They are the ones that will be built.
 dpkg --get-selections | grep -v deinstall | awk '{print $1}' > /usr/packages_to_build
 
-#Capture the list of all the default installed packages
+#Capture the list of all the default installed packages 
 dpkg --set-selections < /usr/packages_in_minimal
 
-#revert to minimal install
+#revert to minimal install TODO FIX
 echo y | apt-get -u dselect-upgrade
 
 #install utilites that will help the rebuild of packages
 aptitude install binutils devscripts bzr build-essential fakeroot debian-builder  -y --without-recommends
-
-#Capture the list of all the installed packages for building
-dpkg --get-selections > /usr/packages_for_building
 
 
 #make /usr and /usr/local the same thing
@@ -63,41 +57,27 @@ mount --bind /usr/ /usr/local
 #Put the contents of /usr into /LinuxRCD-Recovery-Tools-And-Data as packages that are being built will have ALL references to /usr changed to /LinuxRCD-Recovery-Tools-And-Data and will be looking for the files here
 mount --rbind /usr /LinuxRCD-Recovery-Tools-And-Data
 
+#predownload the source and dependancies for all packages.
+while read PACKAGE
+do
+sourceget "$PACKAGE"
+done < <(cat /usr/packages_to_build)
 
-
-
+#delete the temporary packages
+apt-get clean
 
 #get the number of packages to build
 numberofpackages=$(cat /usr/packages_to_build | grep -c ^)
 
-#change into the /usr/share/debhelper folder
-cd /usr/share/debhelper
+#change into the /usr/share folder
+cd /usr/share/
 
-#change into the usr folder
-#Change all references to /usr to /LinuxRCD-Recovery-Tools-And-Data
-find . -name "*" |while read FILE
-do
-#sed -i 's/usr/LinuxRCD-Recovery-Tools-And-Data/g' $FILE  
-sed -i 's/\/usr\//USR_FOLDER_NAME_WITH_DUAL_SLASHES/g' $FILE
-sed -i 's/\/usr/USR_FOLDER_NAME_WITH_START_SLASH/g' $FILE
-sed -i 's/usr\//USR_FOLDER_NAME_WITH_END_SLASH/g' $FILE
-sed -i 's/\<usr\>/USR_FOLDER_NAME_ISOLATED/g' $FILE
+sourceedit
 
-sed -i 's/USR_FOLDER_NAME_WITH_DUAL_SLASHES/\/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
-sed -i 's/USR_FOLDER_NAME_WITH_START_SLASH/\/LinuxRCD-Recovery-Tools-And-Data/g' $FILE
-sed -i 's/USR_FOLDER_NAME_WITH_END_SLASH/LinuxRCD-Recovery-Tools-And-Data\//g' $FILE
-sed -i 's/USR_FOLDER_NAME_ISOLATED/LinuxRCD-Recovery-Tools-And-Data/g' $FILE
-done
+#change into the /usr/include folder
+cd /usr/include
 
-find . -name usr | while read FILEPATH
-do
-#FILEPATH=$(readlink -f $FILEPATH) 
-oldfilepath=$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)
-newfilepath=$(echo $oldfilepath |sed 's/usr/LinuxRCD-Recovery-Tools-And-Data/g')
-filename=$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)
-mkdir -p $newfilepath/LinuxRCD-Recovery-Tools-And-Data
-cp -R $oldfilepath/usr/* $newfilepath/LinuxRCD-Recovery-Tools-And-Data
-done
+sourcedit
 
 #change into the packagebuild folder
 cd /usr/packagebuild
@@ -118,7 +98,7 @@ then
 echo "Build of "$PACKAGE" Successful"
 successfulpackages=$(( $successfulpackages+1 ))
 else
-echo "build of "$PACKAGE" Failed"
+echo "build of "$PACKAGE" Failed with error code $buildstatus"
 failedpackages=$(( $failedpackages+1 ))
 fi
 
