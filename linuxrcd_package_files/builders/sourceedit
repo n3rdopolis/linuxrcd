@@ -34,9 +34,13 @@ then
 echo "editing file $FILE"
 #replace all instances of usr with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
 sed -re '/(\W|^)usr(\W|$)/ s/usr/LinuxRCDRecoveryToolsAndData/g' "$FILE" > "$FILE.tmp"
+fileownergroup=$(stat "$FILE"  -c %U:%G)
+filepermission=$(stat "$FILE"  -c %a)
 rm "$FILE"
 cat "$FILE.tmp" > "$FILE"
 rm "$FILE.tmp"
+chmod "$filepermission" "$FILE"
+chown "$fileownergroup" "$FILE"
 #sed -i 's/usr/LinuxRCDRecoveryToolsAndData/gI' "$FILE"  
    
 #sed -i 's/\/usr\//USR_FOLDER_NAME_WITH_DUAL_SLASHES/gI' $FILE
