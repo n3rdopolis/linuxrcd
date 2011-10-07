@@ -1,0 +1,83 @@
+#! /bin/bash
+#    Copyright (c) 2009, 2010, 2011, nerdopolis (or n3rdopolis) <bluescreen_avenger@version.net>
+#
+#    This file is part of LinuxRCD.
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+sourcedir="$1"
+buildpackage="$2"
+#apply the patches that come with the source files 
+rm debian/patches/*.diff
+rm debian/patches/*.patch
+rm debian/patches/*.dpatch
+
+
+#Change all references to /usr to /LinuxRCDRecoveryToolsAndData
+find "$sourcedir" -type f -not -name "*.tar*" -not -path '/proc/*' -not -path '/sys/*' -not -path '/dev/*' -not -path '/tmp/*' -not -path "/builders/*" |while read FILE
+do
+#only editing TEXT files
+filetype="$(file "$FILE" -b --mime-type | awk -F / '{print $1}')"
+if [[ "$filetype" == "text" ]]
+then
+echo "editing file $FILE"
+#replace all instances of usr with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
+sed -re '/(\W|^)usr(\W|$)/ s/usr/LinuxRCDRecoveryToolsAndData/g' "$FILE" > "$FILE.tmp"
+rm "$FILE"
+cat "$FILE.tmp" > "$FILE"
+rm "$FILE.tmp"
+#sed -i 's/usr/LinuxRCDRecoveryToolsAndData/gI' "$FILE"  
+   
+#sed -i 's/\/usr\//USR_FOLDER_NAME_WITH_DUAL_SLASHES/gI' $FILE
+#sed -i 's/\/usr/USR_FOLDER_NAME_WITH_START_SLASH/gI' $FILE
+#sed -i 's/usr\//USR_FOLDER_NAME_WITH_END_SLASH/gI' $FILE
+#sed -i 's/\<usr\>/USR_FOLDER_NAME_ISOLATED/gI' $FILE
+
+#sed -i 's/USR_FOLDER_NAME_WITH_DUAL_SLASHES/\/LinuxRCDRecoveryToolsAndData\//g' $FILE
+#sed -i 's/USR_FOLDER_NAME_WITH_START_SLASH/\/LinuxRCDRecoveryToolsAndData/g' $FILE
+#sed -i 's/USR_FOLDER_NAME_WITH_END_SLASH/LinuxRCDRecoveryToolsAndData\//g' $FILE
+#sed -i 's/USR_FOLDER_NAME_ISOLATED/LinuxRCDRecoveryToolsAndData/g' $FILE
+fi
+
+done
+
+find "$sourcedir" -type f -name "*.tar*" -not -path '/proc/*' -not -path '/sys/*' -not -path '/dev/*' -not -path '/tmp' -not -path "/builders/*" |while read FILE
+do
+taredit "$FILE" "$buildpackage"
+done
+
+find "$sourcedir" -type f -name usr | rev | while read FILEPATH
+do
+FILEPATH=$(echo $FILEPATH | rev) 
+oldfilepath="$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)"
+newfilepath="$(echo $oldfilepath |sed 's/usr/LinuxRCDRecoveryToolsAndData/g')"
+filename="$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)"
+mkdir -p "$newfilepath"
+echo "copying $oldfilepath/usr" "$newfilepath/LinuxRCDRecoveryToolsAndData"
+cp  -a "$oldfilepath/usr" "$newfilepath/LinuxRCDRecoveryToolsAndData"
+done
+
+find "$sourcedir" -type d -name usr | rev | while read FILEPATH
+do
+FILEPATH=$(echo $FILEPATH | rev) 
+oldfilepath="$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)"
+newfilepath="$(echo $oldfilepath |sed 's/usr/LinuxRCDRecoveryToolsAndData/g')"
+filename="$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)"
+mkdir -p "$newfilepath"
+echo "copying $oldfilepath/usr" "$newfilepath/LinuxRCDRecoveryToolsAndData"
+cp -a "$oldfilepath/usr/." "$newfilepath/LinuxRCDRecoveryToolsAndData"
+done
+
+#copy customized files into this source code tree. 
+cp -Rv /usr/packageinput/"$buildpackage"/* .
