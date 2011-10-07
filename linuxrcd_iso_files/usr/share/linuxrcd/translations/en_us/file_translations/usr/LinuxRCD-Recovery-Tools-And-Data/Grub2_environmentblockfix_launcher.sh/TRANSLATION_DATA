@@ -1,8 +1,0 @@
-@%@Grub environment block dialog name%@~~~~~~~~~~~Grub 2 Environment Block Recovery~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@Grub environment block welcome@%@~~~~~~~~~~~This will attempt to remove the Grub Environment Block~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@Grub environment block description@%@~~~~~~~~~~~This will try to fix Grub Environment block errors, or sometime Out of Disk errors from Grub.~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@Grub environment block disclaimer@%@~~~~~~~~~~~If the Grub environment block is successfuly deleted, and you still can't bot into GRUB, then it is likely there is a disk issue, or you have an older BIOS that cant see above the 137GB barrier. You might have to create a small partition at the beginning of the drive. Doing so can be risky.~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@Grub environment block prompt@%@~~~~~~~~~~~Do you want to try to delete the Grub Environment Block?~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@Grub environment block failed to remove file@%@~~~~~~~~~~~Deletion of the Environment block was not successful.~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@Grub environment block success@%@~~~~~~~~~~~Removal of the Environment Block was successful.~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@Grub environment block file not found@%@~~~~~~~~~~~The Grub environment block was already moved. If you are still having issues with GRUB, then you could have the 137GB BIOS limitation or a disk issue.~~~~~~~~~~~DELIM_FOR_KDIALOG
