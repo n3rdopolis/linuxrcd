@@ -25,7 +25,7 @@ rm debian/patches/*.dpatch
 
 
 #Change all references to /usr to /LinuxRCDRecoveryToolsAndData
-find "$sourcedir" -type f -not -name "*.tar*" -not -path '/proc/*' -not -path '/sys/*' -not -path '/dev/*' -not -path '/tmp/*' -not -path "/builders/*" |while read FILE
+find "$sourcedir" -type f -not -name "*.tar*" -not -name "chrootscript.sh" -not -path '/proc/*' -not -path '/sys/*' -not -path '/dev/*' -not -path '/tmp/*' -not -path "/builders/*" |while read FILE
 do
 #only editing TEXT files
 filetype="$(file "$FILE" -b --mime-type | awk -F / '{print $1}')"
