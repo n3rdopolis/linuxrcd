@@ -1,19 +1,21 @@
 #! /bin/bash
-#This file is part of LinuxRCD.
+#    Copyright (c) 2009, 2010, 2011, nerdopolis (or n3rdopolis) <bluescreen_avenger@version.net>
 #
-#    LinuxRCD is free software: you can redistribute it and/or modify
+#    This file is part of LinuxRCD.
+#
+#    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 2 of the License, or
 #    (at your option) any later version.
 #
-#    LinuxRCD is distributed in the hope that it will be useful,
+#    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
-#
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
  
 #This script file comes up upon launch and manages the recovery of the system. It prompts the user for the system to mount, and then it tries to chroot into the system, and  it calls up the programs in the chroot.
 
@@ -198,11 +200,11 @@ mkdir /mnt/RecoveryMount/LinuxRCD-media
 #mount the media folder seen by a non chrooted process. This will allow the chrooted system to see external media. 
 mount --rbind /proc/1/root/media /mnt/RecoveryMount/LinuxRCD-media
 
-#make the LinuxRCD-Recovery-Tools-And-Data folder in case if its not there
-mkdir /mnt/RecoveryMount/LinuxRCD-Recovery-Tools-And-Data
+#make the LinuxRCDRecoveryToolsAndData folder in case if its not there
+mkdir /mnt/RecoveryMount/LinuxRCDRecoveryToolsAndData
 
 #bind the live cd data into the recovery system
-mount --rbind /LinuxRCD-Recovery-Tools-And-Data /mnt/RecoveryMount/LinuxRCD-Recovery-Tools-And-Data
+mount --rbind /LinuxRCDRecoveryToolsAndData /mnt/RecoveryMount/LinuxRCDRecoveryToolsAndData
 
 #lock shutdown
 touch /tmp/noshutdown
@@ -247,7 +249,7 @@ hostname -F /mnt/RecoveryMount/etc/hostname
 
 
 #start the chroot script. Run it as a background task so that this can prompt for done
-chroot /mnt/RecoveryMount  /LinuxRCD-Recovery-Tools-And-Data/recoverychrootscript &
+chroot /mnt/RecoveryMount  /LinuxRCDRecoveryToolsAndData/recoverychrootscript &
 
 sleep 10
 
@@ -313,8 +315,8 @@ umount /mnt/RecoveryMount/var/run/dbus
 #unmount the X11 authroization folder
 umount /mnt/RecoveryMount/tmp/.X11-unix
 
-#unmount the /LinuxRCD-Recovery-Tools-And-Data folder
-umount /mnt/RecoveryMount/LinuxRCD-Recovery-Tools-And-Data
+#unmount the /LinuxRCDRecoveryToolsAndData folder
+umount /mnt/RecoveryMount/LinuxRCDRecoveryToolsAndData
 
 #unmount all fstab partitions
 chroot /mnt/RecoveryMount umount -alf

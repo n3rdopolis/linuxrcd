@@ -1,5 +1,7 @@
 #! /usr/bin/sudo /bin/bash
-#    Copyright (c) 2009 2010, nerdopolis <bluescreen_avenger@version.net>
+#    Copyright (c) 2009, 2010, 2011, nerdopolis (or n3rdopolis) <bluescreen_avenger@version.net>
+#
+#    This file is part of LinuxRCD.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -145,7 +147,7 @@ fi
 
 #get the size of the users home file system. 
 HomeFileSysTemFSFrEESpaCe=$(df ~ | awk '{print $4}' |  grep -v Av)
-#if there is 5gb or less tell the user and quit. If not continue.
+#if there is 4gb or less tell the user and quit. If not continue.
 if [[ $HomeFileSysTemFSFrEESpaCe -le 4000000 ]]; then               
   echo "You have less then 4gb of free space on the partition that contains your home folder. Please free up some space." 
   echo "The script will now abort."
@@ -192,16 +194,15 @@ mkdir ~/LiveDiskCreAtionCacheFolDer
 cd ~/LiveDiskCreAtionCacheFolDer
 
 
-echo "creating virtual hard disk image. This could take some time. The target size of the file is 4 GB"
-#make the super large image at 2gb and show the progress
-dd if=/dev/zero bs=1048576  count=4096 | pv | dd of=livecdfs 
+#create the file that will be the filesystem image
+dd if=/dev/zero of=livecdfs bs=1 count=0 seek=4G 
 
 
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
 echo "creating a file system on the virtual image. Not on your real file system."
 #create a file system on the image 
-yes y | mkfs.ext3 ./livecdfs
+yes y | mkfs.ext4 ./livecdfs
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
@@ -234,7 +235,8 @@ mount --bind /dev /media/LiveDiskCreAtionChrootFolDer/dev/
 #copy in the files needed
 rsync "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_iso_files/* -Cr /media/LiveDiskCreAtionChrootFolDer/temp/
 rsync "$ThIsScriPtSFolDerLoCaTion"/*                           -Cr /media/LiveDiskCreAtionChrootFolDer/build_source
-
+cp "$ThIsScriPtSFolDerLoCaTion"/LinuxRCDPackagesList-norecommends /media/PackAgeCreAtionChrootFolDer/tmp
+cp "$ThIsScriPtSFolDerLoCaTion"/LinuxRCDPackagesList-recommends /media/PackAgeCreAtionChrootFolDer/tmp
 
 #make the chroot script executable.
 #chmod +x /media/LiveDiskCreAtionChrootFolDer/temp/chrootscript.sh

@@ -1,5 +1,7 @@
 #! /usr/bin/sudo /bin/bash
-#    Copyright (c) 2009 2010, nerdopolis <bluescreen_avenger@version.net>
+#    Copyright (c) 2009, 2010, 2011, nerdopolis (or n3rdopolis) <bluescreen_avenger@version.net>
+#
+#    This file is part of LinuxRCD.
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -54,13 +56,13 @@ NOTE THAT THE FOLDERS LISTED BELOW ARE DELETED OR OVERWRITTEN ALONG WITH THE CON
    File:              ${HOME}/PackAgeCreAtionWasPVNotInStalled
    File:              ${HOME}/PackAgeCreAtionWasDeBootStrapNotInStalled
 
+Running this script will also allow any local user to connect to your login display session, as some packages want to connect to an xserver when they are being built. Any local user will be able to spy on your session, untill you reboot.
    
 NOTE THAT SOME GUI FILE BROWSERS MAY CALL THE FOLDER  ${HOME}/ just plain old 'home' so be careful 
 
 As you can tell its unlikley you have any files named like this, but just check to be sure, because if they exist they will be erased.
 
-Creates Natty packages for LinuxRCD that are recompiled to not use /usr/share"
-
+Creates Natty packages for LinuxRCD that are recompiled to not use /usr"
 
 
 
@@ -73,6 +75,8 @@ echo "press enter again to start the operation. If you started the script in an 
 
 read a
 
+#allow local users to connect to the xserver
+xhost +LOCAL:
 ####CLEAN UP IF THIS BASH SCRIPT WAS INTURUPTED
 #enter users home directory
 cd ~
@@ -142,9 +146,9 @@ fi
 
 #get the size of the users home file system. 
 HomeFileSysTemFSFrEESpaCe=$(df ~ | awk '{print $4}' |  grep -v Av)
-#if there is 4gb or less tell the user and quit. If not continue.
-if [[ $HomeFileSysTemFSFrEESpaCe -le 4000000 ]]; then               
-  echo "You have less then 4gb of free space on the partition that contains your home folder. Please free up some space." 
+#if there is 20gb or less tell the user and quit. If not continue.
+if [[ $HomeFileSysTemFSFrEESpaCe -le 20000000 ]]; then               
+  echo "You have less then 20gb of free space on the partition that contains your home folder. Please free up some space." 
   echo "The script will now abort."
   echo "free space:"
   df ~ -h | awk '{print $4}' |  grep -v Av
@@ -192,16 +196,15 @@ mkdir ~/PackAgeCreAtionCacheFolDer
 cd ~/PackAgeCreAtionCacheFolDer
 
 
-echo "creating virtual hard disk image. This could take some time. The target size of the file is 2 GB"
-#make the super large image at 2gb and show the progress
-dd if=/dev/zero bs=1048576  count=4096 | pv | dd of=packagebuilderfs 
+#create the file that will be the filesystem image
+dd if=/dev/zero of=packagebuilderfs bs=1  count=0 seek=20G 
 
 
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
 echo "creating a file system on the virtual image. Not on your real file system."
 #create a file system on the image 
-yes y | mkfs.ext3 ./packagebuilderfs 
+yes y | mkfs.ext4 ./packagebuilderfs 
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
@@ -234,7 +237,8 @@ mount --bind /dev /media/PackAgeCreAtionChrootFolDer/dev/
 #copy in the files needed
 rsync "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_package_files/* -Cr /media/PackAgeCreAtionChrootFolDer/temp/
 rsync "$ThIsScriPtSFolDerLoCaTion"/*                           -Cr /media/PackAgeCreAtionChrootFolDer/build_source
-
+cp "$ThIsScriPtSFolDerLoCaTion"/LinuxRCDPackagesList-norecommends /media/PackAgeCreAtionChrootFolDer/tmp
+cp "$ThIsScriPtSFolDerLoCaTion"/LinuxRCDPackagesList-recommends /media/PackAgeCreAtionChrootFolDer/tmp
 
 #make the chroot script executable.
 #chmod +x /media/PackAgeCreAtionChrootFolDer/temp/chrootscript.sh

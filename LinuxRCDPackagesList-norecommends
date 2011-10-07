@@ -1,0 +1,15 @@
+gdebi  
+xserver-xorg  
+lvm2 mdadm dmraid cryptsetup parted  
+remastersys  
+xinit  
+lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit roxterm x11-xserver-utils xsel gedit emelfm2   kdebase-bin fspanel ksnapshot pcmanfm qtfm 
+lxde  
+xserver-xephyr  
+chromium-browser 
+libpango1.0-dev 
+gdb 
+cryptsetup lvm2 mdadm jfsutils reiser4progs xfsprogs dmraid kpartx 
+gnome-settings-daemon 
+kuser gparted mountmanager konsole 
+

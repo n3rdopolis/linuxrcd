@@ -1,19 +1,21 @@
 #! /bin/bash
-#This file is part of LinuxRCD.
+#    Copyright (c) 2009, 2010, 2011, nerdopolis (or n3rdopolis) <bluescreen_avenger@version.net>
 #
-#    LinuxRCD is free software: you can redistribute it and/or modify
+#    This file is part of LinuxRCD.
+#
+#    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 2 of the License, or
 #    (at your option) any later version.
 #
-#    LinuxRCD is distributed in the hope that it will be useful,
+#    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
-#
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 
 #mount the procfs
@@ -39,62 +41,24 @@ echo Y | apt-get install aptitude
 aptitude install binutils wget --without-recommends -y
 
 
-#install a language pack
+#install a language pack. Packages listed here will need to be added to linuxrcd_package_files/chrootscript.sh, LANGUAGEPACKLINE.
 if [ "@%@Language_Name@%@" == "en_us" ];
 then
 #If this is set to use English translations install the English translations
 aptitude install language-pack-en --without-recommends -y
 fi
 
-#install a kernel for the Live disk
-aptitude install linux-generic  --without-recommends -y
+#Install the list of packages that does not require recommended depends
+cat /tmp/LinuxRCDPackagesList-norecommends | while read PACKAGELINE
+do
+yes Y | aptitude install "$PACKAGELINE" -y --without-recommends
+done
 
-#install gdebi for installing external debs not found on any ppas.
-aptitude install gdebi  --without-recommends -y
-
-#install an xserver
-aptitude install xserver-xorg  --without-recommends -y
-
-#install utilities for handling filesystems, raid, and lvm
-aptitude install lvm2 mdadm dmraid cryptsetup parted  --without-recommends -y
-
-#install remastersys 
-yes Yes | aptitude install remastersys  --without-recommends -y
-
-#install xinit 
-yes Yes | aptitude install xinit  --without-recommends -y
-
-
-#install minmimal desktop GUI LXDE and related dependancies, and minimal display manager for some reason it wants xrdb which is in x11-xserver-utils, and screenshot handler and text editor, and file browser. 
-yes Yes | aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit roxterm x11-xserver-utils xsel gedit emelfm2   kdebase-bin fspanel ksnapshot pcmanfm qtfm --without-recommends -y
-
-#install lxdes utilities
-yes Yes | aptitude install lxde  --without-recommends -y
-
-#install X11 display nester Xephyr
-yes Yes | aptitude install xserver-xephyr  --without-recommends -y
-
-#install gnome network manager tor provide networking and it needs the icon theme 
-yes Yes | aptitude install network-manager-gnome hicolor-icon-theme -y
-
-#install web browser 
-yes Yes | aptitude install chromium-browser --without-recommends -y
-
-#install tool for querying pango modules
-yes Yes | aptitude install libpango1.0-dev --without-recommends -y
-
-#install gdb for changing processess enviroment variables
-yes Yes | aptitude install gdb --without-recommends -y
-
-#install storage tools 
-yes Yes |  aptitude install  cryptsetup lvm2 mdadm jfsutils reiser4progs xfsprogs dmraid kpartx --without-recommends -y
-
-yes Yes |  aptitude install gnome-settings-daemon --without-recommends -y
-##################################################################################################################
-
-#install recovery/config utilities
-yes Yes | aptitude install  kuser gparted mountmanager konsole --without-recommends -y
-
+#Install the list of packages that does  require recommended depends
+cat /tmp/LinuxRCDPackagesList-norecommends | while read PACKAGELINE
+do
+yes Y | aptitude install "$PACKAGELINE" -y 
+done
 
 #install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/
 wget http://hydra.nixos.org/build/912157/download/1/patchelf_0.6pre25969-1_@%@CPU_ARCHITECTURE@%@.deb
@@ -269,8 +233,8 @@ change-libs $(which xarchiver)
 
 
 #prepare PANGO TODO 64 bit?
-cp /usr/lib/*/pango/1.6.0/modules/* /LinuxRCD-Recovery-Tools-And-Data/pango
-pango-querymodules /LinuxRCD-Recovery-Tools-And-Data/pango/* > /LinuxRCD-Recovery-Tools-And-Data/pango/pango.modules
+cp /usr/lib/*/pango/1.6.0/modules/* /LinuxRCDRecoveryToolsAndData/pango
+pango-querymodules /LinuxRCDRecoveryToolsAndData/pango/* > /LinuxRCDRecoveryToolsAndData/pango/pango.modules
 
 #####################################################END SYSTEM CONFIGURATION##################################################
 #

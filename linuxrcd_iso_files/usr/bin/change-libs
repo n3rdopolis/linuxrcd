@@ -1,19 +1,21 @@
 #! /bin/bash 
-#This file is part of LinuxRCD.
+#    Copyright (c) 2009, 2010, 2011, nerdopolis (or n3rdopolis) <bluescreen_avenger@version.net>
 #
-#    LinuxRCD is free software: you can redistribute it and/or modify
+#    This file is part of LinuxRCD.
+#
+#    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 2 of the License, or
 #    (at your option) any later version.
 #
-#    LinuxRCD is distributed in the hope that it will be useful,
+#    This program is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with LinuxRCD.  If not, see <http://www.gnu.org/licenses/>.
-#
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 #File to handle the translation of the libraries so that the programs can run in the target system. takes one argument, the path of the executable ELF file to patch. The dependant libraries of the executable ELF passed will also be copied and patched
 
@@ -48,12 +50,12 @@ do
 #add the rpath
 patchelf --force-rpath  /tmp/change-libs/$exefile
 #set the rpath
-patchelf --set-rpath  /LinuxRCD-Recovery-Tools-And-Data /tmp/change-libs/$exefile
+patchelf --set-rpath  /LinuxRCDRecoveryToolsAndData /tmp/change-libs/$exefile
 #try to set the interpreter
-patchelf --set-interpreter /LinuxRCD-Recovery-Tools-And-Data/$interpretername /tmp/change-libs/$exefile 
+patchelf --set-interpreter /LinuxRCDRecoveryToolsAndData/$interpretername /tmp/change-libs/$exefile 
 done
 
 #move the files from the working location, into the actual location.
-mv /tmp/change-libs/* /LinuxRCD-Recovery-Tools-And-Data/
+mv /tmp/change-libs/* /LinuxRCDRecoveryToolsAndData/
 #copy the interpreter into the actual location. Don't move it because it was not copied into the working location. the source interpreter is still in its system location.
-cp $(ldd $1 | grep ld-linux.so |  awk '{print $1}') /LinuxRCD-Recovery-Tools-And-Data
+cp $(ldd $1 | grep ld-linux.so |  awk '{print $1}') /LinuxRCDRecoveryToolsAndData
