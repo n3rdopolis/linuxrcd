@@ -1,0 +1,4 @@
+@%@X server fixer dialog name@%@~~~~~~~~~~~Fixing the X server~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@X server fixer prompt@%@~~~~~~~~~~~Do you want to continue?~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@X server fixer disclaimer@%@~~~~~~~~~~~Depending on your system configuration, you might get a terminal window prompting for information, or a terminal window that appears only for a short while. This only works on Debian like systems.~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@X server fixer greeting@%@~~~~~~~~~~~A terminal window will be opend to allow you to fix the X server.~~~~~~~~~~~DELIM_FOR_KDIALOG
