@@ -135,7 +135,7 @@ then
 if [[ "$buildstatus" == 0 ]]
 then 
 echo "Build of "$PACKAGE" Successful"        | tee -a builtpackages.log
-successfulpackages=$(( $successfulpackages+1 )) | tee -a builtpackages.log
+successfulpackages=$(( $successfulpackages+1 )) 
 else
 echo "build of "$PACKAGE" Failed with error code $buildstatus" | tee -a builtpackages.log
 failedpackages=$(( $failedpackages+1 ))

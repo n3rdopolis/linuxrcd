@@ -20,9 +20,12 @@
 buildpackage="$1"
 #switch into the new directory
 cd $buildpackage
-#apply the patches that come with the source files 
-rm ../*.diff.gz
-rm ../*.dsc
+#delete the patches that come with the source files 
+#rm ../*.diff.gz
+#rm ../*.dsc 
+#rm debian/patches/*.diff
+#rm debian/patches/*.patch
+#rm debian/patches/*.dpatch
 
 echo "patching files in this packages tar files downloaded from apt-get source to not use usr"
 #patch up the .tar.gz files as some packages like to use them
@@ -44,7 +47,7 @@ cd *
 echo "Editing files in this packages source tree to not use usr"
 
 #build the package
-yes | debuild -us -uc
+yes | debuild -us -uc -b 
 buildstatus=${PIPESTATUS[1]}
 #go back one directory into the directory made for the selected package
 cd ..

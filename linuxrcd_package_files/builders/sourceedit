@@ -18,10 +18,6 @@
 
 sourcedir="$1"
 buildpackage="$2"
-#apply the patches that come with the source files 
-rm debian/patches/*.diff
-rm debian/patches/*.patch
-rm debian/patches/*.dpatch
 
 
 #Change all references to /usr to /LinuxRCDRecoveryToolsAndData
@@ -33,7 +29,7 @@ if [[ "$filetype" == "text" ]]
 then
 echo "editing file $FILE"
 #replace all instances of usr with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
-sed -re '/(\W|^)usr(\W|$)/ s/usr/LinuxRCDRecoveryToolsAndData/g' "$FILE" > "$FILE.tmp"
+sed -re 's/(\W|^)usr(\W|$)/\1LinuxRCDRecoveryToolsAndData\2/g' "$FILE" > "$FILE.tmp"
 fileownergroup=$(stat "$FILE"  -c %U:%G)
 filepermission=$(stat "$FILE"  -c %a)
 rm "$FILE"
