@@ -1,15 +1,1 @@
 deb file:///usr/import/packages /
-deb http://archive.ubuntu.com/ubuntu/ natty main restricted
-deb http://archive.ubuntu.com/ubuntu/ natty-updates main restricted
-deb http://archive.ubuntu.com/ubuntu/ natty universe
-deb http://archive.ubuntu.com/ubuntu/ natty-updates universe
-deb http://archive.ubuntu.com/ubuntu/ natty multiverse
-deb http://archive.ubuntu.com/ubuntu/ natty-updates multiverse
-deb http://archive.ubuntu.com/ubuntu/ natty-backports main restricted universe multiverse
-deb http://archive.canonical.com/ubuntu natty partner
-deb-src http://archive.canonical.com/ubuntu natty partner
-deb http://archive.ubuntu.com/ubuntu/ natty-security main restricted
-deb http://archive.ubuntu.com/ubuntu/ natty-security universe
-deb http://archive.ubuntu.com/ubuntu/ natty-security multiverse
-deb http://archive.ubuntu.com/ubuntu/ natty-proposed restricted main multiverse universe
-deb http://www.geekconnection.org/remastersys/repository remastersys/

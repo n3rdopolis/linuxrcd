@@ -158,8 +158,11 @@ echo "$successfulpackages packages where built, $failedpackages failed to build"
 #Prepare the folder for being a local repo
 cd /usr/packageoutput
 dpkg-scanpackages . /dev/null | gzip -c9 > Packages.gz
-
-
+#prepare the local repo to be ready for debootstrap
+mkdir .cache
+mkdir -p dists/natty/main/binary-i386/
+apt-ftparchive generate apt-ftparchive.conf
+apt-ftparchive -c apt-release.conf release ./dists/natty > ./dists/natty/Release
 
 
 #unmount the procfs from the chrooted system

@@ -217,7 +217,7 @@ mount ./livecdfs /media/LiveDiskCreAtionChrootFolDer -o loop
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
 #install a really basic Ubuntu installation in the new fs  
-debootstrap --arch $CPU_ARCHITECTURE natty /media/LiveDiskCreAtionChrootFolDer http://archive.ubuntu.com/ubuntu/
+debootstrap --arch i386 natty /media/LiveDiskCreAtionChrootFolDer file://${HOME}/LinuxRCDPackAgeS
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
