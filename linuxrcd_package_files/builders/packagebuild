@@ -47,7 +47,7 @@ cd *
 echo "Editing files in this packages source tree to not use usr"
 
 #build the package
-yes | debuild -us -uc -b 
+yes | debuild -us -uc -b -rsudo
 buildstatus=${PIPESTATUS[1]}
 #go back one directory into the directory made for the selected package
 cd ..
@@ -57,6 +57,8 @@ cp *.udeb /usr/packageoutput
 #go back one directory into the directory this script was started.
 cd .. 
 
+#delete the folder it was built in. some of the packages end up being HUGE directories.
+rm -rf $buildpackage
 
 
 

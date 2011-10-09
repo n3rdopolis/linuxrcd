@@ -27,8 +27,9 @@ mount -t sysfs none /sys
 mount -t devpts none /dev/pts
 
 #create a user that will run debuild
-useradd builder -M -d "/usr/packagebuild"
-
+echo 'builder:U6aMy0wojraho:1000:1000::/LinuxRCDRecoveryToolsAndData/packagebuild:/bin/bash' >> /etc/passwd
+echo 'admin:x:1000:builder' >> /etc/group
+sed -i 's/)/) NOPASSWD: /' /etc/sudoers
 
 #update the apt cache
 apt-get update
