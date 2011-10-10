@@ -35,7 +35,7 @@ xhost +LOCAL:
 if [[ $1 == "run" ]]
 then
 mount --bind /srv /mnt/RecoveryMount
-su browser -c " chromium-webbrowser --user-data-dir=/home/browser --first-run file:///usr/share/linuxrcd/data_files/html_files/download_notice.html"
+su browser -c " chromium-webbrowser --user-data-dir=/home/browser --first-run file:///RCD/share/linuxrcd/data_files/html_files/download_notice.html"
 fi
 
 #if not passed with run, then it did not call itself with a new mount space, and it not save to bind mount the empty folder over /media

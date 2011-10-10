@@ -108,11 +108,11 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 #find all detected oses.
 storage_detect
 #take the information from storage_detect, and put it in the file the script searches
-cat /tmp/linuxinstalls | grep -v /dev/loop0 > /usr/share/detectedoses
-echo " " >>     /usr/share/detectedoses
+cat /tmp/linuxinstalls | grep -v /dev/loop0 > /RCD/share/detectedoses
+echo " " >>     /RCD/share/detectedoses
 
 #capture number of oses
-oscount=$(cat /usr/share/detectedoses | grep : -c)
+oscount=$(cat /RCD/share/detectedoses | grep : -c)
 #if no oses detected then quit this script
 if (( 0==oscount ));
 then
@@ -121,16 +121,16 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 rm /tmp/system_recovery_lock
 exit 0
 fi
-oschoice=$(kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --combobox "@%@recovery cd os choice message@%@" $(cat /usr/share/detectedoses | sed s/" "/"_"/g ))
+oschoice=$(kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --combobox "@%@recovery cd os choice message@%@" $(cat /RCD/share/detectedoses | sed s/" "/"_"/g ))
  
 #run os prober again, and grab the entire OS line
-echo $oschoice  > /usr/share/osline
+echo $oschoice  > /RCD/share/osline
 #get the device file name where the OS is installed
-cat /usr/share/osline | sed  's/:.*/ /' > /usr/share/devname
+cat /RCD/share/osline | sed  's/:.*/ /' > /RCD/share/devname
 
 
 #mount the system with the device name as readonly
-mount $(cat /usr/share/devname) /mnt/RecoveryMount -o ro
+mount $(cat /RCD/share/devname) /mnt/RecoveryMount -o ro
 #test chroot,
 chroot /mnt/RecoveryMount  /bin/true
 #if it failed 
@@ -141,7 +141,7 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 
 
 
-@%@recovery cd choice string@%@ $(cat /usr/share/osline)"
+@%@recovery cd choice string@%@ $(cat /RCD/share/osline)"
 umount /mnt/RecoveryMount
 
 rm /tmp/system_recovery_lock
@@ -161,14 +161,14 @@ if [[ $checkdisk -eq 0 ]]
 then
 #check the specified root file system for errors
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd fsck message@%@" &
-roxterm -e fsck -p $(cat /usr/share/devname)
+roxterm -e fsck -p $(cat /RCD/share/devname)
 fi
 
 
 
 
 #mount the system with the device name
-mount $(cat /usr/share/devname) /mnt/RecoveryMount
+mount $(cat /RCD/share/devname) /mnt/RecoveryMount
 
 #mount all fses in the target folder, running as the target system
 chroot /mnt/RecoveryMount  /bin/mount -a
@@ -243,8 +243,8 @@ hostname -F /mnt/RecoveryMount/etc/hostname
 
 
 
-#unionize /usr/share on the live cd with /usr/share on the target system. writes to /usr/share will be sent to the target system, and files on the target system's /usr/share will be the ones that are used.
-#mount -t aufs -o br=/mnt/RecoveryMount/usr/share=rw+nolwh:/rofs/usr/share  none  /mnt/RecoveryMount/usr/share
+#unionize /RCD/share on the live cd with /RCD/share on the target system. writes to /RCD/share will be sent to the target system, and files on the target system's /RCD/share will be the ones that are used.
+#mount -t aufs -o br=/mnt/RecoveryMount/RCD/share=rw+nolwh:/rofs/RCD/share  none  /mnt/RecoveryMount/RCD/share
 
 
 
@@ -264,12 +264,12 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd quit message@%@"
 
 
-kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /usr/share/osline)"
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /RCD/share/osline)"
 quitanswer=$?
 while [  $quitanswer != 0   ]  
 do
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd quit message@%@"  
-kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /usr/share/osline)"; quitanswer=$? 
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /RCD/share/osline)"; quitanswer=$? 
 done 
 
 #stop the clipboardmgr
@@ -288,11 +288,11 @@ fuser -k /mnt/RecoveryMount
 hostname -F /etc/hostname
 
 
-#unmount the /usr/share union
-umount -lf /mnt/RecoveryMount/usr/share
+#unmount the /RCD/share union
+umount -lf /mnt/RecoveryMount/RCD/share
 
 #unmount the pango library union
-umount -lf /mnt/RecoveryMount/usr/lib/pango
+umount -lf /mnt/RecoveryMount/RCD/lib/pango
 
 #unmount recovery systems /sys
 umount -lf /mnt/RecoveryMount/sys

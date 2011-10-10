@@ -51,13 +51,13 @@ fi
 #Install the list of packages that does not require recommended depends
 cat /LinuxRCDPackagesList-norecommends | while read PACKAGELINE
 do
-yes Y | aptitude install "$PACKAGELINE" -y --without-recommends
+yes Y | aptitude install $PACKAGELINE -y --without-recommends
 done
 
 #Install the list of packages that does  require recommended depends
 cat /LinuxRCDPackagesList-norecommends | while read PACKAGELINE
 do
-yes Y | aptitude install "$PACKAGELINE" -y 
+yes Y | aptitude install $PACKAGELINE -y 
 done
 
 #install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/
@@ -65,7 +65,7 @@ done
 #gdebi -n patchelf*
 #rm patchelf*
 
-#install aufs-tools for unionising /usr/share. Unionising /usr/share should not the same problems as /usr/lib or /usr/bin
+#install aufs-tools for unionising /RCD/share. Unionising /RCD/share should not the same problems as /RCD/lib or /RCD/bin
 #wget https://launchpad.net/ubuntu/+archive/primary/+files/aufs-tools_0%2B20090302-2_@%@CPU_ARCHITECTURE@%@.deb
 #gdebi -n aufs-tools*
 #rm aufs-tools*
@@ -74,22 +74,22 @@ done
 if [ "@%@Language_Name@%@" == "en_us" ];
 then
 # Delete all of mountmanager's translations to force it to use the built in English one.
-rm /usr/lib/mountmanager/trans/*
+rm /RCD/lib/mountmanager/trans/*
 fi
 
 ###BEGIN REMASTERSYS EDITS####
 
 #filter out Remastersys installing Ubiquity by filtering between 2 decisive comments in the file
-sed -i -e ' /popularity-contest as/,/Step 3 - Create the/ d ' /usr/bin/remastersys 
+sed -i -e ' /popularity-contest as/,/Step 3 - Create the/ d ' /RCD/bin/remastersys 
 
 
 #edit the remastersys script file so that it updates the initramfs instead of making a new one with uname -r as it doesnt work in chroot
-sed -i -e ' /# Step 6 - Make filesystem.squashfs/ a update-initramfs -u  ' /usr/bin/remastersys 
+sed -i -e ' /# Step 6 - Make filesystem.squashfs/ a update-initramfs -u  ' /RCD/bin/remastersys 
 
 
 
 #copy the initramfs to the correct location
-sed -i -e ' /update-initramfs/ a cp /initrd.img \$WORKDIR/ISOTMP/casper/initrd.gz ' /usr/bin/remastersys 
+sed -i -e ' /update-initramfs/ a cp /initrd.img \$WORKDIR/ISOTMP/casper/initrd.gz ' /RCD/bin/remastersys 
 
 ###END REMASTERSYS EDITS
 
@@ -161,10 +161,10 @@ ln -s /etc/init.d/chroot_external_helper /etc/rc2.d/S52chroot_helper
 #################EDIT CASPER SCRIPTS#####################
 
 #allow script to use swap. this line would disable it if it was uncommented. 
-#rm /usr/share/initramfs-tools/scripts/casper-bottom/13swap
+#rm /RCD/share/initramfs-tools/scripts/casper-bottom/13swap
 
 #change caspers configuration of the ttys to open bash instead of getty. Delete caspers configuration o
-rm /usr/share/initramfs-tools/scripts/casper-bottom/25configure_init
+rm /RCD/share/initramfs-tools/scripts/casper-bottom/25configure_init
 
 
 #################END CASPER EDITS###########################
@@ -183,18 +183,18 @@ rm /usr/share/initramfs-tools/scripts/casper-bottom/25configure_init
 #
 ###################################################BEGIN SYSTEM COFIGURATION################################################## 
 #copy in the imported files into the needed location. These files are managed by the remastersys package, so they need to be copied here after the remastersys package makes these files
-cp /usr/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.gutsyandbefore
-cp /usr/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.hardyandlater
+cp /RCD/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.gutsyandbefore
+cp /RCD/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.hardyandlater
 
-cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.gutsyandbefore
-cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.hardyandlater
+cp /RCD/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.gutsyandbefore
+cp /RCD/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.hardyandlater
 #change the background into one light blue color
-cp /usr/import/lxde_blue.jpg /usr/share/lxde/wallpapers/lxde_blue.jpg
+cp /RCD/import/lxde_blue.jpg /RCD/share/lxde/wallpapers/lxde_blue.jpg
 #remove the panel background, making it all white.
-rm /usr/share/lxpanel/images/background.png
+rm /RCD/share/lxpanel/images/background.png
 #replace the shutdown item with the custom one
-rm /usr/bin/lxde-logout
-cp /usr/bin/linuxrcd_shutdown /usr/bin/lxde-logout
+rm /RCD/bin/lxde-logout
+cp /RCD/bin/linuxrcd_shutdown /RCD/bin/lxde-logout
 
 #create a default user that the live cd startup script, casper, needs a UID of 1000
 useradd linuxrcd -s /bin/bash
@@ -218,8 +218,8 @@ sudo apt-get clean
 
 
 #replace the browser executable with a caller, that runs the renamed browser as a standard user
-mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
-cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
+mv /RCD/bin/chromium-browser /RCD/bin/chromium-webbrowser
+cp /RCD/bin/chromium-browsercaller /RCD/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
 #change-libs $(which kdialog)
 #change-libs $(which roxterm)
@@ -232,9 +232,9 @@ cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 #change-libs $(which xarchiver)
 
 
-#prepare PANGO TODO 64 bit?
-cp /usr/lib/*/pango/1.6.0/modules/* /RCD/pango
-pango-querymodules /RCD/pango/* > /RCD/pango/pango.modules
+#prepare PANGO 
+#cp /RCD/lib/*/pango/1.6.0/modules/* /RCD/pango
+#pango-querymodules /RCD/pango/* > /RCD/pango/pango.modules
 
 #####################################################END SYSTEM CONFIGURATION##################################################
 #

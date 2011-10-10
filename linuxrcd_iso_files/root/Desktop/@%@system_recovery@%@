@@ -19,5 +19,5 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say: Recover an installed System~~~~~~~~~~~
 
-Exec=/usr/bin/recoverylauncher 
+Exec=/RCD/bin/recoverylauncher 
 Type=Application

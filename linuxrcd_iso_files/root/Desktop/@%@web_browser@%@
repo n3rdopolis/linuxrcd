@@ -20,5 +20,5 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say: Open Web browser~~~~~~~~~~~
 
 
-Exec=/usr/bin/chromium-browser
+Exec=/RCD/bin/chromium-browser
 Type=Application

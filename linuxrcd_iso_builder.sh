@@ -246,9 +246,9 @@ chgrp  root  -R /media/LiveDiskCreAtionChrootFolDer/temp/
 
 
 #copy the Language selected into the working folder
-rsync "/media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/translations/$Language_Name"/* -r /media/LiveDiskCreAtionChrootFolDer/build_language/
+rsync "/media/LiveDiskCreAtionChrootFolDer/temp/RCD/share/linuxrcd/translations/$Language_Name"/* -r /media/LiveDiskCreAtionChrootFolDer/build_language/
 #delete the rest of the languages
-rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/translations
+rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/RCD/share/linuxrcd/translations
 
 
 
@@ -405,7 +405,7 @@ done
 rsync /media/LiveDiskCreAtionChrootFolDer/temp/* -a /media/LiveDiskCreAtionChrootFolDer/
 
 #copy in any LinuxRCD built packages as a local repo
-rsync  ~/LinuxRCDPackAgeS/*  -Cr /media/LiveDiskCreAtionChrootFolDer/usr/import/packages
+rsync  ~/LinuxRCDPackAgeS/*  -Cr /media/LiveDiskCreAtionChrootFolDer/RCD/import/packages
 
 #delete the temp folder
 rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/
@@ -424,7 +424,7 @@ chroot /media/LiveDiskCreAtionChrootFolDer /chrootscript.sh
 
 
 #Change all references to /usr to /RCD in the folder containg the LiveCD system
-find "/media/LiveDiskCreAtionChrootFolDer" -type f  -not -name "chrootscript.sh" -not -path '/proc/*' -not -path '/sys/*' -not -path '/dev/*' -not -path '/tmp/*'  |while read FILE
+find "/media/LiveDiskCreAtionChrootFolDer" -type f  -not -name "chrootscript.sh" -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*'  |while read FILE
 do
 echo "editing file $FILE"
 #replace all instances of usr with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
@@ -466,8 +466,6 @@ echo "copying $oldfilepath/$oldfilename" "$newfilepath/$newfilename"
 cp -a "$oldfilepath/$oldfilename/." "$newfilepath/$newfilename"
 done
 
-#delete the uneeded usr folder
-rm -rf /media/LiveDiskCreAtionChrootFolDer/usr
 
 #make the iso using remastersys############################################
 chroot /media/LiveDiskCreAtionChrootFolDer '/RCD/bin/remastersys backup'
