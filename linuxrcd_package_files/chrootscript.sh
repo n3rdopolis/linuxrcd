@@ -91,10 +91,10 @@ numberofpackages=$(cat /usr/packages_to_build | grep -c ^)
 
 #make /usr and /usr/local the same thing
 cp -a /usr/local/. /usr/
-mount --rbind /usr/ /usr/local
+mount --rbind /LinuxRCDRecoveryToolsAndData /LinuxRCDRecoveryToolsAndData/local
 
 #Put the contents of /usr into /LinuxRCDRecoveryToolsAndData as packages that are being built will have ALL references to /usr changed to /LinuxRCDRecoveryToolsAndData and will be looking for the files here
-mount --rbind /usr /LinuxRCDRecoveryToolsAndData
+mount --rbind /LinuxRCDRecoveryToolsAndData /usr 
 
 
 #change into the packagebuild folder

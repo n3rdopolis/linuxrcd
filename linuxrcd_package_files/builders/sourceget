@@ -25,7 +25,7 @@ mkdir $buildpackage
 #switch into the new directory
 cd $buildpackage
 #get the source for the package
-apt-get source $buildpackage
+su  builder -c apt-get source $buildpackage
 #get all the build requirements for the package
 echo Y | apt-get build-dep $buildpackage
 
