@@ -16,7 +16,7 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+ 
 
 #get the location of the directory that this script is in
 folderlocation="$( dirname $(readlink -f "$0" ) )"
