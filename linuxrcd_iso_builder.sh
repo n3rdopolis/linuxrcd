@@ -423,7 +423,7 @@ chroot /media/LiveDiskCreAtionChrootFolDer /chrootscript.sh
 
 
 
-#Change all references to /usr to /LinuxRCDRecoveryToolsAndData in the folder containg the LiveCD system
+#Change all references to /usr to /RCD in the folder containg the LiveCD system
 find "/media/LiveDiskCreAtionChrootFolDer" -type f  -not -name "chrootscript.sh" -not -path '/proc/*' -not -path '/sys/*' -not -path '/dev/*' -not -path '/tmp/*'  |while read FILE
 do
 echo "editing file $FILE"

@@ -200,11 +200,11 @@ mkdir /mnt/RecoveryMount/LinuxRCD-media
 #mount the media folder seen by a non chrooted process. This will allow the chrooted system to see external media. 
 mount --rbind /proc/1/root/media /mnt/RecoveryMount/LinuxRCD-media
 
-#make the LinuxRCDRecoveryToolsAndData folder in case if its not there
-mkdir /mnt/RecoveryMount/LinuxRCDRecoveryToolsAndData
+#make the RCD folder in case if its not there
+mkdir /mnt/RecoveryMount/RCD
 
 #bind the live cd data into the recovery system
-mount --rbind /LinuxRCDRecoveryToolsAndData /mnt/RecoveryMount/LinuxRCDRecoveryToolsAndData
+mount --rbind /RCD /mnt/RecoveryMount/RCD
 
 #lock shutdown
 touch /tmp/noshutdown
@@ -249,7 +249,7 @@ hostname -F /mnt/RecoveryMount/etc/hostname
 
 
 #start the chroot script. Run it as a background task so that this can prompt for done
-chroot /mnt/RecoveryMount  /LinuxRCDRecoveryToolsAndData/recoverychrootscript &
+chroot /mnt/RecoveryMount  /RCD/recoverychrootscript &
 
 sleep 10
 
@@ -315,8 +315,8 @@ umount /mnt/RecoveryMount/var/run/dbus
 #unmount the X11 authroization folder
 umount /mnt/RecoveryMount/tmp/.X11-unix
 
-#unmount the /LinuxRCDRecoveryToolsAndData folder
-umount /mnt/RecoveryMount/LinuxRCDRecoveryToolsAndData
+#unmount the /RCD folder
+umount /mnt/RecoveryMount/RCD
 
 #unmount all fstab partitions
 chroot /mnt/RecoveryMount umount -alf

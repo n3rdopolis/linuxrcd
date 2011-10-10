@@ -233,8 +233,8 @@ cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 
 
 #prepare PANGO TODO 64 bit?
-cp /usr/lib/*/pango/1.6.0/modules/* /LinuxRCDRecoveryToolsAndData/pango
-pango-querymodules /LinuxRCDRecoveryToolsAndData/pango/* > /LinuxRCDRecoveryToolsAndData/pango/pango.modules
+cp /usr/lib/*/pango/1.6.0/modules/* /RCD/pango
+pango-querymodules /RCD/pango/* > /RCD/pango/pango.modules
 
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
