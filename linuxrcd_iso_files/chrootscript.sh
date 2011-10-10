@@ -49,21 +49,21 @@ aptitude install language-pack-en --without-recommends -y
 fi
 
 #Install the list of packages that does not require recommended depends
-cat /tmp/LinuxRCDPackagesList-norecommends | while read PACKAGELINE
+cat /LinuxRCDPackagesList-norecommends | while read PACKAGELINE
 do
 yes Y | aptitude install "$PACKAGELINE" -y --without-recommends
 done
 
 #Install the list of packages that does  require recommended depends
-cat /tmp/LinuxRCDPackagesList-norecommends | while read PACKAGELINE
+cat /LinuxRCDPackagesList-norecommends | while read PACKAGELINE
 do
 yes Y | aptitude install "$PACKAGELINE" -y 
 done
 
 #install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/
-wget http://hydra.nixos.org/build/912157/download/1/patchelf_0.6pre25969-1_@%@CPU_ARCHITECTURE@%@.deb
-gdebi -n patchelf*
-rm patchelf*
+#wget http://hydra.nixos.org/build/912157/download/1/patchelf_0.6pre25969-1_@%@CPU_ARCHITECTURE@%@.deb
+#gdebi -n patchelf*
+#rm patchelf*
 
 #install aufs-tools for unionising /usr/share. Unionising /usr/share should not the same problems as /usr/lib or /usr/bin
 #wget https://launchpad.net/ubuntu/+archive/primary/+files/aufs-tools_0%2B20090302-2_@%@CPU_ARCHITECTURE@%@.deb
@@ -221,15 +221,15 @@ sudo apt-get clean
 mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
 cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
-change-libs $(which kdialog)
-change-libs $(which roxterm)
-change-libs $(which kuser)
-change-libs $(which emelfm2)
-change-libs $(which gedit)
-change-libs $(which mountmanager)
-change-libs $(which openbox)
-change-libs $(which fspanel)
-change-libs $(which xarchiver)
+#change-libs $(which kdialog)
+#change-libs $(which roxterm)
+#change-libs $(which kuser)
+#change-libs $(which emelfm2)
+#change-libs $(which gedit)
+#change-libs $(which mountmanager)
+#change-libs $(which openbox)
+#change-libs $(which fspanel)
+#change-libs $(which xarchiver)
 
 
 #prepare PANGO TODO 64 bit?
@@ -247,12 +247,8 @@ wget https://sourceforge.net/projects/remastersys/files/remastersys-ubuntu-gutsy
 #Delete the language files used for translation. they are no longer needed, as they have been used.
 rm -rf /build_language
 
-#make the iso using remastersys############################################
-remastersys backup
-###########################################################################
 
 
-#unmount the procfs from the chrooted system
-umount proc
+
 
 

@@ -217,7 +217,7 @@ mount ./livecdfs /media/LiveDiskCreAtionChrootFolDer -o loop
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
 #install a really basic Ubuntu installation in the new fs  
-debootstrap --arch i386 natty /media/LiveDiskCreAtionChrootFolDer file://${HOME}/LinuxRCDPackAgeS
+debootstrap --arch i386 natty /media/LiveDiskCreAtionChrootFolDer http://archive.ubuntu.com/ubuntu/
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
@@ -235,8 +235,7 @@ mount --bind /dev /media/LiveDiskCreAtionChrootFolDer/dev/
 #copy in the files needed
 rsync "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_iso_files/* -Cr /media/LiveDiskCreAtionChrootFolDer/temp/
 rsync "$ThIsScriPtSFolDerLoCaTion"/*                           -Cr /media/LiveDiskCreAtionChrootFolDer/build_source
-cp "$ThIsScriPtSFolDerLoCaTion"/LinuxRCDPackagesList-norecommends /media/PackAgeCreAtionChrootFolDer/tmp
-cp "$ThIsScriPtSFolDerLoCaTion"/LinuxRCDPackagesList-recommends /media/PackAgeCreAtionChrootFolDer/tmp
+
 
 #make the chroot script executable.
 #chmod +x /media/LiveDiskCreAtionChrootFolDer/temp/chrootscript.sh
@@ -417,9 +416,63 @@ rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/
 
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
-#run the chroot script########################################
+#Configure the Live system########################################
 chroot /media/LiveDiskCreAtionChrootFolDer /chrootscript.sh
 ##############################################################
+
+
+
+
+#Change all references to /usr to /LinuxRCDRecoveryToolsAndData in the folder containg the LiveCD system
+find "/media/LiveDiskCreAtionChrootFolDer" -type f  -not -name "chrootscript.sh" -not -path '/proc/*' -not -path '/sys/*' -not -path '/dev/*' -not -path '/tmp/*'  |while read FILE
+do
+echo "editing file $FILE"
+#replace all instances of usr with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
+sed -re 's/(\W|^)usr(\W|$)/\1RCD\2/g' "$FILE" > "$FILE.tmp"
+fileownergroup=$(stat "$FILE"  -c %U:%G)
+filepermission=$(stat "$FILE"  -c %a)
+rm "$FILE"
+cat "$FILE.tmp" > "$FILE"
+rm "$FILE.tmp"
+chmod "$filepermission" "$FILE"
+chown "$fileownergroup" "$FILE"
+done
+
+
+#find all files contianing usr in the name
+find "/media/LiveDiskCreAtionChrootFolDer" -type f -name "*usr*" | rev | while read FILEPATH
+do
+FILEPATH=$(echo $FILEPATH | rev) 
+oldfilepath="$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)"
+newfilepath="$(echo $oldfilepath |sed 's/usr/RCD/g')"
+oldfilename="$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)"
+newfilename="$(echo $oldfilename |sed 's/usr/RCD/g')"
+mkdir -p "$newfilepath"
+echo "copying $oldfilepath/$oldfilename" "$newfilepath/$newfilename"
+cp  -a "$oldfilepath/$oldfilename" "$newfilepath/$newfilename"
+done
+
+#find all folders ontianing usr in the name
+find "/media/LiveDiskCreAtionChrootFolDer" -type d -name "*usr*" | rev | while read FILEPATH
+do
+FILEPATH=$(echo $FILEPATH | rev) 
+oldfilepath="$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)"
+newfilepath="$(echo $oldfilepath |sed 's/usr/RCD/g')"
+oldfilename="$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)"
+newfilename="$(echo $oldfilename |sed 's/usr/RCD/g')"
+
+mkdir -p "$newfilepath"
+echo "copying $oldfilepath/$oldfilename" "$newfilepath/$newfilename"
+cp -a "$oldfilepath/$oldfilename/." "$newfilepath/$newfilename"
+done
+
+#delete the uneeded usr folder
+rm -rf /media/LiveDiskCreAtionChrootFolDer/usr
+
+#make the iso using remastersys############################################
+chroot /media/LiveDiskCreAtionChrootFolDer '/RCD/bin/remastersys backup'
+###########################################################################
+
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
