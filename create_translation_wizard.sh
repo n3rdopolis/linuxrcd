@@ -20,7 +20,7 @@
 
 #get the location of the directory that this script is in
 folderlocation="$( dirname $(readlink -f "$0" ) )"
-linuxrcdfolderlocaton="$(echo $folderlocation/linuxrcd_iso_files)"
+linuxrcdfolderlocaton="$(echo $folderlocation/linuxrcd_files)"
 
 #program dialog is needed to prompt user
 which dialog > /dev/null
@@ -37,7 +37,7 @@ mkdir "${HOME}/LiveDiskTranSlAtionCacheFolDer"
 
 #introduce the translator to this script
 echo "This is the translation wizard for LinuxRCD. It scans the files for translatable strings and thier descriptions so that you can add a language translation for LinuxRCD."
-echo "This script must be in the root of the LinuxRCD build script folder. (you should see a folder called linuxrcd_iso_files in the same folder as this script)"
+echo "This script must be in the root of the LinuxRCD build script folder. (you should see a folder called linuxrcd_files in the same folder as this script)"
 echo "This script will make changes to the following folders and files.
 File:              ${HOME}/LiveDiskTranSlAtionCacheFolDer/TRANSLATION_DATA
 Folder:            $linuxrcdfolderlocaton
@@ -46,10 +46,10 @@ MAKE SURE this script will not overwrite anything before pressing enter to conti
 read a
 echo "searching for translatable files in  $linuxrcdfolderlocaton"
 
-#if there is no linuxrcd_iso_files folder in the same folder as this script, exit.
+#if there is no linuxrcd_files folder in the same folder as this script, exit.
 if [  ! -d "$linuxrcdfolderlocaton" ]
 then 
-echo "No 'linuxrcd_iso_files' folder found in the same folder as this script. exiting..."
+echo "No 'linuxrcd_files' folder found in the same folder as this script. exiting..."
 exit 1
 fi
 
