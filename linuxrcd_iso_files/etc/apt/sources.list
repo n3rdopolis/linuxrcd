@@ -10,3 +10,4 @@ deb http://security.ubuntu.com/ubuntu/ natty-security main restricted
 deb-src http://archive.ubuntu.com/ubuntu natty-security restricted main multiverse universe 
 deb http://security.ubuntu.com/ubuntu/ natty-security universe
 deb http://security.ubuntu.com/ubuntu/ natty-security multiverse
+deb http://www.geekconnection.org/remastersys/repository remastersys/
