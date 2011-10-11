@@ -51,13 +51,13 @@ fi
 #Install the list of packages that does not require recommended depends
 cat /LinuxRCDPackagesList-norecommends | while read PACKAGELINE
 do
-yes Y | aptitude install $PACKAGELINE -y --without-recommends
+yes Yes | aptitude install $PACKAGELINE -y --without-recommends
 done
 
 #Install the list of packages that does  require recommended depends
 cat /LinuxRCDPackagesList-norecommends | while read PACKAGELINE
 do
-yes Y | aptitude install $PACKAGELINE -y 
+yes Yes | aptitude install $PACKAGELINE -y 
 done
 
 #install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/
