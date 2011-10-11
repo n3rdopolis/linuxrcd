@@ -237,8 +237,7 @@ rsync "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_files/* -Cr /media/LiveDiskCreAtionC
 rsync "$ThIsScriPtSFolDerLoCaTion"/*                           -Cr /media/LiveDiskCreAtionChrootFolDer/build_source
 
 
-#make the chroot script executable.
-#chmod +x /media/LiveDiskCreAtionChrootFolDer/temp/chrootscript.sh
+
 #make the imported files executable 
 chmod +x -R /media/LiveDiskCreAtionChrootFolDer/temp/
 chown  root  -R /media/LiveDiskCreAtionChrootFolDer/temp/
@@ -417,7 +416,7 @@ rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
 #Configure the Live system########################################
-chroot /media/LiveDiskCreAtionChrootFolDer /chrootscript.sh
+chroot /media/LiveDiskCreAtionChrootFolDer /cd_phase_1.sh
 ##############################################################
 
 
@@ -470,7 +469,7 @@ done
 rm -rf /media/LiveDiskCreAtionChrootFolDer/usr
 
 #make the iso using remastersys############################################
-chroot /media/LiveDiskCreAtionChrootFolDer /RCD/bin/remastersys backup
+chroot /media/LiveDiskCreAtionChrootFolDer /cd_phase_2.sh
 ###########################################################################
 
 #change back to default
