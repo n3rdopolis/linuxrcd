@@ -468,7 +468,7 @@ done
 
 
 #make the iso using remastersys############################################
-chroot /media/LiveDiskCreAtionChrootFolDer '/RCD/bin/remastersys backup'
+chroot /media/LiveDiskCreAtionChrootFolDer /RCD/bin/remastersys backup
 ###########################################################################
 
 #change back to default
@@ -486,6 +486,8 @@ chown $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 chgrp $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 chmod 777 ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 
+# TODO delete
+read a
 
 #go back to the users home folder
 cd ~

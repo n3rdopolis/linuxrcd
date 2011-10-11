@@ -74,22 +74,22 @@ done
 if [ "@%@Language_Name@%@" == "en_us" ];
 then
 # Delete all of mountmanager's translations to force it to use the built in English one.
-rm /RCD/lib/mountmanager/trans/*
+rm /usr/lib/mountmanager/trans/*
 fi
 
 ###BEGIN REMASTERSYS EDITS####
 
 #filter out Remastersys installing Ubiquity by filtering between 2 decisive comments in the file
-sed -i -e ' /popularity-contest as/,/Step 3 - Create the/ d ' /RCD/bin/remastersys 
+sed -i -e ' /popularity-contest as/,/Step 3 - Create the/ d ' /usr/bin/remastersys 
 
 
 #edit the remastersys script file so that it updates the initramfs instead of making a new one with uname -r as it doesnt work in chroot
-sed -i -e ' /# Step 6 - Make filesystem.squashfs/ a update-initramfs -u  ' /RCD/bin/remastersys 
+sed -i -e ' /# Step 6 - Make filesystem.squashfs/ a update-initramfs -u  ' /usr/bin/remastersys 
 
 
 
 #copy the initramfs to the correct location
-sed -i -e ' /update-initramfs/ a cp /initrd.img \$WORKDIR/ISOTMP/casper/initrd.gz ' /RCD/bin/remastersys 
+sed -i -e ' /update-initramfs/ a cp /initrd.img \$WORKDIR/ISOTMP/casper/initrd.gz ' /usr/bin/remastersys 
 
 ###END REMASTERSYS EDITS
 
@@ -161,10 +161,10 @@ ln -s /etc/init.d/chroot_external_helper /etc/rc2.d/S52chroot_helper
 #################EDIT CASPER SCRIPTS#####################
 
 #allow script to use swap. this line would disable it if it was uncommented. 
-#rm /RCD/share/initramfs-tools/scripts/casper-bottom/13swap
+#rm /usr/share/initramfs-tools/scripts/casper-bottom/13swap
 
 #change caspers configuration of the ttys to open bash instead of getty. Delete caspers configuration o
-rm /RCD/share/initramfs-tools/scripts/casper-bottom/25configure_init
+rm /usr/share/initramfs-tools/scripts/casper-bottom/25configure_init
 
 
 #################END CASPER EDITS###########################
@@ -189,12 +189,12 @@ cp /RCD/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.hardyandlater
 cp /RCD/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.gutsyandbefore
 cp /RCD/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.hardyandlater
 #change the background into one light blue color
-cp /RCD/import/lxde_blue.jpg /RCD/share/lxde/wallpapers/lxde_blue.jpg
+cp /RCD/import/lxde_blue.jpg /usr/share/lxde/wallpapers/lxde_blue.jpg
 #remove the panel background, making it all white.
-rm /RCD/share/lxpanel/images/background.png
+rm /usr/share/lxpanel/images/background.png
 #replace the shutdown item with the custom one
-rm /RCD/bin/lxde-logout
-cp /RCD/bin/linuxrcd_shutdown /RCD/bin/lxde-logout
+rm /usr/bin/lxde-logout
+cp /RCD/bin/linuxrcd_shutdown /usr/bin/lxde-logout
 
 #create a default user that the live cd startup script, casper, needs a UID of 1000
 useradd linuxrcd -s /bin/bash
@@ -218,8 +218,8 @@ sudo apt-get clean
 
 
 #replace the browser executable with a caller, that runs the renamed browser as a standard user
-mv /RCD/bin/chromium-browser /RCD/bin/chromium-webbrowser
-cp /RCD/bin/chromium-browsercaller /RCD/bin/chromium-browser
+mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
+cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
 #change-libs $(which kdialog)
 #change-libs $(which roxterm)
@@ -232,9 +232,7 @@ cp /RCD/bin/chromium-browsercaller /RCD/bin/chromium-browser
 #change-libs $(which xarchiver)
 
 
-#prepare PANGO 
-#cp /RCD/lib/*/pango/1.6.0/modules/* /RCD/pango
-#pango-querymodules /RCD/pango/* > /RCD/pango/pango.modules
+
 
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
