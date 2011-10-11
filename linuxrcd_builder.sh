@@ -416,7 +416,7 @@ rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
 #Configure the Live system########################################
-chroot /media/LiveDiskCreAtionChrootFolDer /cd_phase_1.sh
+chroot /media/LiveDiskCreAtionChrootFolDer /tmp/cd_phase_1.sh
 ##############################################################
 
 
@@ -469,7 +469,7 @@ done
 rm -rf /media/LiveDiskCreAtionChrootFolDer/usr
 
 #make the iso using remastersys############################################
-chroot /media/LiveDiskCreAtionChrootFolDer /cd_phase_2.sh
+chroot /media/LiveDiskCreAtionChrootFolDer /tmp/cd_phase_2.sh
 ###########################################################################
 
 #change back to default
