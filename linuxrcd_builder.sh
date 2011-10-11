@@ -466,6 +466,8 @@ echo "copying $oldfilepath/$oldfilename" "$newfilepath/$newfilename"
 cp -a "$oldfilepath/$oldfilename/." "$newfilepath/$newfilename"
 done
 
+#delete the usr folder in the Live CD
+rm -rf /media/LiveDiskCreAtionChrootFolDer/usr
 
 #make the iso using remastersys############################################
 chroot /media/LiveDiskCreAtionChrootFolDer /RCD/bin/remastersys backup
