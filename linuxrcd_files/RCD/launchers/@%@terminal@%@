@@ -1,4 +1,4 @@
-#! /bin/bash
+[Desktop Entry]
 #    Copyright (c) 2009, 2010, 2011, nerdopolis (or n3rdopolis) <bluescreen_avenger@version.net>
 #
 #    This file is part of LinuxRCD.
@@ -20,6 +20,6 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "terminal"~~~~~~~~~~~
 
-#call up the terminal
-cd /
-lxterminal  --working-directory=/ -e 'bash --init-file /etc/bash_completion' &
+
+Exec=lxterminal  --working-directory=/ -e 'bash --init-file /etc/bash_completion' 
+Type=Application

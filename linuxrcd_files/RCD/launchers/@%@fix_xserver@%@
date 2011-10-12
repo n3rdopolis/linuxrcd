@@ -1,4 +1,4 @@
-#! /bin/bash
+[Desktop Entry]
 #    Copyright (c) 2009, 2010, 2011, nerdopolis (or n3rdopolis) <bluescreen_avenger@version.net>
 #
 #    This file is part of LinuxRCD.
@@ -19,5 +19,6 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Fix X server"~~~~~~~~~~~
 
-#execute the script that calls the x server recovery tool
-/RCD/RCDbin/xserver_fix_launcher.sh  > /dev/null 2>&1 &
+
+Exec=/RCD/RCDbin/xserver_fix_launcher.sh  
+Type=Application

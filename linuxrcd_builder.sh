@@ -24,8 +24,23 @@ then
   exit 1                       
 fi
 
+echo "Enter CPU Arch to build this CD under (i386/amd64)"
+read $CPU_ARCHITECTURE
+
+if [[ $CPU_ARCHITECTURE != "i386" -o $CPU_ARCHITECTURE != amd64 ]]
+then
+echo "unknown architecture defaulting to i386"
 CPU_ARCHITECTURE=i386  
+fi
+
+echo "Enter Language (en_us)"
+read $Language_Name
+
+if [[ $Language_Name != en_us ]]
+then
+echo "unknown language defaulting to en_us"
 Language_Name=en_us
+fi
 
 ThIsScriPtSFiLeLoCaTion=$(readlink -f "$0")
 ThIsScriPtSFolDerLoCaTion=$(dirname "$ThIsScriPtSFiLeLoCaTion")
@@ -423,7 +438,7 @@ chroot /media/LiveDiskCreAtionChrootFolDer /tmp/cd_phase_1.sh
 
 
 #Change all references to /usr to /RCD in the folder containg the LiveCD system
-find "/media/LiveDiskCreAtionChrootFolDer" -type f  -not -name "chrootscript.sh" -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*'  |while read FILE
+find "/media/LiveDiskCreAtionChrootFolDer" -type f   -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*'  |while read FILE
 do
 echo "editing file $FILE"
 #replace all instances of usr with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
@@ -438,7 +453,7 @@ chown "$fileownergroup" "$FILE"
 done
 
 #change all symbolic links that point to usr to point to RCD
-find "/media/LiveDiskCreAtionChrootFolDer" -type l  -not -name "chrootscript.sh" -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*'  |while read FILE
+find "/media/LiveDiskCreAtionChrootFolDer" -type l   -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*'  |while read FILE
 do
 echo "relinking $FILE"
 newlink=$(readlink $FILE | sed 's/usr/RCD/g')
@@ -460,7 +475,7 @@ echo "copying $oldfilepath/$oldfilename" "$newfilepath/$newfilename"
 cp  -a "$oldfilepath/$oldfilename" "$newfilepath/$newfilename"
 done
 
-#find all folders ontianing usr in the name
+#find all folders contianing usr in the name
 find "/media/LiveDiskCreAtionChrootFolDer" -type d -name "*usr*" | rev | while read FILEPATH
 do
 FILEPATH=$(echo $FILEPATH | rev) 
@@ -473,6 +488,7 @@ mkdir -p "$newfilepath"
 echo "copying $oldfilepath/$oldfilename" "$newfilepath/$newfilename"
 cp -a "$oldfilepath/$oldfilename/." "$newfilepath/$newfilename"
 done
+
 
  
 #delete the usr folder in the Live CD
@@ -517,11 +533,11 @@ umount -lf /media/LiveDiskCreAtionChrootFolDer/dev/shm
 #unmount the chrooted devfs from the outside 
 umount -lf /media/LiveDiskCreAtionChrootFolDer/dev
 
-#kill any process accessing the livedisk mountpoint TODO MAKE IT KILL THE PROCESSES NOT LIST THEM or not... 
-fuser /media/LiveDiskCreAtionChrootFolDer/ 
+#kill any process accessing the livedisk mountpoint 
+fuser -k /media/LiveDiskCreAtionChrootFolDer/ 
 
 #unmount the chroot fs
-umount -lf /media/LiveDiskCreAtionChrootFolDer
+umount -lfd /media/LiveDiskCreAtionChrootFolDer
 
 #delete the mountpoint
 rm -rf /media/LiveDiskCreAtionChrootFolDer
