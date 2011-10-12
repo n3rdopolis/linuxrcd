@@ -68,7 +68,7 @@ yes Yes | aptitude install xinit  --without-recommends -y
 
 
 #install minmimal desktop GUI LXDE and related dependancies, and minimal display manager for some reason it wants xrdb which is in x11-xserver-utils, and screenshot handler and text editor, and file browser. 
-yes Yes | aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit roxterm x11-xserver-utils xsel gedit emelfm2   kdebase-bin fspanel ksnapshot pcmanfm qtfm --without-recommends -y
+yes Yes | aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit  x11-xserver-utils xsel  kdebase-bin fspanel ksnapshot pcmanfm  --without-recommends -y
 
 #install lxdes utilities
 yes Yes | aptitude install lxde  --without-recommends -y
@@ -95,7 +95,7 @@ yes Yes |  aptitude install gnome-settings-daemon --without-recommends -y
 ##################################################################################################################
 
 #install recovery/config utilities
-yes Yes | aptitude install  kuser gparted mountmanager konsole --without-recommends -y
+yes Yes | aptitude install  kuser gparted mountmanager  filelight ksystemlog  --without-recommends -y
 
 
 install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/
@@ -257,16 +257,15 @@ mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
 cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
 /tmp/change-libs $(which kdialog)
-/tmp/change-libs $(which roxterm)
 /tmp/change-libs $(which kuser)
 /tmp/change-libs $(which pcmanfm)
 /tmp/change-libs $(which gedit)
 /tmp/change-libs $(which mountmanager)
-/tmp/change-libs $(which openbox)
-/tmp/change-libs $(which fspanel)
-/tmp/change-libs $(which xarchiver)
 /tmp/change-libs $(which lxsession)
 /tmp/change-libs $(which menu-cached)
+/tmp/change-libs $(which filelight)
+/tmp/change-libs $(which ksystemlog)
+
 
 
 
