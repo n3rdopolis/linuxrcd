@@ -233,7 +233,7 @@ openbox &
 xmodmap /tmp/keyboardlayout
 
 #start an Xsettings manager
-lxsession -s xephyr &
+#lxsession -s xephyr &
 
 #allow all local connections
 xhost +local:
@@ -249,7 +249,7 @@ hostname -F /mnt/RecoveryMount/etc/hostname
 
 
 #start the chroot script. Run it as a background task so that this can prompt for done
-chroot /mnt/RecoveryMount  /RCD/recoverychrootscript &
+chroot /mnt/RecoveryMount  /RCD/RCDbin/recoverychrootscript &
 
 sleep 10
 

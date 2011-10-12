@@ -11,16 +11,18 @@ the file system upon shutdown.
 
   Its still in development, and may cause unknown breakage...
 
-  Some packages might fail to install, due to runtime differences in the runtimes like kernel versions and init systems not working in chroot.
+  Some packages might fail to install when in chroot, due to runtime differences in the runtimes like kernel versions and init systems not working in chroot.
 
 TODO:
   add more programs/scripts for recovery
 
   Document more things
 
-  Upstart might be fixed as far as package managers starting jobs, but systemd is not yet.
+  Upstart might be fixed as far as package managers starting jobs (might), but systemd is not yet.
 
   More testing
+
+  Perhaps problems can occur with recovery programs that work directly with /usr instead of running from /usr. None of them really do right now except mount manager, which creates backups of fstab there
 
 How to use the ISO:
   burn it, (or put it in a VM), reboot, set the BIOS to boot from the CD if it does not already, 

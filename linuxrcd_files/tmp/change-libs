@@ -19,8 +19,12 @@
 
 #File to handle the translation of the libraries so that the programs can run in the target system. takes one argument, the path of the executable ELF file to patch. The dependant libraries of the executable ELF passed will also be copied and patched
 
-#create the holding file for the libraries that will be patched
+#create the folder that the libs will go (this runs BEFORE the files are moved to /RCD.
+mkdir /usr/RCDbin
+
+#create the holding folder for the libraries that will be patched
 mkdir /tmp/change-libs
+
 
 #get the number of seconds into a variable so that multiple copies of this script can run  at once
 secondsstart=(date +%s)
@@ -55,7 +59,7 @@ patchelf --set-rpath  /RCD/RCDbin /tmp/change-libs/$exefile
 patchelf --set-interpreter /RCD/RCDbin/$interpretername /tmp/change-libs/$exefile 
 done
 
-#move the files from the working location, into the actual location.
-mv /tmp/change-libs/* /RCD/RCDbin
+#move the files from the working location, into the actual location. This is set to go to /usr/RCDbin because this script runs before everything is moved to /usr
+mv /tmp/change-libs/* /usr/RCDbin
 #copy the interpreter into the actual location. Don't move it because it was not copied into the working location. the source interpreter is still in its system location.
-cp $(ldd $1 | grep ld-linux.so |  awk '{print $1}') /RCD/RCDbin
+cp $(ldd $1 | grep ld-linux.so |  awk '{print $1}') /usr/RCDbin

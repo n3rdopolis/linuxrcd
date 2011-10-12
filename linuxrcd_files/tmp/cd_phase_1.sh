@@ -256,16 +256,17 @@ sudo apt-get clean
 mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
 cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
-change-libs $(which kdialog)
-change-libs $(which roxterm)
-change-libs $(which kuser)
-change-libs $(which emelfm2)
-change-libs $(which gedit)
-change-libs $(which mountmanager)
-change-libs $(which openbox)
-change-libs $(which fspanel)
-change-libs $(which xarchiver)
-
+/tmp/change-libs $(which kdialog)
+/tmp/change-libs $(which roxterm)
+/tmp/change-libs $(which kuser)
+/tmp/change-libs $(which pcmanfm)
+/tmp/change-libs $(which gedit)
+/tmp/change-libs $(which mountmanager)
+/tmp/change-libs $(which openbox)
+/tmp/change-libs $(which fspanel)
+/tmp/change-libs $(which xarchiver)
+/tmp/change-libs $(which lxsession)
+/tmp/change-libs $(which menu-cached)
 
 
 
