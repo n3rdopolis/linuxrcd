@@ -98,15 +98,12 @@ yes Yes |  aptitude install gnome-settings-daemon --without-recommends -y
 yes Yes | aptitude install  kuser gparted mountmanager konsole --without-recommends -y
 
 
-#install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/
-#wget http://hydra.nixos.org/build/912157/download/1/patchelf_0.6pre25969-1_@%@CPU_ARCHITECTURE@%@.deb
-#gdebi -n patchelf*
-#rm patchelf*
+install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/
+wget http://hydra.nixos.org/build/912157/download/1/patchelf_0.6pre25969-1_@%@CPU_ARCHITECTURE@%@.deb
+gdebi -n patchelf*
+rm patchelf*
 
-#install aufs-tools for unionising /RCD/share. Unionising /RCD/share should not the same problems as /RCD/lib or /RCD/bin
-#wget https://launchpad.net/ubuntu/+archive/primary/+files/aufs-tools_0%2B20090302-2_@%@CPU_ARCHITECTURE@%@.deb
-#gdebi -n aufs-tools*
-#rm aufs-tools*
+
 
 #if this is english set mountmanager to use the English translations
 if [ "@%@Language_Name@%@" == "en_us" ];
@@ -259,15 +256,15 @@ sudo apt-get clean
 mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
 cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
-#change-libs $(which kdialog)
-#change-libs $(which roxterm)
-#change-libs $(which kuser)
-#change-libs $(which emelfm2)
-#change-libs $(which gedit)
-#change-libs $(which mountmanager)
-#change-libs $(which openbox)
-#change-libs $(which fspanel)
-#change-libs $(which xarchiver)
+change-libs $(which kdialog)
+change-libs $(which roxterm)
+change-libs $(which kuser)
+change-libs $(which emelfm2)
+change-libs $(which gedit)
+change-libs $(which mountmanager)
+change-libs $(which openbox)
+change-libs $(which fspanel)
+change-libs $(which xarchiver)
 
 
 

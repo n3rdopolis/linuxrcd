@@ -50,12 +50,12 @@ do
 #add the rpath
 patchelf --force-rpath  /tmp/change-libs/$exefile
 #set the rpath
-patchelf --set-rpath  /RCD /tmp/change-libs/$exefile
+patchelf --set-rpath  /RCD/RCDbin /tmp/change-libs/$exefile
 #try to set the interpreter
-patchelf --set-interpreter /RCD/$interpretername /tmp/change-libs/$exefile 
+patchelf --set-interpreter /RCD/RCDbin/$interpretername /tmp/change-libs/$exefile 
 done
 
 #move the files from the working location, into the actual location.
-mv /tmp/change-libs/* /RCD/
+mv /tmp/change-libs/* /RCD/RCDbin
 #copy the interpreter into the actual location. Don't move it because it was not copied into the working location. the source interpreter is still in its system location.
-cp $(ldd $1 | grep ld-linux.so |  awk '{print $1}') /RCD
+cp $(ldd $1 | grep ld-linux.so |  awk '{print $1}') /RCD/RCDbin

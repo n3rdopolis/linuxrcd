@@ -440,6 +440,7 @@ done
 #change all symbolic links that point to usr to point to RCD
 find "/media/LiveDiskCreAtionChrootFolDer" -type l  -not -name "chrootscript.sh" -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*'  |while read FILE
 do
+echo "relinking $FILE"
 newlink=$(readlink $FILE | sed 's/usr/RCD/g')
 ln -s -f "$newlink" "$FILE"
 done
@@ -497,8 +498,6 @@ chown $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 chgrp $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 chmod 777 ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 
-# TODO delete
-read a
 
 #go back to the users home folder
 cd ~
