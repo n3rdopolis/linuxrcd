@@ -437,6 +437,14 @@ chmod "$filepermission" "$FILE"
 chown "$fileownergroup" "$FILE"
 done
 
+#change all symbolic links that point to usr to point to RCD
+find "/media/LiveDiskCreAtionChrootFolDer" -type l  -not -name "chrootscript.sh" -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*'  |while read FILE
+do
+newlink=$(readlink $FILE | sed 's/usr/RCD/g')
+ln -s -f "$newlink" "$FILE"
+done
+
+
 
 #find all files contianing usr in the name
 find "/media/LiveDiskCreAtionChrootFolDer" -type f -name "*usr*" | rev | while read FILEPATH
@@ -465,8 +473,10 @@ echo "copying $oldfilepath/$oldfilename" "$newfilepath/$newfilename"
 cp -a "$oldfilepath/$oldfilename/." "$newfilepath/$newfilename"
 done
 
+ 
 #delete the usr folder in the Live CD
 rm -rf /media/LiveDiskCreAtionChrootFolDer/usr
+
 
 #make the iso using remastersys############################################
 chroot /media/LiveDiskCreAtionChrootFolDer /tmp/cd_phase_2.sh
