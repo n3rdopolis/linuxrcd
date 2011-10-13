@@ -16,7 +16,10 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-                                                                                   
+CPU_ARCHITECTURE=DEFAULT      
+Language_Name=DEFAULT
+
+                                                                      
 #this script must be run as root.
 if [[ $UID -ne 0 ]]
 then               
@@ -27,20 +30,24 @@ fi
 echo "Enter CPU Arch to build this CD under (i386/amd64)"
 read $CPU_ARCHITECTURE
 
-if [[ $CPU_ARCHITECTURE != "i386" -o $CPU_ARCHITECTURE != amd64 ]]
+
+if [ $CPU_ARCHITECTURE != "i386" -o $CPU_ARCHITECTURE != amd64 ]
 then
 echo "unknown architecture defaulting to i386"
 CPU_ARCHITECTURE=i386  
 fi
 
+
 echo "Enter Language (en_us)"
 read $Language_Name
 
-if [[ $Language_Name != en_us ]]
+
+if [ $Language_Name != "en_us" ]
 then
 echo "unknown language defaulting to en_us"
 Language_Name=en_us
 fi
+
 
 ThIsScriPtSFiLeLoCaTion=$(readlink -f "$0")
 ThIsScriPtSFolDerLoCaTion=$(dirname "$ThIsScriPtSFiLeLoCaTion")
