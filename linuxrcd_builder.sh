@@ -442,7 +442,8 @@ chroot /media/LiveDiskCreAtionChrootFolDer /tmp/cd_phase_1.sh
 ##############################################################
 
 
-
+#kill any process accessing the livedisk mountpoint 
+fuser -k /media/LiveDiskCreAtionChrootFolDer/ 
 
 #Change all references to /usr to /RCD in the folder containg the LiveCD system
 find "/media/LiveDiskCreAtionChrootFolDer" -type f   -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*'  |while read FILE
@@ -450,13 +451,8 @@ do
 echo "editing file $FILE"
 #replace all instances of usr with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
 sed -re 's/(\W|^)usr(\W|$)/\1RCD\2/g' "$FILE" > "$FILE.tmp"
-fileownergroup=$(stat "$FILE"  -c %U:%G)
-filepermission=$(stat "$FILE"  -c %a)
-rm "$FILE"
 cat "$FILE.tmp" > "$FILE"
 rm "$FILE.tmp"
-chmod "$filepermission" "$FILE"
-chown "$fileownergroup" "$FILE"
 done
 
 #change all symbolic links that point to usr to point to RCD
@@ -521,6 +517,8 @@ chown $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 chgrp $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 chmod 777 ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 
+# TODO
+read a
 
 #go back to the users home folder
 cd ~
