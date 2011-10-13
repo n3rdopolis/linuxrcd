@@ -30,7 +30,9 @@ export DISPLAY=localhost:1
 #many apps need the home variable set.
 export HOME=/root
 
-export PATH=$PATH:/RCD/RCDbin:/RCD/bin
+#change the path, and set the /RCD/RCDbin in place of /RCD/bin
+PATH=$(echo $PATH | awk -F ':/RCD/bin' '{print $1}')
+export PATH=$PATH:/RCD/RCDbin
 ##CALL THE STARTUP APPS
 
 #call up the windowing manager
