@@ -15,7 +15,8 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+#set terminal color to default to keep consistancy
+echo -en \\033[00m\\033[8] > $(tty)
 CPU_ARCHITECTURE=DEFAULT      
 Language_Name=DEFAULT
 
@@ -51,8 +52,7 @@ fi
 
 ThIsScriPtSFiLeLoCaTion=$(readlink -f "$0")
 ThIsScriPtSFolDerLoCaTion=$(dirname "$ThIsScriPtSFiLeLoCaTion")
-#set terminal color to default to keep consistancy
-echo -en \\033[00m\\033[8] > $(tty)
+
 #####Tell User what script does
 echo "
 
