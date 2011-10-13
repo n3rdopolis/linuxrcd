@@ -259,8 +259,8 @@ cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 /tmp/change-libs $(which menu-cached)
 /tmp/change-libs $(which filelight)
 /tmp/change-libs $(which ksystemlog)
-
-
+/tmp/change-libs $(which openbox)
+/tmp/change-libs $(which fspanel)
 
 
 #####################################################END SYSTEM CONFIGURATION##################################################

@@ -30,11 +30,11 @@ export DISPLAY=localhost:1
 #many apps need the home variable set.
 export HOME=/root
 
-export PATH=$PATH:/RCD/RCDbin
+export PATH=$PATH:/RCD/RCDbin:/RCD/bin
 ##CALL THE STARTUP APPS
 
 #call up the windowing manager
-#openbox
+openbox &
 
 
 #call up xsettings manager, GTK apps like this.
