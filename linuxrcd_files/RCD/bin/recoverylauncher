@@ -206,6 +206,10 @@ mkdir /mnt/RecoveryMount/RCD
 #bind the live cd data into the recovery system
 mount --rbind /RCD /mnt/RecoveryMount/RCD
 
+#hide the livecd's system binaries
+mount --rbind /mnt/RecoveryMount/RCD/RCDbin /mnt/RecoveryMount/RCD/bin
+mount --rbind /mnt/RecoveryMount/RCD/RCDbin /mnt/RecoveryMount/RCD/sbin
+
 #lock shutdown
 touch /tmp/noshutdown
 
@@ -279,11 +283,10 @@ fuser -k /mnt/RecoveryMount
 hostname -F /etc/hostname
 
 
-#unmount the /RCD/share union
-umount -lf /mnt/RecoveryMount/RCD/share
 
-#unmount the pango library union
-umount -lf /mnt/RecoveryMount/RCD/lib/pango
+#unhide the livecd's system binaries
+umount -lf /mnt/RecoveryMount/RCD/bin
+umount -lf /mnt/RecoveryMount/RCD/RCDbin /mnt/RecoveryMount/RCD/sbin
 
 #unmount recovery systems /sys
 umount -lf /mnt/RecoveryMount/sys

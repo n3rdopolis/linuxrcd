@@ -92,7 +92,7 @@ yes Yes |  aptitude install gnome-settings-daemon --without-recommends -y
 ##################################################################################################################
 
 #install recovery/config utilities
-yes Yes | aptitude install  kuser gparted mountmanager  filelight ksystemlog  --without-recommends -y
+yes Yes | aptitude install  kuser gparted mountmanager  filelight ksystemlog  gedit --without-recommends -y
 
 
 install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/
@@ -260,7 +260,10 @@ cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 /tmp/change-libs $(which ksystemlog)
 /tmp/change-libs $(which openbox)
 /tmp/change-libs $(which fspanel)
-
+/tmp/change-libs $(which kdeinit4)
+/tmp/change-libs $(which lxterminal)
+/tmp/change-libs $(which kded4)
+/tmp/change-libs $(which kbuildsycoca4)
 
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
