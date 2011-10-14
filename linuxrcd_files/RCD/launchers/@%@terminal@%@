@@ -23,3 +23,4 @@
 
 Exec=lxterminal  --working-directory=/ -e 'bash --init-file /etc/bash_completion' 
 Type=Application
+Icon=/RCD/share/icons/oxygen/64x64/apps/utilities-terminal.png

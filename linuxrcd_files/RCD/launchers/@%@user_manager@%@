@@ -24,3 +24,4 @@
 
 Exec=kuser 
 Type=Application
+Icon=/RCD/share/icons/oxygen/64x64/apps/preferences-contact-list.png

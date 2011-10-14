@@ -23,4 +23,4 @@
 
 Exec=/RCD/RCDbin/Grub2_environmentblockfix_launcher.sh  
 Type=Application   
-
+Icon=/RCD/share/icons/oxygen/64x64/apps/plasmagik.png

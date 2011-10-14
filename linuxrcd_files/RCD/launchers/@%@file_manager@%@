@@ -24,3 +24,4 @@
 
 Exec=pcmanfm --no-desktop /LinuxRCD-media 
 Type=Application
+Icon=/RCD/share/icons/oxygen/64x64/apps/system-file-manager.png

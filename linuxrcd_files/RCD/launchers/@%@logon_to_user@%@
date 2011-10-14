@@ -24,3 +24,4 @@
 
 Exec=lxterminal -e "login -p" 
 Type=Application
+Icon=/RCD/share/icons/oxygen/64x64/actions/resource-group.png

@@ -21,4 +21,5 @@
 
 
 Exec=mountmanager 
-Type=Application								   
+Type=Application
+Icon=/RCD/share/icons/mm.png								   

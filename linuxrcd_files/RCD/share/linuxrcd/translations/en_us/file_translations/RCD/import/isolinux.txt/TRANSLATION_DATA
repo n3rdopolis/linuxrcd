@@ -1,2 +1,2 @@
-@%@Boot linuxrcd message@%@~~~~~~~~~~~Wait 10 seconds or press enter to boot into LinuxRCD. And should say Make sure all text is blank past boot: ~~~~~~~~~~~
+@%@Boot linuxrcd message@%@~~~~~~~~~~~Wait 10 seconds or press enter to boot into LinuxRCD. Make sure all text is blank past boot: ~~~~~~~~~~~
 @%@Boot hd message@%@~~~~~~~~~~~Type HD and press enter to boot from the hard drive~~~~~~~~~~~

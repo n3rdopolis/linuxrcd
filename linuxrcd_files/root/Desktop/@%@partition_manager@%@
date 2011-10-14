@@ -21,3 +21,4 @@
 
 Exec=gpartedcaller
 Type=Application
+Icon=/RCD/share/icons/oxygen/64x64/apps/partitionmanager.png

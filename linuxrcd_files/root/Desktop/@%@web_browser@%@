@@ -22,3 +22,4 @@
 
 Exec=/RCD/bin/chromium-browsercaller
 Type=Application
+Icon=/RCD/share/icons/oxygen/64x64/apps/krfb.png
