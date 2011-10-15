@@ -210,6 +210,10 @@ mount --rbind /RCD /mnt/RecoveryMount/RCD
 mount --rbind /mnt/RecoveryMount/RCD/RCDbin /mnt/RecoveryMount/RCD/bin
 mount --rbind /mnt/RecoveryMount/RCD/RCDbin /mnt/RecoveryMount/RCD/sbin
 
+#bind mount over the systems /usr/share/mountmanager/BackUps over the imported RCD ones so that the files get saved to disk
+mkdir -p /mnt/RecoveryMount/usr/share/mountmanager/BackUps
+mount --rbind /mnt/RecoveryMount/usr/share/mountmanager/BackUps /mnt/RecoveryMount/RCD/share/mountmanager/BackUps
+
 #lock shutdown
 touch /tmp/noshutdown
 
@@ -283,7 +287,8 @@ fuser -k /mnt/RecoveryMount
 hostname -F /etc/hostname
 
 
-
+#unmount the bind mount of mountmanagers backup folder
+umount -lf /mnt/RecoveryMount/RCD/share/mountmanager/BackUps
 #unhide the livecd's system binaries
 umount -lf /mnt/RecoveryMount/RCD/bin
 umount -lf /mnt/RecoveryMount/RCD/RCDbin /mnt/RecoveryMount/RCD/sbin

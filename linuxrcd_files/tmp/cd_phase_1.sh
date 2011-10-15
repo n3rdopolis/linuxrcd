@@ -270,9 +270,6 @@ cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 #
 
 
-#get the remastersys source code on the disk 
-wget https://sourceforge.net/projects/remastersys/files/remastersys-ubuntu-gutsy/remastersys_2.0.11-1_all.deb
-
 #Delete the language files used for translation. they are no longer needed, as they have been used.
 rm -rf /build_language
 
