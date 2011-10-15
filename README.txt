@@ -22,7 +22,7 @@ TODO:
 
   More testing
 
-  Perhaps problems can occur with recovery programs that work directly with /usr instead of running from /usr. None of them really do right now except mount manager, which creates backups of fstab there
+  Perhaps problems can occur with recovery programs that work directly with /usr instead of running from /usr. 
 
 How to use the ISO:
   burn it, (or put it in a VM), reboot, set the BIOS to boot from the CD if it does not already, 

@@ -446,7 +446,7 @@ chroot /media/LiveDiskCreAtionChrootFolDer /tmp/cd_phase_1.sh
 fuser -k /media/LiveDiskCreAtionChrootFolDer/ 
 
 #Change all references to /usr to /RCD in the folder containg the LiveCD system
-find "/media/LiveDiskCreAtionChrootFolDer" -type f   -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*'  |while read FILE
+find "/media/LiveDiskCreAtionChrootFolDer" -type f   -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/RCD/bin/recoverylauncher' |while read FILE
 do
 echo "editing file $FILE"
 #replace all instances of usr with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
@@ -470,9 +470,9 @@ find "/media/LiveDiskCreAtionChrootFolDer" -type f -name "*usr*" | rev | while r
 do
 FILEPATH=$(echo $FILEPATH | rev) 
 oldfilepath="$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)"
-newfilepath="$(echo $oldfilepath |sed 's/usr/RCD/g')"
+newfilepath="$(echo $oldfilepath |sed -re 's/(\W|^)usr(\W|$)/\1RCD\2/g')"
 oldfilename="$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)"
-newfilename="$(echo $oldfilename |sed 's/usr/RCD/g')"
+newfilename="$(echo $oldfilename |sed -re 's/(\W|^)usr(\W|$)/\1RCD\2/g')"
 mkdir -p "$newfilepath"
 echo "copying $oldfilepath/$oldfilename" "$newfilepath/$newfilename"
 cp  -a "$oldfilepath/$oldfilename" "$newfilepath/$newfilename"
@@ -483,9 +483,9 @@ find "/media/LiveDiskCreAtionChrootFolDer" -type d -name "*usr*" | rev | while r
 do
 FILEPATH=$(echo $FILEPATH | rev) 
 oldfilepath="$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)"
-newfilepath="$(echo $oldfilepath |sed 's/usr/RCD/g')"
+newfilepath="$(echo $oldfilepath |sed -re 's/(\W|^)usr(\W|$)/\1RCD\2/g')"
 oldfilename="$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)"
-newfilename="$(echo $oldfilename |sed 's/usr/RCD/g')"
+newfilename="$(echo $oldfilename |sed -re 's/(\W|^)usr(\W|$)/\1RCD\2/g')"
 
 mkdir -p "$newfilepath"
 echo "copying $oldfilepath/$oldfilename" "$newfilepath/$newfilename"
