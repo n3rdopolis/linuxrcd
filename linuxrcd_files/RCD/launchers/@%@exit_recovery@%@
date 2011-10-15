@@ -16,9 +16,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#@@@TRANSLATABLE_FILE@@@
-#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say: Change Xephyr Size~~~~~~~~~~~
 
-Exec=xephyrcaller
+#@@@TRANSLATABLE_FILE@@@
+#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Exit Recovery"~~~~~~~~~~~
+
+
+Exec=echo exit > /tmp/exit_recovery
 Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/apps/preferences-system-windows.png
+Icon=/RCD/share/icons/oxygen/64x64/actions/application-exit.png

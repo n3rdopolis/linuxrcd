@@ -29,7 +29,6 @@
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd continue message@%@~~~~~~~~~~~Tell user to press OK to continue~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd quit prompt@%@~~~~~~~~~~~Ask user if they want to exit from their system~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd disk find@%@~~~~~~~~~~~Tell user that OS storage disks will be found, and if it finds a encrypted drive it will search for a password~~~~~~~~~~~DELIM_FOR_KDIALOG
-#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd quit message@%@~~~~~~~~~~~Tell user that when they are done working in their system, press OK in this dialog~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd recovery mode warning@%@~~~~~~~~~~~Tell user that their system is now able to be worked in, and to not shut down their computer, untill exit from thier system~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd fstab multipartition warning@%@~~~~~~~~~~~Tell user that if they have multiple partitions, the mount might fail if the file that handles automatic mounts is corrupt, and might cause unexpected results~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd fsck message@%@~~~~~~~~~~~Tell user that a terminal window will appear showing progress of the disk check, and that once the check is done, their system will be ready to recover~~~~~~~~~~~DELIM_FOR_KDIALOG
@@ -42,12 +41,12 @@
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd shortcomming notice@%@~~~~~~~~~~~Tell user that more exotic installs such as Wubi will not work, and LVM and encrypted partitions have not been tested~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd root warning@%@~~~~~~~~~~~Warn user that everything except the web browser is running as root in this live cd session~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd exercise caution message@%@~~~~~~~~~~~Warn user to be aware of what they do, as running some rouge commands can cause dammage even on a live cd, and to be even more careful when they are recovering a system~~~~~~~~~~~DELIM_FOR_KDIALOG
-#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd xephyr description@%@~~~~~~~~~~~Tell user that when thier system is successfuly mounted, that the interface will appear in a window called "Xephyr", and tell user that the programs might appear different from the ones they are used too.~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd xephyr description@%@~~~~~~~~~~~Tell user that when thier system is successfuly mounted, that the interface will appear in the System Recovery Window, and tell user that the programs might appear different from the ones they are used too.~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd web browser description@%@~~~~~~~~~~~Tell user that the web browser does not run as root, so they can use it to search for information on how to fix their system~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd dialog description@%@~~~~~~~~~~~Tell user that a set of dialogs will appear that will help the user find and recover their system~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd os selector description@%@~~~~~~~~~~~Tell user that they will soon be able to select the OS they want to recover, and that only Linux ones will be listed. Tell them that it might take a while for the next dialog to appear as it is populating the list~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd support message@%@~~~~~~~~~~~Tell user that if they don't see thier intended linux install, to report to linuxrcd.sourceforge.net, as their might be strange issue with thier file system.~~~~~~~~~~~DELIM_FOR_KDIALOG
-
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd xephyr name@%@~~~~~~~~~~~Should say System Recovery Window: Press CTRL + SHIFT to lock/unlock cursor~~~~~~~~~~~
 
 
 #detect if the lock file was created, if it was, tell the user, and then exit the script
@@ -190,9 +189,8 @@ mount --rbind /sys /mnt/RecoveryMount/sys
 mkdir /mnt/RecoveryMount/var/run/dbus
 mount --bind /var/run/dbus /mnt/RecoveryMount/var/run/dbus
 
-#mount in X11 authorization folder. 
-mkdir /mnt/RecoveryMount/tmp/.X11-unix
-mount --bind /tmp/.X11-unix /mnt/RecoveryMount/tmp/.X11-unix
+#mount in tmp folder
+mount --bind /tmp /mnt/RecoveryMount/tmp
 
 #make the folder where external media will be seen by the process
 mkdir /mnt/RecoveryMount/LinuxRCD-media
@@ -221,8 +219,8 @@ touch /tmp/noshutdown
 #get the current keyboard layout for the host display
 xmodmap -pke > /tmp/keyboardlayout
 
-#start Xephyr with the correct keyboard model so that arrow keys work
-Xephyr :1  &
+#start Xephyr 
+Xephyr :1  -title "@%@recovery cd xephyr name@%@" -noreset &
 
 #wait for Xephyr to start
 sleep 5
@@ -254,22 +252,29 @@ sleep 10
 xmodmap /tmp/keyboardlayout
 ############################################################
 
-export DISPLAY=:0
+
 
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd recovery mode warning@%@
 
-@%@recovery cd fstab multipartition warning@%@"
+@%@recovery cd fstab multipartition warning@%@" &
 
-kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd quit message@%@"
 
+
+#create a and read a fifo to pause and wait for input. When the user runs the exit launcher, it echos text into it, and the script resumes to exit the recovery
+mkfifo /tmp/exit_recovery
+cat /tmp/exit_recovery > /dev/null
 
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /RCD/share/osline)"
 quitanswer=$?
 while [  $quitanswer != 0   ]  
 do
-kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd quit message@%@"  
+#create a and read a fifo to pause and wait for input. When the user runs the exit launcher, it echos text into it, and the script resumes to exit the recovery
+mkfifo /tmp/exit_recovery  
+cat /tmp/exit_recovery > /dev/null
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /RCD/share/osline)"; quitanswer=$? 
 done 
+
+export DISPLAY=:0
 
 #stop the clipboardmgr
 killall clipboardmgr
@@ -311,8 +316,8 @@ umount -lf /mnt/RecoveryMount/dev
 #unmount the dbus folder
 umount /mnt/RecoveryMount/var/run/dbus
 
-#unmount the X11 authroization folder
-umount /mnt/RecoveryMount/tmp/.X11-unix
+#unmount the tmp folder
+umount /mnt/RecoveryMount/tmp
 
 #unmount the /RCD folder
 umount /mnt/RecoveryMount/RCD

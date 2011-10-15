@@ -21,6 +21,6 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Log viewer"~~~~~~~~~~~
 
 
-Exec=ksystemlog 
+Exec=/RCD/RCDbin/ksystemlog
 Type=Application
 Icon=/RCD/share/icons/oxygen/64x64/apps/utilities-log-viewer.png

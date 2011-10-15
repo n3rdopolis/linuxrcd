@@ -22,6 +22,6 @@
 
 
 
-Exec=kuser 
+Exec=/RCD/RCDbin/kuser
 Type=Application
 Icon=/RCD/share/icons/oxygen/64x64/apps/preferences-contact-list.png

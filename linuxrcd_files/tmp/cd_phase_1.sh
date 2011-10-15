@@ -68,7 +68,7 @@ yes Yes | aptitude install xinit  --without-recommends -y
 
 
 #install minmimal desktop GUI LXDE and related dependancies, and minimal display manager for some reason it wants xrdb which is in x11-xserver-utils, and screenshot handler and text editor, and file browser. 
-yes Yes | aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit  x11-xserver-utils xsel  kdebase-bin fspanel ksnapshot pcmanfm  --without-recommends -y
+yes Yes | aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit  x11-xserver-utils xsel  kdebase-bin  ksnapshot pcmanfm  --without-recommends -y
 
 #install lxdes utilities
 yes Yes | aptitude install lxde  --without-recommends -y
@@ -259,12 +259,13 @@ cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 /tmp/change-libs $(which filelight)
 /tmp/change-libs $(which ksystemlog)
 /tmp/change-libs $(which openbox)
-/tmp/change-libs $(which fspanel)
+/tmp/change-libs $(which lxpanel)
 /tmp/change-libs $(which kdeinit4)
 /tmp/change-libs $(which lxterminal)
 /tmp/change-libs $(which kded4)
 /tmp/change-libs $(which kbuildsycoca4)
 /tmp/change-libs $(which kfind)
+/tmp/change-libs $(which lxrandr)
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
 #

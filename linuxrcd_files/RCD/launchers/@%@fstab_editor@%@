@@ -20,6 +20,6 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "graphical fstab editor"~~~~~~~~~~~
 
 
-Exec=mountmanager 
+Exec=/RCD/RCDbin/mountmanager
 Type=Application
 Icon=/RCD/share/icons/mm.png

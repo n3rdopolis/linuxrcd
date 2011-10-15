@@ -22,6 +22,6 @@
 
 
 
-Exec=kuser 
+Exec=/RCD/RCDbin/kfind
 Type=Application
 Icon=/RCD/share/icons/oxygen/64x64/apps/strigi.png

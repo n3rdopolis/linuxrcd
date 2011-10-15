@@ -1,4 +1,4 @@
-[Desktop Entry]
+#! /bin/bash
 #    Copyright (c) 2009, 2010, 2011, nerdopolis (or n3rdopolis) <bluescreen_avenger@version.net>
 #
 #    This file is part of LinuxRCD.
@@ -16,12 +16,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-#@@@TRANSLATABLE_FILE@@@
-#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say "file manager"~~~~~~~~~~~
-
-
-
-Exec=/RCD/RCDbin/pcmanfm --no-desktop /LinuxRCD-media
-Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/apps/system-file-manager.png
+while [ -f /tmp/system_recovery_lock ] 
+do
+/RCD/RCDbin/pcmanfm --no-desktop /RCD/launchers
+sleep 5
+done

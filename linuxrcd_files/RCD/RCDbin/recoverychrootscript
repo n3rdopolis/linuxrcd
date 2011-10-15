@@ -50,9 +50,9 @@ openbox &
 lxsession &
 
 #call up the file browser opened to the folder containg the launchers 
-pcmanfm --no-desktop /RCD/launchers &
+/RCD/RCDbin/filemanagerkeeper &
 
 #call up the panel
-fspanel &
+/RCD/RCDbin/panelkeeper &
 
 
