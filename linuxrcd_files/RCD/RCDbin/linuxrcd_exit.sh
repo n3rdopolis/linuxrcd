@@ -16,5 +16,5 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#echo text into the fifo file. It can be anything, all it does is wait for input.
+#echo text into the fifo file. if its anything but the text `shutdown`, it makes it prompt.
 echo exit > /tmp/exit_recovery

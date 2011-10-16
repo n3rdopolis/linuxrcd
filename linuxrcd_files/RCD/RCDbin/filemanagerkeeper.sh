@@ -18,6 +18,6 @@
 
 while [ -f /tmp/system_recovery_lock ] 
 do
-/RCD/RCDbin/pcmanfm --no-desktop /RCD/launchers
+/RCD/RCDbin/pcmanfm --desktop /RCD/launchers
 sleep 5
 done

@@ -23,7 +23,7 @@
 
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Shutdown dialog name@%@~~~~~~~~~~~Title for the dialogs should just say Shutting Down Computer~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Shutdown warning prompt@%@~~~~~~~~~~~Ask user if they really want to shut down~~~~~~~~~~~DELIM_FOR_KDIALOG
-#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Shutdown error message@%@~~~~~~~~~~~Tell user to exit from recovering from their system before shutting down~~~~~~~~~~~DELIM_FOR_KDIALOG
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Shutdown error message@%@~~~~~~~~~~~Tell user that they still appear to be recovering a system. Ask if they still want to shut down~~~~~~~~~~~DELIM_FOR_KDIALOG
 
 ##detect file created by recovery launcher
 if [[ ! -f /tmp/noshutdown ]]
@@ -36,7 +36,19 @@ then
 #shutdown
 shutdown -P now
 fi
+
 else
 #if its not tell user to quit out of the recovery system before trying to shut down.
-kdialog --caption LinuxRCD --msgbox "@%@Shutdown error message@%@" --title "@%@Shutdown dialog name@%@"
+kdialog --caption LinuxRCD --yesno "@%@Shutdown error message@%@" --title "@%@Shutdown dialog name@%@"
+
+#if the user says yes to shutdown
+if (($?==0))
+then
+#exit recovery, and wait for the script to exit recovery
+echo shutdown > /tmp/exit_recovery
+sleep 15
+#shutdown
+shutdown -P now
+fi
+
 fi
