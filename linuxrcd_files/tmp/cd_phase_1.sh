@@ -89,6 +89,9 @@ yes Yes | aptitude install libpango1.0-dev --without-recommends -y
 yes Yes |  aptitude install  cryptsetup lvm2 mdadm jfsutils reiser4progs xfsprogs dmraid kpartx --without-recommends -y
 
 yes Yes |  aptitude install gnome-settings-daemon --without-recommends -y
+
+#install a plymouth theme because users hate scolling text
+yes Yes | aptitude install plymouth-theme-spinfinity  --without-recommends -y
 ##################################################################################################################
 
 #install recovery/config utilities
@@ -101,6 +104,10 @@ gdebi -n patchelf*
 rm patchelf*
 
 
+#configure plymouth, enable it, set the default theme, and remove the Ubuntu logo as its not an official Ubuntu disk, and can be used for other distros. 
+rm /lib/plymouth/ubuntu-logo.png
+echo FRAMEBUFFER=y > /etc/initramfs-tools/conf.d/splash
+update-alternatives --config default.plymouth
 
 #if this is english set mountmanager to use the English translations
 if [ "@%@Language_Name@%@" == "en_us" ];
