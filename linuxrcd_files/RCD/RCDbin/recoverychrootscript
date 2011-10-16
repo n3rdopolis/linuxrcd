@@ -24,7 +24,7 @@
 
 #apps that use menu-cached like this
 ln /tmp/.menu-cached-\:0-root /tmp/.menu-cached-\:1-root
-
+ln /tmp/.menu-cached-\:0-root /tmp/.menu-cached-localhost\:1-root
 #set the display variable so that X apps start a GUI
 export DISPLAY=localhost:1
 

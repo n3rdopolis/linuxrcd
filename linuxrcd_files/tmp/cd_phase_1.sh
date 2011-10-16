@@ -265,6 +265,7 @@ cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 /tmp/change-libs $(which kded4)
 /tmp/change-libs $(which kbuildsycoca4)
 /tmp/change-libs $(which kfind)
+/tmp/change-libs $(which xrandr)
 /tmp/change-libs $(which lxrandr)
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
