@@ -253,8 +253,8 @@ xmodmap /tmp/keyboardlayout
 
 #make a symbolic link for opening the LinuxRCD launcher folder so the user can reopen it if they navigate away or close it
 #LinuxRCD_Apps should be language universal
-mkdir /root/Desktop
-ln /RCD/launchers/LinuxRCD_Apps /root/Desktop/LinuxRCD_Apps
+mkdir /mnt/RecoveryMount/root/Desktop
+ln -s /RCD/launchers/LinuxRCD_Apps /mnt/RecoveryMount/root/Desktop/LinuxRCD_Apps
 ############################################################
 
 
@@ -265,18 +265,19 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 
 
 
-#create a and read a fifo to pause and wait for input. When the user runs the exit launcher, it echos text into it, and the script resumes to exit the recovery. If the text is 'shutdown' it will not prompt the user.
-mkfifo /tmp/exit_recovery
-quittext=$(cat /tmp/exit_recovery )
-
-kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /RCD/share/osline)"
-quitanswer=$?
-while [[  $quitanswer != 0  -a $quittext != shutdown ]] 
+quittext=null
+quitanswer=1
+while [  $quitanswer != 0  -a $quittext != shutdown ] 
 do
 #create a and read a fifo to pause and wait for input. When the user runs the exit launcher, it echos text into it, and the script resumes to exit the recovery
 mkfifo /tmp/exit_recovery  
 quittext=$(cat /tmp/exit_recovery )
-kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /RCD/share/osline)"; quitanswer=$? 
+if [[ $quittext == shutdown ]]
+then
+break
+fi
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /RCD/share/osline)"
+quitanswer=$? 
 done 
 
 export DISPLAY=:0
