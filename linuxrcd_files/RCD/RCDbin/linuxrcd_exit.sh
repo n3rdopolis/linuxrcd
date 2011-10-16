@@ -1,4 +1,4 @@
-[Desktop Entry]
+#! /bin/bash
 #    Copyright (c) 2009, 2010, 2011, nerdopolis (or n3rdopolis) <bluescreen_avenger@version.net>
 #
 #    This file is part of LinuxRCD.
@@ -16,11 +16,5 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-#@@@TRANSLATABLE_FILE@@@
-#@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Exit Recovery"~~~~~~~~~~~
-
-
-Exec=/RCD/RCDbin/linuxrcd_exit.sh
-Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/actions/application-exit.png
+#echo text into the fifo file. It can be anything, all it does is wait for input.
+echo exit > /tmp/exit_recovery
