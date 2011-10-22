@@ -21,7 +21,7 @@ export OriginalText=$1
 export TargetText=$2
 
 #Change all references to /$OriginalText to /$TargetText in the folder containg the LiveCD system
-find "/media/LiveDiskCreAtionChrootFolDer" -type f   -not -path "/media/LiveDiskCreAtionChrootFolDer/proc/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/sys/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/dev/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/tmp/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/RCD/bin/recoverylauncher" |while read FILE
+find "/media/LiveDiskCreAtionChrootFolDer" -type f   -not -path "/media/LiveDiskCreAtionChrootFolDer/proc/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/sys/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/dev/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/tmp/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/usr/bin/recoverylauncher" |while read FILE
 do
 echo "editing file $FILE"
 #replace all instances of $OriginalText with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
