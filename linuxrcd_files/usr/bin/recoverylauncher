@@ -201,8 +201,12 @@ mount --rbind /proc/1/root/media /mnt/RecoveryMount/LinuxRCD-media
 #make the RCD folder in case if its not there
 mkdir /mnt/RecoveryMount/RCD
 
+#make the library folder for LinuxRCD
+mkdir /mnt/RecoveryMount/LYB
+
 #bind the live cd data into the recovery system
 mount --rbind /RCD /mnt/RecoveryMount/RCD
+mount --rbind /LYB /mnt/RecoveryMount/LYB
 
 #hide the livecd's system binaries
 mount --rbind /mnt/RecoveryMount/RCD/RCDbin /mnt/RecoveryMount/RCD/bin
@@ -320,13 +324,14 @@ umount -lf /mnt/RecoveryMount/dev/shm
 umount -lf /mnt/RecoveryMount/dev
 
 #unmount the dbus folder
-umount /mnt/RecoveryMount/var/run/dbus
+umount -lf /mnt/RecoveryMount/var/run/dbus
 
 #unmount the tmp folder
-umount /mnt/RecoveryMount/tmp
+umount -lf /mnt/RecoveryMount/tmp
 
-#unmount the /RCD folder
-umount /mnt/RecoveryMount/RCD
+#unmount the LinuxRCD folders
+umount -lf /mnt/RecoveryMount/RCD
+umount -lf /mnt/RecoveryMount/LYB
 
 #unmount all fstab partitions
 chroot /mnt/RecoveryMount umount -alf

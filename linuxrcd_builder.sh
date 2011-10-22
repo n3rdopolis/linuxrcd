@@ -425,9 +425,6 @@ done
 #copy the new translated executable files to where they belong
 rsync /media/LiveDiskCreAtionChrootFolDer/temp/* -a /media/LiveDiskCreAtionChrootFolDer/
 
-#copy in any LinuxRCD built packages as a local repo
-rsync  ~/LinuxRCDPackAgeS/*  -Cr /media/LiveDiskCreAtionChrootFolDer/RCD/import/packages
-
 #delete the temp folder
 rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/
 
@@ -445,52 +442,11 @@ chroot /media/LiveDiskCreAtionChrootFolDer /tmp/cd_phase_1.sh
 #kill any process accessing the livedisk mountpoint 
 fuser -k /media/LiveDiskCreAtionChrootFolDer/ 
 
-#Change all references to /usr to /RCD in the folder containg the LiveCD system
-find "/media/LiveDiskCreAtionChrootFolDer" -type f   -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/RCD/bin/recoverylauncher' |while read FILE
-do
-echo "editing file $FILE"
-#replace all instances of usr with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
-sed -re 's/(\W|^)usr(\W|$)/\1RCD\2/g' "$FILE" > "$FILE.tmp"
-cat "$FILE.tmp" > "$FILE"
-rm "$FILE.tmp"
-done
-
-#change all symbolic links that point to usr to point to RCD
-find "/media/LiveDiskCreAtionChrootFolDer" -type l   -not -path '/media/LiveDiskCreAtionChrootFolDer/proc/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/sys/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/dev/*' -not -path '/media/LiveDiskCreAtionChrootFolDer/tmp/*'  |while read FILE
-do
-echo "relinking $FILE"
-newlink=$(readlink $FILE | sed 's/usr/RCD/g')
-ln -s -f "$newlink" "$FILE"
-done
-
-
-
-#find all files contianing usr in the name
-find "/media/LiveDiskCreAtionChrootFolDer" -type f -name "*usr*" | rev | while read FILEPATH
-do
-FILEPATH=$(echo $FILEPATH | rev) 
-oldfilepath="$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)"
-newfilepath="$(echo $oldfilepath |sed -re 's/(\W|^)usr(\W|$)/\1RCD\2/g')"
-oldfilename="$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)"
-newfilename="$(echo $oldfilename |sed -re 's/(\W|^)usr(\W|$)/\1RCD\2/g')"
-mkdir -p "$newfilepath"
-echo "copying $oldfilepath/$oldfilename" "$newfilepath/$newfilename"
-cp  -a "$oldfilepath/$oldfilename" "$newfilepath/$newfilename"
-done
-
-#find all folders contianing usr in the name
-find "/media/LiveDiskCreAtionChrootFolDer" -type d -name "*usr*" | rev | while read FILEPATH
-do
-FILEPATH=$(echo $FILEPATH | rev) 
-oldfilepath="$(echo $FILEPATH | rev | cut -f2- -d '/' | rev)"
-newfilepath="$(echo $oldfilepath |sed -re 's/(\W|^)usr(\W|$)/\1RCD\2/g')"
-oldfilename="$(echo $FILEPATH | rev | awk -F / '{print $1}' | rev)"
-newfilename="$(echo $oldfilename |sed -re 's/(\W|^)usr(\W|$)/\1RCD\2/g')"
-
-mkdir -p "$newfilepath"
-echo "copying $oldfilepath/$oldfilename" "$newfilepath/$newfilename"
-cp -a "$oldfilepath/$oldfilename/." "$newfilepath/$newfilename"
-done
+#make sure the editor is executable
+chmod +x "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_edit.sh
+#edit some folder path strings
+"$ThIsScriPtSFolDerLoCaTion"/linuxrcd_edit.sh usr RCD
+"$ThIsScriPtSFolDerLoCaTion"/linuxrcd_edit.sh lib LYB
 
 
  
@@ -505,8 +461,6 @@ chroot /media/LiveDiskCreAtionChrootFolDer /tmp/cd_phase_2.sh
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
-
-
 #delete the old copy of the ISO 
 rm ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 #move the iso out of the chroot fs    
@@ -517,6 +471,9 @@ chown $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 chgrp $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 chmod 777 ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 
+
+echo "Press enter"
+read a
 
 #go back to the users home folder
 cd ~
