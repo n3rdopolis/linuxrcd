@@ -218,18 +218,18 @@ rm /usr/share/initramfs-tools/scripts/casper-bottom/25configure_init
 #
 ###################################################BEGIN SYSTEM COFIGURATION################################################## 
 #copy in the imported files into the needed location. These files are managed by the remastersys package, so they need to be copied here after the remastersys package makes these files
-cp /RCD/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.gutsyandbefore
-cp /RCD/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.hardyandlater
+cp /usr/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.gutsyandbefore
+cp /usr/import/isolinux.txt /etc/remastersys/isolinux/isolinux.txt.hardyandlater
 
-cp /RCD/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.gutsyandbefore
-cp /RCD/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.hardyandlater
+cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.gutsyandbefore
+cp /usr/import/isolinux.cfg /etc/remastersys/isolinux/isolinux.cfg.hardyandlater
 #change the background into one light blue color
-cp /RCD/import/lxde_blue.jpg /usr/share/lxde/wallpapers/lxde_blue.jpg
+cp /usr/import/lxde_blue.jpg /usr/share/lxde/wallpapers/lxde_blue.jpg
 #remove the panel background, making it all white.
 rm /usr/share/lxpanel/images/background.png
 #replace the shutdown item with the custom one
 rm /usr/bin/lxde-logout
-cp /RCD/bin/linuxrcd_shutdown /usr/bin/lxde-logout
+cp /usr/bin/linuxrcd_shutdown /usr/bin/lxde-logout
 
 #create a default user that the live cd startup script, casper, needs a UID of 1000
 useradd linuxrcd -s /bin/bash

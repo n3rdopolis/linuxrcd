@@ -267,9 +267,9 @@ chgrp  root  -R /media/LiveDiskCreAtionChrootFolDer/temp/
 
 
 #copy the Language selected into the working folder
-rsync "/media/LiveDiskCreAtionChrootFolDer/temp/RCD/share/linuxrcd/translations/$Language_Name"/* -r /media/LiveDiskCreAtionChrootFolDer/build_language/
+rsync "/media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/translations/$Language_Name"/* -r /media/LiveDiskCreAtionChrootFolDer/build_language/
 #delete the rest of the languages
-rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/RCD/share/linuxrcd/translations
+rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/translations
 
 
 
