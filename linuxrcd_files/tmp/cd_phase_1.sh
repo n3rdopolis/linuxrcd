@@ -101,10 +101,6 @@ yes Yes | aptitude install gvfs gvfs-backends mtools  --without-recommends -y
 yes Yes | aptitude install  kuser gparted mountmanager kfind filelight ksystemlog  gedit --without-recommends -y
 
 
-install patchelf for modifying libraries and executables on the live cd for working in the target system  from http://hydra.nixos.org/
-wget http://hydra.nixos.org/build/912157/download/1/patchelf_0.6pre25969-1_@%@CPU_ARCHITECTURE@%@.deb
-gdebi -n patchelf*
-rm patchelf*
 
 
 #configure plymouth, enable it, set the default theme, and replace the Ubuntu logo, with a fitting icon as its not an official Ubuntu disk, and can be used for other distros. 
@@ -260,23 +256,23 @@ sudo apt-get clean
 mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
 cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
-/tmp/change-libs $(which kdialog)
-/tmp/change-libs $(which kuser)
-/tmp/change-libs $(which pcmanfm)
-/tmp/change-libs $(which gedit)
-/tmp/change-libs $(which mountmanager)
-/tmp/change-libs $(which lxsession)
-/tmp/change-libs $(which filelight)
-/tmp/change-libs $(which ksystemlog)
-/tmp/change-libs $(which openbox)
-/tmp/change-libs $(which lxpanel)
-/tmp/change-libs $(which kdeinit4)
-/tmp/change-libs $(which lxterminal)
-/tmp/change-libs $(which kded4)
-/tmp/change-libs $(which kbuildsycoca4)
-/tmp/change-libs $(which kfind)
-/tmp/change-libs $(which xrandr)
-/tmp/change-libs $(which lxrandr)
+ln -s /usr/RCDbin/kdialog "/proc/1/root$(which kdialog)"
+ln -s /usr/RCDbin/kuser "/proc/1$/root(which kuser)"
+ln -s /usr/RCDbin/pcmanfm "/proc/1/root$(which pcmanfm)"
+ln -s /usr/RCDbin/gedit "/proc/1/root$(which gedit)"
+ln -s /usr/RCDbin/mountmanager "/proc/1/root$(which mountmanager)"
+ln -s /usr/RCDbin/lxsession "/proc/1/root$(which lxsession)"
+ln -s /usr/RCDbin/filelight "/proc/1/root$(which filelight)"
+ln -s /usr/RCDbin/ksystemlog "/proc/1/root$(which ksystemlog)"
+ln -s /usr/RCDbin/openbox "/proc/1/root$(which openbox)"
+ln -s /usr/RCDbin/lxpanel "/proc/1/root$(which lxpanel)"
+ln -s /usr/RCDbin/kdeinit4 "/proc/1/root$(which kdeinit4)"
+ln -s /usr/RCDbin/lxterminal "/proc/1/root$(which lxterminal)"
+ln -s /usr/RCDbin/kded4 "/proc/1/root$(which kded4)"
+ln -s /usr/RCDbin/kbuildsycoca4 "/proc/1/root$(which kbuildsycoca4)"
+ln -s /usr/RCDbin/kfind "/proc/1/root$(which kfind)"
+ln -s /usr/RCDbin/xrandr "/proc/1/root$(which xrandr)"
+ln -s /usr/RCDbin/lxrandr "/proc/1/root$(which lxrandr)"
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
 #

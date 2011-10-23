@@ -63,9 +63,9 @@ echo "no language entered. exiting..."
 exit 1 
 fi
 #make the language folder.
-mkdir -p "$linuxrcdfolderlocaton/RCD/share/linuxrcd/translations/$languagename"
+mkdir -p "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename"
 #make the language file for the universal string. There is only one universal string in LinuxRCD, and thats the language name
-echo "$languagename~~~~~~~~~~~" > "$linuxrcdfolderlocaton/RCD/share/linuxrcd/translations/$languagename/@%@Language_Name@%@"
+echo "$languagename~~~~~~~~~~~" > "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/@%@Language_Name@%@"
 
 #find all files in the linux_rcd files that have the string in them to show themselves as translatable.
 find "$linuxrcdfolderlocaton" \( -name .svn \) -prune -o -print | while read FILE
@@ -91,15 +91,15 @@ translationname="$( echo $filename )"
 #get the translation descrition in the file, to aid the translator
 translationdescription="$( echo $LINE | awk -F"~~~~~~~~~~~" '{ print $2 }' )"
 #get the current contents of the translation
-oldtranslationtext=$(cat "$linuxrcdfolderlocaton/RCD/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/FILEFOLDERNAME" | awk -F"~~~~~~~~~~~" '{ print $1 }'   )
+oldtranslationtext=$(cat "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/FILEFOLDERNAME" | awk -F"~~~~~~~~~~~" '{ print $1 }'   )
 #prompt for the new translation, with the old translation in the line.
 newtranslationtext="$(dialog  --no-cancel --stdout --inputbox "Translating LinuxRCD's $foldername$filename
 
 translation description for string $translationname: $translationdescription" 20 999 "$oldtranslationtext" )"
 #make the folder for the translation
-mkdir -p "$linuxrcdfolderlocaton/RCD/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/"
+mkdir -p "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/"
 #create the translation file for the file name
-echo "$newtranslationtext~~~~~~~~~~~" > "$linuxrcdfolderlocaton/RCD/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/FILEFOLDERNAME"
+echo "$newtranslationtext~~~~~~~~~~~" > "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/FILEFOLDERNAME"
 done
 
 
@@ -113,20 +113,20 @@ translationdescription="$( echo $LINE | awk -F"~~~~~~~~~~~" '{ print $3 }' )"
 #get the internal translation options for the LinuxRCD build script
 translationoptions="$( echo $LINE | awk -F"~~~~~~~~~~~" '{ print $4 }' )"
 #get the current contents of the translation
-oldtranslationtext=$(cat "$linuxrcdfolderlocaton/RCD/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA" | grep "$translationname"  | awk -F"~~~~~~~~~~~" '{ print $2 }' )
+oldtranslationtext=$(cat "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA" | grep "$translationname"  | awk -F"~~~~~~~~~~~" '{ print $2 }' )
 #prompt for the new translation, with the old translation in the line.
 newtranslationtext="$(dialog  --no-cancel --stdout --inputbox "Translating LinuxRCD's $foldername$filename
 
 translation description for string $translationname: $translationdescription" 20 999 "$oldtranslationtext" )"
 #copy the current translation in a cached location, without the old translation for this string
-cat "$linuxrcdfolderlocaton/RCD/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA" | grep -v "$translationname" > "${HOME}/LiveDiskTranSlAtionCacheFolDer/TRANSLATION_DATA"
+cat "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA" | grep -v "$translationname" > "${HOME}/LiveDiskTranSlAtionCacheFolDer/TRANSLATION_DATA"
 #put the new translation in the cached file
 echo "$translationname~~~~~~~~~~~$newtranslationtext~~~~~~~~~~~$translationoptions" >> "${HOME}/LiveDiskTranSlAtionCacheFolDer/TRANSLATION_DATA"
 #create the folder for the new translation
-mkdir -p "$linuxrcdfolderlocaton/RCD/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/"
+mkdir -p "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/"
 
 #move the edited cached file into the correct location so the new translation is applied
-mv "${HOME}/LiveDiskTranSlAtionCacheFolDer/TRANSLATION_DATA" "$linuxrcdfolderlocaton/RCD/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA"
+mv "${HOME}/LiveDiskTranSlAtionCacheFolDer/TRANSLATION_DATA" "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA"
 done
 
 fi
