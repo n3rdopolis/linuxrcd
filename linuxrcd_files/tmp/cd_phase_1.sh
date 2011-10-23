@@ -256,23 +256,23 @@ sudo apt-get clean
 mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
 cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
-ln -s /usr/RCDbin/kdialog "/proc/1/root$(which kdialog)"
-ln -s /usr/RCDbin/kuser "/proc/1$/root(which kuser)"
-ln -s /usr/RCDbin/pcmanfm "/proc/1/root$(which pcmanfm)"
-ln -s /usr/RCDbin/gedit "/proc/1/root$(which gedit)"
-ln -s /usr/RCDbin/mountmanager "/proc/1/root$(which mountmanager)"
-ln -s /usr/RCDbin/lxsession "/proc/1/root$(which lxsession)"
-ln -s /usr/RCDbin/filelight "/proc/1/root$(which filelight)"
-ln -s /usr/RCDbin/ksystemlog "/proc/1/root$(which ksystemlog)"
-ln -s /usr/RCDbin/openbox "/proc/1/root$(which openbox)"
-ln -s /usr/RCDbin/lxpanel "/proc/1/root$(which lxpanel)"
-ln -s /usr/RCDbin/kdeinit4 "/proc/1/root$(which kdeinit4)"
-ln -s /usr/RCDbin/lxterminal "/proc/1/root$(which lxterminal)"
-ln -s /usr/RCDbin/kded4 "/proc/1/root$(which kded4)"
-ln -s /usr/RCDbin/kbuildsycoca4 "/proc/1/root$(which kbuildsycoca4)"
-ln -s /usr/RCDbin/kfind "/proc/1/root$(which kfind)"
-ln -s /usr/RCDbin/xrandr "/proc/1/root$(which xrandr)"
-ln -s /usr/RCDbin/lxrandr "/proc/1/root$(which lxrandr)"
+ln -s "/proc/1/root$(which kdialog)" /usr/RCDbin/kdialog
+ln -s "/proc/1$/root(which kuser)" /usr/RCDbin/kuser
+ln -s "/proc/1/root$(which pcmanfm)" /usr/RCDbin/pcmanfm
+ln -s "/proc/1/root$(which gedit)" /usr/RCDbin/gedit
+ln -s "/proc/1/root$(which mountmanager)" /usr/RCDbin/mountmanager
+ln -s "/proc/1/root$(which lxsession)" /usr/RCDbin/lxsession
+ln -s "/proc/1/root$(which filelight)" /usr/RCDbin/filelight
+ln -s "/proc/1/root$(which ksystemlog)" /usr/RCDbin/ksystemlog
+ln -s "/proc/1/root$(which openbox)" /usr/RCDbin/openbox
+ln -s "/proc/1/root$(which lxpanel)" /usr/RCDbin/lxpanel
+ln -s "/proc/1/root$(which kdeinit4)" /usr/RCDbin/kdeinit4
+ln -s "/proc/1/root$(which lxterminal)" /usr/RCDbin/lxterminal
+ln -s "/proc/1/root$(which kded4)" /usr/RCDbin/kded4
+ln -s "/proc/1/root$(which kbuildsycoca4)" /usr/RCDbin/kbuildsycoca4
+ln -s "/proc/1/root$(which kfind)" /usr/RCDbin/kfind
+ln -s "/proc/1/root$(which xrandr)" /usr/RCDbin/xrandr
+ln -s "/proc/1/root$(which lxrandr)" /usr/RCDbin/lxrandr
 #####################################################END SYSTEM CONFIGURATION##################################################
 #
 #

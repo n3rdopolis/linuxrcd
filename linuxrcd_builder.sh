@@ -448,7 +448,12 @@ chmod +x "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_edit.sh
 "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_edit.sh usr RCD
 "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_edit.sh lib LYB
 
-
+#fix for Xorg, it uses wildcards.
+find "/media/LiveDiskCreAtionChrootFolDer/RCD/LYB/xorg" -name "lib*"   | while read FILEPATH
+do
+echo "Renaming $FILEPATH"
+rename "s/(\W|^)lib(\W|$)/\1LYB\2/g" "$FILEPATH"
+done
  
 #delete the usr folder in the Live CD
 rm -rf /media/LiveDiskCreAtionChrootFolDer/usr
