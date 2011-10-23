@@ -452,7 +452,7 @@ chmod +x "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_edit.sh
 find "/media/LiveDiskCreAtionChrootFolDer/RCD/LYB/xorg" -name "lib*"   | while read FILEPATH
 do
 echo "Renaming $FILEPATH"
-rename "s/(\W|^)lib(\W|$)/\1LYB\2/g" "$FILEPATH"
+rename "s/lib/\1LYB\2/g" "$FILEPATH"
 done
  
 #delete the usr folder in the Live CD
