@@ -163,9 +163,7 @@ rm /etc/init/tty4.conf
 rm /etc/init/tty5.conf
 rm /etc/init/tty6.conf
 
-#replace openbox with kwin
-mv /usr/bin/openbox /usr/bin/openbox.bak
-ln /usr/bin/kwin /usr/bin/openbox
+
 ##################END TTY CONFIGURATION############
 
 
@@ -185,6 +183,9 @@ ln -s  /etc/init.d/hal  /etc/rc2.d/S52hal
 
 #add the preparer to startup script
 ln -s  /etc/init.d/prepare  /etc/rc2.d/S52prepare
+
+#add kwin to the startup script
+ln -s /etc/init/kwin /etc/rc2.d/S52kwin
 
 #########END OLD STYLE INIT SCRIPT EDITS###################
 
