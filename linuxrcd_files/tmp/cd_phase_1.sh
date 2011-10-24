@@ -185,7 +185,7 @@ ln -s  /etc/init.d/hal  /etc/rc2.d/S52hal
 ln -s  /etc/init.d/prepare  /etc/rc2.d/S52prepare
 
 #add kwin to the startup script
-ln -s /etc/init/kwin /etc/rc2.d/S52kwin
+ln -s /etc/init.d/kwin /etc/rc2.d/S52kwin
 
 #########END OLD STYLE INIT SCRIPT EDITS###################
 
