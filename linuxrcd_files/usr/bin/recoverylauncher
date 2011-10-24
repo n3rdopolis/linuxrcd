@@ -185,11 +185,11 @@ mount --rbind /sys /mnt/RecoveryMount/sys
 
 
 #get /var/run/dbus path, some systems are now putting it in root FS
-varrundir=$(readlink -f /var/run/dbus)
+varrundir=$(readlink -f /var/run)
 
 #mount in dbus so apps work
-mkdir /mnt/RecoveryMount$varrundir
-mount --bind /var/run/dbus /mnt/RecoveryMount/var/run/dbus
+mkdir /mnt/RecoveryMount$varrundir/dbus
+mount --bind /var/run/dbus /mnt/RecoveryMount$varrundir/dbus
 
 #mount in tmp folder
 mount --bind /tmp /mnt/RecoveryMount/tmp
@@ -326,7 +326,7 @@ umount -lf /mnt/RecoveryMount/dev/shm
 umount -lf /mnt/RecoveryMount/dev
 
 #unmount the dbus folder
-umount -lf /mnt/RecoveryMount$varrundir
+umount -lf /mnt/RecoveryMount$varrundir/dbus
 
 #unmount the tmp folder
 umount -lf /mnt/RecoveryMount/tmp

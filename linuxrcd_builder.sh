@@ -455,6 +455,10 @@ echo "Renaming $FILEPATH"
 rename "s/lib/\1LYB\2/g" "$FILEPATH"
 done
  
+
+#Do this for X
+ln -s -f /var/LYB /media/LiveDiskCreAtionChrootFolDer/var/lib
+
 #delete the usr folder in the Live CD
 rm -rf /media/LiveDiskCreAtionChrootFolDer/usr
 
