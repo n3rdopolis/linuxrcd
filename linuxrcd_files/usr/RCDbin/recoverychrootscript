@@ -44,7 +44,7 @@ export PATH=$PATH:/RCD/RCDbin
 ##CALL THE STARTUP APPS
 
 #call up the windowing manager
-openbox &
+kwin &
 
 
 #call up xsettings manager, GTK apps like this.

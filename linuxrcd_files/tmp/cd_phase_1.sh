@@ -68,7 +68,7 @@ yes Yes | aptitude install xinit  --without-recommends -y
 
 
 #install minmimal desktop GUI LXDE and related dependancies, and minimal display manager for some reason it wants xrdb which is in x11-xserver-utils, and screenshot handler and text editor, and file browser. 
-yes Yes | aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit  x11-xserver-utils xsel  kdebase-bin  ksnapshot pcmanfm  --without-recommends -y
+yes Yes | aptitude install lxde-common lxde-core lxde-icon-theme lxde-settings-daemon lxinput lxmenu-data lxpanel lxrandr lxsession-lite lxsession-edit kde-window-manager x11-xserver-utils xsel  kdebase-bin  ksnapshot pcmanfm  --without-recommends -y
 
 #install lxdes utilities
 yes Yes | aptitude install lxde  --without-recommends -y
@@ -163,6 +163,9 @@ rm /etc/init/tty4.conf
 rm /etc/init/tty5.conf
 rm /etc/init/tty6.conf
 
+#replace openbox with kwin
+mv /usr/bin/openbox /usr/bin/openbox.bak
+ln /usr/bin/kwin /usr/bin/openbox
 ##################END TTY CONFIGURATION############
 
 
@@ -265,7 +268,7 @@ ln -s "/proc/1/root$(which mountmanager)" /usr/RCDbin/mountmanager
 ln -s "/proc/1/root$(which lxsession)" /usr/RCDbin/lxsession
 ln -s "/proc/1/root$(which filelight)" /usr/RCDbin/filelight
 ln -s "/proc/1/root$(which ksystemlog)" /usr/RCDbin/ksystemlog
-ln -s "/proc/1/root$(which openbox)" /usr/RCDbin/openbox
+ln -s "/proc/1/root$(which kwin)" /usr/RCDbin/kwin
 ln -s "/proc/1/root$(which lxpanel)" /usr/RCDbin/lxpanel
 ln -s "/proc/1/root$(which kdeinit4)" /usr/RCDbin/kdeinit4
 ln -s "/proc/1/root$(which lxterminal)" /usr/RCDbin/lxterminal
