@@ -234,7 +234,7 @@ cp /usr/bin/linuxrcd_shutdown /usr/bin/lxde-logout
 #create a default user that the live cd startup script, casper, needs a UID of 1000
 useradd linuxrcd -s /bin/bash
 #add the user account that will call up a web browser. Give it a high UID so that it probably will not have write access to the users system
-useradd browser -u 999999999 -s /bin/bash
+useradd browser -u 999999999 -g 999999999 -s /bin/bash
 
 
 
@@ -281,7 +281,8 @@ ln -s "/proc/1/root$(which lxrandr)" /usr/RCDbin/lxrandr
 #Delete the language files used for translation. they are no longer needed, as they have been used.
 rm -rf /build_language
 
-
+#Do this for X
+ln -s -f /var/LYB /var/lib
 
 
 
