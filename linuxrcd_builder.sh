@@ -481,9 +481,6 @@ chgrp $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 chmod 777 ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
 
 
-echo "Press enter"
-read a
-
 #go back to the users home folder
 cd ~
 
