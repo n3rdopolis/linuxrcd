@@ -86,7 +86,7 @@ yes Yes | aptitude install chromium-browser --without-recommends -y
 yes Yes | aptitude install libpango1.0-dev --without-recommends -y
 
 #install storage tools 
-yes Yes |  aptitude install  cryptsetup lvm2 mdadm jfsutils reiser4progs dosfstools ntfs-3g xfsprogs dmraid kpartx --without-recommends -y
+yes Yes |  aptitude install  cryptsetup lvm2 mdadm jfsutils reiser4progs dosfstools ntfs-3g btrfs-tools xfsprogs dmraid kpartx --without-recommends -y
 
 yes Yes |  aptitude install gnome-settings-daemon --without-recommends -y
 
@@ -262,7 +262,7 @@ mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
 cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
 ln -s "/proc/1/root$(which kdialog)" /usr/RCDbin/kdialog
-ln -s "/proc/1$/root(which kuser)" /usr/RCDbin/kuser
+ln -s "/proc/1/root$(which kuser)" /usr/RCDbin/kuser
 ln -s "/proc/1/root$(which pcmanfm)" /usr/RCDbin/pcmanfm
 ln -s "/proc/1/root$(which gedit)" /usr/RCDbin/gedit
 ln -s "/proc/1/root$(which mountmanager)" /usr/RCDbin/mountmanager

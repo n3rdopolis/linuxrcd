@@ -54,6 +54,7 @@ if [ -f /tmp/system_recovery_lock ]
 then
 
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox  "@%@recovery cd in use message@%@"
+rm /tmp/system_recovery_lock
 exit 1
 fi 
 #create the lock file so the no new instance can be created.
@@ -160,7 +161,7 @@ if [[ $checkdisk -eq 0 ]]
 then
 #check the specified root file system for errors
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd fsck message@%@" &
-roxterm -e fsck -p $(cat /RCD/share/devname)
+lxterminal -e fsck -p $(cat /RCD/share/devname)
 fi
 
 
