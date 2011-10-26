@@ -39,7 +39,7 @@ ln -s -f "$newlink" "$FILE"
 done
 
 #find all items contianing $OriginalText in the name
-find "/media/LiveDiskCreAtionChrootFolDer" -name "*$OriginalText*"  -not -path "/media/LiveDiskCreAtionChrootFolDer/proc/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/sys/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/dev/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/tmp/*" | sort -r | while read FILEPATH
+find "/media/LiveDiskCreAtionChrootFolDer"  -type d  -not -path "/media/LiveDiskCreAtionChrootFolDer/proc/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/sys/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/dev/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/tmp/*" | sort -r | while read FILEPATH
 do
 cd "$FILEPATH"
 rename -v "s/(\W|^)$OriginalText(\W|$)/\1$TargetText\2/g" * 2> /dev/null
