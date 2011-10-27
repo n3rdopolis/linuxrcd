@@ -29,7 +29,7 @@
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Grub environment block file not found@%@~~~~~~~~~~~Say that the grub environemt block was already removed, and if the user is still having issues with GRUB then it might be a BIOS, or disk issue~~~~~~~~~~~DELIM_FOR_KDIALOG
 cd /
 
-/RCD/RCDbin/kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --yesno "@%@Grub environment block welcome@%@
+/usr/RCDbin/kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --yesno "@%@Grub environment block welcome@%@
 
 @%@Grub environment block description@%@
 
@@ -49,13 +49,13 @@ mv  /boot/grub/grubenv /boot/grub/grubenv$(date +%s).bak
 
 if [ -f  /boot/grub/grubenv ]
 then
-/RCD/RCDbin/kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --error "@%@Grub environment block failed to remove file@%@"
+/usr/RCDbin/kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --error "@%@Grub environment block failed to remove file@%@"
 else
-/RCD/RCDbin/kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --msgbox "@%@Grub environment block success@%@"
+/usr/RCDbin/kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --msgbox "@%@Grub environment block success@%@"
 fi
 
 else
-/RCD/RCDbin/kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --msgbox "@%@Grub environment block file not found@%@"
+/usr/RCDbin/kdialog --caption LinuxRCD --title "@%@Grub environment block dialog name%@" --msgbox "@%@Grub environment block file not found@%@"
 fi
 
 

@@ -19,6 +19,6 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say: Recover an installed System~~~~~~~~~~~
 
-Exec=/RCD/bin/recoverylauncher 
+Exec=/usr/bin/recoverylauncher 
 Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/actions/configure.png
+Icon=/usr/share/icons/oxygen/64x64/actions/configure.png

@@ -22,6 +22,6 @@
 
 
 
-Exec=/RCD/RCDbin/lxterminal -e "login -p"
+Exec=/usr/RCDbin/lxterminal -e "login -p"
 Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/actions/resource-group.png
+Icon=/usr/share/icons/oxygen/64x64/actions/resource-group.png

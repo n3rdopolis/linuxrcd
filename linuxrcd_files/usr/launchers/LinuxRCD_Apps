@@ -18,6 +18,6 @@
 
 
 
-Exec=/RCD/RCDbin/pcmanfm /RCD/launchers
+Exec=/usr/RCDbin/pcmanfm /usr/launchers
 Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/categories/preferences-system.png
+Icon=/usr/share/icons/oxygen/64x64/categories/preferences-system.png

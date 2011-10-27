@@ -148,14 +148,14 @@ do
 mount -o ro  "$VOLUME" /tmp/volumemountpoint
 
 #use an os-prober sub-utility to detect lsb info (/etc/lsb-release) first. Put it into a file which will be read after its done
-/RCD/lib/os-probes/mounted/40lsb "$VOLUME" /tmp/volumemountpoint  >> /tmp/linuxinstalls
+/usr/lib/os-probes/mounted/40lsb "$VOLUME" /tmp/volumemountpoint  >> /tmp/linuxinstalls
 #get the status of the lsb detection
 lsbstatus=$?
 #if the lsb detection failed
 if [ $lsbstatus = 1 ]
 then
 #use another sub-utility of os-prober to detect linux install information. This one is for linux installs that have no lsb information.
-/RCD/lib/os-probes/mounted/90linux-distro "$VOLUME" /tmp/volumemountpoint >> /tmp/linuxinstalls
+/usr/lib/os-probes/mounted/90linux-distro "$VOLUME" /tmp/volumemountpoint >> /tmp/linuxinstalls
 fi
 #if there is no other information, then it is probably not a linux distro.
 

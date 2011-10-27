@@ -21,6 +21,6 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "terminal"~~~~~~~~~~~
 
 
-Exec=/RCD/RCDbin/lxterminal  --working-directory=/ -e 'bash --init-file /etc/bash_completion'
+Exec=/usr/RCDbin/lxterminal  --working-directory=/ -e 'bash --init-file /etc/bash_completion'
 Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/apps/utilities-terminal.png
+Icon=/usr/share/icons/oxygen/64x64/apps/utilities-terminal.png

@@ -462,6 +462,8 @@ ln -s -f /var/LYB /media/LiveDiskCreAtionChrootFolDer/var/lib
 #delete the usr folder in the Live CD
 rm -rf /media/LiveDiskCreAtionChrootFolDer/usr
 
+#Do this for OS prober as it works with a normal system with lib. not LYB
+sed -i 's/LYB/lib/g' /media/LiveDiskCreAtionChrootFolDer/RCD/LYB/os-probes/mounted/90linux-distro
 
 #make the iso using remastersys############################################
 chroot /media/LiveDiskCreAtionChrootFolDer /tmp/cd_phase_2.sh

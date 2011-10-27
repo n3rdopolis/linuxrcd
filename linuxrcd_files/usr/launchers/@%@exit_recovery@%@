@@ -21,6 +21,6 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Exit Recovery"~~~~~~~~~~~
 
 
-Exec=/RCD/RCDbin/linuxrcd_exit.sh
+Exec=/usr/RCDbin/linuxrcd_exit.sh
 Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/actions/application-exit.png
+Icon=/usr/share/icons/oxygen/64x64/actions/application-exit.png

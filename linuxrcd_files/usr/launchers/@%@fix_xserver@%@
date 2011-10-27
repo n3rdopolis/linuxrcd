@@ -20,6 +20,6 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Fix X server"~~~~~~~~~~~
 
 
-Exec=/RCD/RCDbin/xserver_fix_launcher.sh
+Exec=/usr/RCDbin/xserver_fix_launcher.sh
 Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/apps/xorg.png
+Icon=/usr/share/icons/oxygen/64x64/apps/xorg.png

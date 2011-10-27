@@ -21,6 +21,6 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Fix Grub2 environment block~~~~~~~~~~~
 
 
-Exec=/RCD/RCDbin/Grub2_environmentblockfix_launcher.sh  
+Exec=/usr/RCDbin/Grub2_environmentblockfix_launcher.sh  
 Type=Application   
-Icon=/RCD/share/icons/oxygen/64x64/apps/plasmagik.png
+Icon=/usr/share/icons/oxygen/64x64/apps/plasmagik.png

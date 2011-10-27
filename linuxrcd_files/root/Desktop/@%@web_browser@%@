@@ -20,6 +20,6 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say: Open Web browser~~~~~~~~~~~
 
 
-Exec=/RCD/bin/chromium-browsercaller
+Exec=/usr/bin/chromium-browsercaller
 Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/apps/krfb.png
+Icon=/usr/share/icons/oxygen/64x64/apps/krfb.png

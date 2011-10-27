@@ -21,6 +21,6 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "text editor"~~~~~~~~~~~
 
 
-Exec=/RCD/RCDbin/gedit
+Exec=/usr/RCDbin/gedit
 Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/apps/accessories-text-editor.png
+Icon=/usr/share/icons/oxygen/64x64/apps/accessories-text-editor.png

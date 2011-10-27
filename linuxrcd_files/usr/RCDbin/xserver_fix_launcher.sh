@@ -30,7 +30,7 @@
 
 cd /
 
-/RCD/RCDbin/kdialog --caption LinuxRCD --title "@%@X server fixer dialog name@%@"  --yesno "@%@X server fixer greeting@%@
+/usr/RCDbin/kdialog --caption LinuxRCD --title "@%@X server fixer dialog name@%@"  --yesno "@%@X server fixer greeting@%@
 
 @%@X server fixer disclaimer@%@
 

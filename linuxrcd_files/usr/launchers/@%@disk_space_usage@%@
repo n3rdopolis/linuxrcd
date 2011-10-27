@@ -21,6 +21,6 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~should just say "Show Folder Sizes"~~~~~~~~~~~
 
 
-Exec=/RCD/RCDbin/filelight
+Exec=/usr/RCDbin/filelight
 Type=Application
-Icon=/RCD/share/icons/oxygen/64x64/apps/kdf.png
+Icon=/usr/share/icons/oxygen/64x64/apps/kdf.png
