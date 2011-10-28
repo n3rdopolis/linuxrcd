@@ -466,8 +466,8 @@ rm -rf /media/LiveDiskCreAtionChrootFolDer/usr
 sed -i 's/LYB/lib/g' /media/LiveDiskCreAtionChrootFolDer/RCD/LYB/os-probes/mounted/90linux-distro
 
 #Do this for the main library interpreter, so that it does not use the target system's ld.so.cache
-sed -i 's@/ld.so.cache@/LD.SO.CACHE@g' /LYB/ld-linux*
-mv /etc/ld.so.cache /etc/LD.SO.CACHE
+sed -i 's@/ld.so.cache@/LD.SO.CACHE@g' /media/LiveDiskCreAtionChrootFolDer/LYB/ld-linux*
+mv /media/LiveDiskCreAtionChrootFolDer/etc/ld.so.cache /media/LiveDiskCreAtionChrootFolDer/etc/LD.SO.CACHE
 
 #make the iso using remastersys############################################
 chroot /media/LiveDiskCreAtionChrootFolDer /tmp/cd_phase_2.sh
