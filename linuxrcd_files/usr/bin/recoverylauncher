@@ -209,6 +209,7 @@ mkdir /mnt/RecoveryMount/LYB
 #bind the live cd data into the recovery system
 mount --rbind /RCD /mnt/RecoveryMount/RCD
 mount --rbind /LYB /mnt/RecoveryMount/LYB
+cp /etc/LD.SO.CACHE /mnt/RecoveryMount/etc
 
 #hide the livecd's system binaries
 mount --rbind /mnt/RecoveryMount/RCD/RCDbin /mnt/RecoveryMount/RCD/bin
