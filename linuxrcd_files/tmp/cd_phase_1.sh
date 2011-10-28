@@ -100,7 +100,8 @@ yes Yes | aptitude install gvfs gvfs-backends mtools  --without-recommends -y
 #install recovery/config utilities
 yes Yes | aptitude install  kuser gparted mountmanager kfind filelight ksystemlog  gedit --without-recommends -y
 
-
+#For some reason, it installs out of date packages sometimes, as I see unupgraded packages
+yes Y | apt-get dist-upgrade
 
 
 #configure plymouth, enable it, set the default theme, and replace the Ubuntu logo, with a fitting icon as its not an official Ubuntu disk, and can be used for other distros. 
