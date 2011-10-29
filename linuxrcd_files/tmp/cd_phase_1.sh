@@ -108,7 +108,7 @@ yes Y | apt-get dist-upgrade
 
 
 #unset it the upstart hack so it actually boots into the CD.
-rm /sbib/initctl
+rm /sbin/initctl
 dpkg-divert --local --rename /sbin/initcl
 
 #configure plymouth, enable it, set the default theme, and replace the Ubuntu logo, with a fitting icon as its not an official Ubuntu disk, and can be used for other distros. 
