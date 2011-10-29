@@ -28,8 +28,8 @@ ln /tmp/.menu-cached-\:0-root /tmp/.menu-cached-localhost\:1-root
 #set the display variable so that X apps start a GUI
 export DISPLAY=localhost:1
 
-#many apps need the home variable set.
-export HOME=/root
+#many apps need the home variable set. Set it to /tmp as /root might have corrupt files that prevent apps from running.
+export HOME=/tmp
 
 
 while read VAR

@@ -454,7 +454,14 @@ do
 echo "Renaming $FILEPATH"
 rename "s/lib/\1LYB\2/g" "$FILEPATH"
 done
- 
+
+
+#fix for NetworkManager, it uses wildcards.
+find "/media/LiveDiskCreAtionChrootFolDer/RCD/LYB/NetworkManager" -name "lib*"   | while read FILEPATH
+do
+echo "Renaming $FILEPATH"
+rename "s/lib/\1LYB\2/g" "$FILEPATH"
+done
 
 #Do this for X
 ln -s -f /var/LYB /media/LiveDiskCreAtionChrootFolDer/var/lib

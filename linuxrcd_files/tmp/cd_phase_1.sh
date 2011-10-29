@@ -30,6 +30,9 @@ mount -t sysfs none /sys
 #mount /dev/pts
 mount -t devpts none /dev/pts
 
+#temporarily do this, as ModemManager tries to start and upstart won't let it in chroot, and it reports failure
+dpkg-divert --local --rename --add /sbin/initctl
+ls -s /bin/true /sbin/initctl
 
 #update the apt cache
 apt-get update
@@ -98,11 +101,15 @@ yes Yes | aptitude install gvfs gvfs-backends mtools  --without-recommends -y
 ##################################################################################################################
 
 #install recovery/config utilities
-yes Yes | aptitude install  kuser gparted mountmanager kfind filelight ksystemlog  gedit --without-recommends -y
+yes Yes | aptitude install  kuser gparted mountmanager kfind filelight ksystemlog  gedit strace --without-recommends -y
 
 #For some reason, it installs out of date packages sometimes, as I see unupgraded packages
 yes Y | apt-get dist-upgrade
 
+
+#unset it the upstart hack so it actually boots into the CD.
+rm /sbib/initctl
+dpkg-divert --local --rename /sbin/initcl
 
 #configure plymouth, enable it, set the default theme, and replace the Ubuntu logo, with a fitting icon as its not an official Ubuntu disk, and can be used for other distros. 
 cp /usr/share/icons/oxygen/128x128/apps/system-diagnosis.png /lib/plymouth/ubuntu-logo.png
@@ -175,9 +182,6 @@ ln -s  /etc/init.d/bash  /etc/rc2.d/S50bash
 
 #add lxde startup script to runlevel 2
 ln -s  /etc/init.d/lxde  /etc/rc2.d/S51lxde
-
-#add network manager startup script to runlevel 2
-ln -s  /etc/init.d/nm-applet  /etc/rc2.d/S52nm-applet
 
 #add HAL to startup script
 ln -s  /etc/init.d/hal  /etc/rc2.d/S52hal
