@@ -30,9 +30,6 @@ mount -t sysfs none /sys
 #mount /dev/pts
 mount -t devpts none /dev/pts
 
-#temporarily do this, as ModemManager tries to start and upstart won't let it in chroot, and it reports failure
-dpkg-divert --local --rename --add /sbin/initctl
-ls -s /bin/true /sbin/initctl
 
 #update the apt cache
 apt-get update
@@ -106,10 +103,12 @@ yes Yes | aptitude install  kuser gparted mountmanager kfind filelight ksystemlo
 #For some reason, it installs out of date packages sometimes, as I see unupgraded packages
 yes Y | apt-get dist-upgrade
 
-
-#unset it the upstart hack so it actually boots into the CD.
+#Do this as some packages fail to install completly unless if the attempt to start them as deamons succeeds. This will report success during those attemps
+mv /sbin/initctl /sbin/initctl.bak
+ls -s /bin/true /sbin/initctl
+yes Y | apt-get dist-upgrade
 rm /sbin/initctl
-dpkg-divert --local --rename /sbin/initcl
+mv  /sbin/initctl.bak /sbin/initctl
 
 #configure plymouth, enable it, set the default theme, and replace the Ubuntu logo, with a fitting icon as its not an official Ubuntu disk, and can be used for other distros. 
 cp /usr/share/icons/oxygen/128x128/apps/system-diagnosis.png /lib/plymouth/ubuntu-logo.png
