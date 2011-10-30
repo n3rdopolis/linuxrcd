@@ -22,6 +22,6 @@
 
 
 
-Exec=/usr/RCDbin/pcmanfm --no-desktop /LinuxRCD-media
+Exec=/usr/RCDbin/pcmanfmlauncher /LinuxRCD-media
 Type=Application
 Icon=/usr/share/icons/oxygen/64x64/apps/system-file-manager.png

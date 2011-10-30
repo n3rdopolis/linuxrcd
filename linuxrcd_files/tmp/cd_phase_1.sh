@@ -239,6 +239,11 @@ rm /usr/share/lxpanel/images/background.png
 rm /usr/bin/lxde-logout
 cp /usr/bin/linuxrcd_shutdown /usr/bin/lxde-logout
 
+rm /.config/pcmanfm/default/pcmanfm.conf
+rm /.config/pcmanfm/LXDE/pcmanfm.conf
+cp /usr/import/pcmanfm.conf /.config/pcmanfm/default/
+cp /usr/import/pcmanfm.conf /.config/pcmanfm/LXDE/
+
 #create a default user that the live cd startup script, casper, needs a UID of 1000
 useradd linuxrcd -s /bin/bash
 #add the user account that will call up a web browser. Give it a high UID so that it probably will not have write access to the users system
