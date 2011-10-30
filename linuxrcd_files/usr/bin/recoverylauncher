@@ -242,7 +242,7 @@ export DISPLAY=:1
 
 
 #start an Xsettings manager
-#lxsession -s xephyr &
+lxsession -s xephyr &
 
 #allow all local connections
 xhost +local:

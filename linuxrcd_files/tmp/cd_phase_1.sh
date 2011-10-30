@@ -239,9 +239,9 @@ rm /usr/share/lxpanel/images/background.png
 rm /usr/bin/lxde-logout
 cp /usr/bin/linuxrcd_shutdown /usr/bin/lxde-logout
 
-rm /.config/pcmanfm/default/pcmanfm.conf
+
 rm /.config/pcmanfm/LXDE/pcmanfm.conf
-cp /usr/import/pcmanfm.conf /.config/pcmanfm/default/
+mkdir /.config/pcmanfm/LXDE/
 cp /usr/import/pcmanfm.conf /.config/pcmanfm/LXDE/
 
 #create a default user that the live cd startup script, casper, needs a UID of 1000

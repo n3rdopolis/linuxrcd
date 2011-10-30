@@ -44,11 +44,7 @@ export PATH=$PATH:/RCD/RCDbin
 ##CALL THE STARTUP APPS
 
 #call up the windowing manager
-kwin &
-
-
-#call up xsettings manager, GTK apps like this.
-lxsession &
+kwin --replace &
 
 #call up the file browser opened to the folder containg the launchers 
 /RCD/RCDbin/pcmanfm --desktop &
