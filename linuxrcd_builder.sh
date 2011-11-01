@@ -29,10 +29,10 @@ then
 fi
 
 echo "Enter CPU Arch to build this CD under (i386/amd64)"
-read $CPU_ARCHITECTURE
+read CPU_ARCHITECTURE
 
 
-if [ $CPU_ARCHITECTURE != "i386" -o $CPU_ARCHITECTURE != amd64 ]
+if [ "$CPU_ARCHITECTURE" != "i386" -a "$CPU_ARCHITECTURE" != "amd64" ]
 then
 echo "unknown architecture defaulting to i386"
 CPU_ARCHITECTURE=i386  
@@ -40,10 +40,10 @@ fi
 
 
 echo "Enter Language (en_us)"
-read $Language_Name
+read Language_Name
 
 
-if [ $Language_Name != "en_us" ]
+if [ "$Language_Name" != "en_us" ]
 then
 echo "unknown language defaulting to en_us"
 Language_Name=en_us
@@ -239,7 +239,7 @@ mount ./livecdfs /media/LiveDiskCreAtionChrootFolDer -o loop
 #change text to red to not scare user
 echo -en \\033[31m\\033[8] > $(tty)
 #install a really basic Ubuntu installation in the new fs  
-debootstrap --arch i386 oneiric /media/LiveDiskCreAtionChrootFolDer http://archive.ubuntu.com/ubuntu/
+debootstrap --arch $CPU_ARCHITECTURE oneiric /media/LiveDiskCreAtionChrootFolDer http://archive.ubuntu.com/ubuntu/
 #change back to default
 echo -en \\033[00m\\033[8] > $(tty)
 
