@@ -447,7 +447,7 @@ chmod +x "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_edit.sh
 #edit some folder path strings
 "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_edit.sh usr RCD
 "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_edit.sh lib LYB
-
+"$ThIsScriPtSFolDerLoCaTion"/linuxrcd_edit.sh lib64 LYB64
 #fix for Xorg, it uses wildcards.
 find "/media/LiveDiskCreAtionChrootFolDer/RCD/LYB/xorg" -name "lib*"   | while read FILEPATH
 do
