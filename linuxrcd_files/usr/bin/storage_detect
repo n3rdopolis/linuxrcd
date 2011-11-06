@@ -21,7 +21,7 @@
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter enter password@%@~~~~~~~~~~~Say enter password for the encrypted drive:~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter wrong password@%@~~~~~~~~~~~Say wrong password entered. enter password for the encrypted drive:~~~~~~~~~~~DELIM_FOR_KDIALOG
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter already unlocked@%@~~~~~~~~~~~Say that this encrypted drive was already unlocked~~~~~~~~~~~DELIM_FOR_KDIALOG
-
+#@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@storage mounter no os@%@~~~~~~~~~~~Should say Manually Mounted~~~~~~~~~~~DELIM_FOR_KDIALOG
 #this script is part of the recovery tools. 
 
 #setup these by default
@@ -168,3 +168,6 @@ done
 
 #delete the temporary file created by this script
 rm /tmp/allvolumes
+
+
+echo -n "@%@storage mounter no os@%@" >> /tmp/linuxinstalls

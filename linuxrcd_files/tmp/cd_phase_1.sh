@@ -41,12 +41,9 @@ echo Y | apt-get install aptitude
 aptitude install binutils wget --without-recommends -y
 
 
-#install a language pack
-if [ "@%@Language_Name@%@" == "en_us" ];
-then
-#If this is set to use English translations install the English translations
+#Add Language packs as translations are added
 aptitude install language-pack-en --without-recommends -y
-fi
+
 
 #install a kernel for the Live disk
 aptitude install linux-generic  --without-recommends -y
@@ -178,18 +175,20 @@ rm /etc/init/tty6.conf
 #Add bash shell startup script to runlevel 2 
 ln -s  /etc/init.d/bash  /etc/rc2.d/S50bash
 
+#add the tranlator startup script to runlevel 2
+ln -s /etc/init.d/translate /etc/rc2.d/S51translate
 
 #add lxde startup script to runlevel 2
-ln -s  /etc/init.d/lxde  /etc/rc2.d/S51lxde
+ln -s  /etc/init.d/lxde  /etc/rc2.d/S52lxde
 
-#add HAL to startup script
-ln -s  /etc/init.d/hal  /etc/rc2.d/S52hal
+#add HAL startup script to runlevel 2
+ln -s  /etc/init.d/hal  /etc/rc2.d/S53hal
 
-#add the preparer to startup script
-ln -s  /etc/init.d/prepare  /etc/rc2.d/S52prepare
+#add the preparer startup script to runlevel 2
+ln -s  /etc/init.d/prepare  /etc/rc2.d/S53prepare
 
-#add kwin to the startup script
-ln -s /etc/init.d/kwin /etc/rc2.d/S52kwin
+#add kwin startup script to runlevel 2
+ln -s /etc/init.d/kwin /etc/rc2.d/S53kwin
 
 #########END OLD STYLE INIT SCRIPT EDITS###################
 

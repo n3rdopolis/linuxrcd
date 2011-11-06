@@ -18,7 +18,7 @@
 #set terminal color to default to keep consistancy
 echo -en \\033[00m\\033[8] > $(tty)
 CPU_ARCHITECTURE=DEFAULT      
-Language_Name=DEFAULT
+
 
                                                                       
 #this script must be run as root.
@@ -39,15 +39,6 @@ CPU_ARCHITECTURE=i386
 fi
 
 
-echo "Enter Language (en_us)"
-read Language_Name
-
-
-if [ "$Language_Name" != "en_us" ]
-then
-echo "unknown language defaulting to en_us"
-Language_Name=en_us
-fi
 
 
 ThIsScriPtSFiLeLoCaTion=$(readlink -f "$0")
@@ -58,11 +49,10 @@ echo "
 
 This message repeated mentions 'chroot'. chroot is a program that allows you to run programs in a mounted Unix like system, as if though that mounted system was root. Chroot is NOT a VM, it just sets programs to think that a given folder is the / folder. Chrooting /media/filesystem opens up bash at /media/filesystem/bin/bash. The bash process though thinks it was launched at /bin/bash. /media/filesystem/usr/share/bin is treated by the bash process as /usr/share/bin, ect.
 
-This script creates a live disk using remastersys. It creates a chroot environment and gives you the ability to edit this script to configure the live system. Once the chroot system is configured, it calls remastersys to create a 'backup' of the chrooted system into a live cd ISO and then the script moves the live cd out of the chrooted system, and into your home folder. Besides the iso left on your system, it restores your system back to the way it was, it will detect if you have debootstrap, and pv installed, as this scipt needs debootstrap to build the basic system,  and pv to display the progress of the image creation,  but if it needs to install them, it will uninstall debootstrap and pv when it finished. This script will at most use around 3gb of disk space on your home partion including cache, and end up using at most around 1gb. Please make sure you have enough space as when Linux systems run out of disk space can behave quirky. This script also needs internet connectivity to succede as well. Also if you are using a laptop, plug it in, as this script takes alot of battery power. This script will at points use the CPU, or hard disk heavily at points and may bog down your system.
+This script creates a live disk using remastersys. It creates a chroot environment and gives you the ability to edit this script to configure the live system. Once the chroot system is configured, it calls remastersys to create a 'backup' of the chrooted system into a live cd ISO and then the script moves the live cd out of the chrooted system, and into your home folder. Besides the iso left on your system, it restores your system back to the way it was, it will detect if you have debootstrap as this scipt needs debootstrap to build the basic system,  but if it needs to install them, it will uninstall debootstrap when it finished. This script will at most use around 3gb of disk space on your home partion including cache, and end up using at most around 1gb. Please make sure you have enough space as when Linux systems run out of disk space can behave quirky. This script also needs internet connectivity to succede as well. Also if you are using a laptop, plug it in, as this script takes alot of battery power. This script will at points use the CPU, or hard disk heavily at points and may bog down your system.
 
 Be aware that all output in red, is NOT affecting your real system!!!!!!
 
-This script will format an image file that it creates, not your hard drive, which is why as its running, you may see output from mkfs. You might notice it installing some stuff as well, but other then pv and debootstrap, nothing is installed on your real system. This script currently runs unattended once you hit enter twice, meaning once you hit enter twice, the script will go about building the image, without the need for your interaction.
 
 Please note that this script tries not overwrite any files, although the proberbility of it taking over one of your folders is VERY SLIM, meaning there IS A CHANCE, as it uses case sensitive file and folder names you are very unlikey to have on your system, but that doesn't mean that you don't have any file named like these. Just to be sure we'll go over the list of files it touches. Its always a good idea to backup your system reguaurly, as something flukey may happen with this script, or the programs it calls.
 
@@ -74,9 +64,8 @@ NOTE THAT THE FOLDERS LISTED BELOW ARE DELETED OR OVERWRITTEN ALONG WITH THE CON
 
 !! VOLUME MOUNTPOINT: /media/LiveDiskCreAtionChrootFolDer/   !!!!          
    Folder:            ${HOME}/LiveDiskCreAtionCacheFolDer/
-   File:              ${HOME}/LiveDiskCreAtionWasPVNotInStalled
    File:              ${HOME}/LiveDiskCreAtionWasDeBootStrapNotInStalled
-   File:              ${HOME}/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
+   File:              ${HOME}/LinuxRCD_${CPU_ARCHITECTURE}.iso
    
 NOTE THAT SOME GUI FILE BROWSERS MAY CALL THE FOLDER  ${HOME}/ just plain old 'home' so be careful 
 
@@ -131,12 +120,7 @@ then
 apt-get purge debootstrap -y
 fi
 
-#was pv installed before the script was first run? if not uninstall it to keep everything clean.
-WasPVNotInstalledBefore=$(cat LiveDiskCreAtionWasPVNotInStalled)
-if (( 1==WasPVNotInstalledBefore ));
-then
-apt-get purge pv -y
-fi
+
 #END PAST RUN CLEANUP##################
 
 #ping google to test total network connectivity. Google is usally pingable
@@ -182,31 +166,16 @@ fi
 #detect if debootstrap is installed
 DebootstrapStatus=$(dpkg-query -s debootstrap | grep "install ok installed" -c)
 
-#detect if pv is installed
-PVStatus=$(dpkg-query -s pv | grep "install ok installed" -c)
-
 #Cache DeBootstraps Status to a file in case if this batch file gets intrupted
 if (( 0==DebootstrapStatus ));
 then
 echo 1 > ~/LiveDiskCreAtionWasDeBootStrapNotInStalled
 fi
 
-#Cache pv Status to a file in case if this batch file gets intrupted
-if (( 0==PVStatus ));
-then
-echo 1 > ~/LiveDiskCreAtionWasPVNotInStalled
-fi
-
 #install bootstrap if not installed
 if (( 0==DebootstrapStatus ));
 then
 apt-get install debootstrap
-fi
-
-#installpv if not installed
-if (( 0==PVStatus ));
-then
-apt-get install pv
 fi
 
 #make a folder containing the live cd tools in the users local folder
@@ -264,162 +233,6 @@ rsync "$ThIsScriPtSFolDerLoCaTion"/linuxrcd_files/* -Cr /media/LiveDiskCreAtionC
 chmod +x -R /media/LiveDiskCreAtionChrootFolDer/temp/
 chown  root  -R /media/LiveDiskCreAtionChrootFolDer/temp/
 chgrp  root  -R /media/LiveDiskCreAtionChrootFolDer/temp/
-
-
-#copy the Language selected into the working folder
-rsync "/media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/translations/$Language_Name"/* -r /media/LiveDiskCreAtionChrootFolDer/build_language/
-#delete the rest of the languages
-rm -rf /media/LiveDiskCreAtionChrootFolDer/temp/usr/share/linuxrcd/translations
-
-
-
-#CPU is part of 
-echo $CPU_ARCHITECTURE > /media/LiveDiskCreAtionChrootFolDer/build_language/@%@CPU_ARCHITECTURE@%@
-
-#search for any folder containing a file "TRANSLATION_DATA" in /media/LiveDiskCreAtionChrootFolDer/build_language/file_translations/ 
-#this will tell what files will need to be translated.
-find /media/LiveDiskCreAtionChrootFolDer/build_language/file_translations/ | awk -F"/file_translations" '{print $2}' | grep TRANSLATION_DATA | awk -F"TRANSLATION_DATA" '{print $1}' |sed s/.$//g >> /media/LiveDiskCreAtionChrootFolDer/tmp/convertingfiles
- 
-
-
-filecount=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/convertingfiles | wc -l)
-fileworkcount=$filecount
-while (( $fileworkcount!=0))
-do
-translationfile=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/convertingfiles | awk "NR==$fileworkcount")
-stringcount=$(cat /media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/TRANSLATION_DATA | grep ~~~~~~~~~~~ | wc -l)
-stringworkcount=$stringcount
-
-while (( $stringworkcount!=0))
-do
-translationname=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep ~~~~~~~~~~~ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
-translationtext=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep ~~~~~~~~~~~ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
-translationopts=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep ~~~~~~~~~~~ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $3}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
-#DELIM_FOR_KDIALOG : allow strings to be deliminated for kdialog without the translator worring about certian chars messing it up 
-if [[ $(echo "$translationopts" | grep "DELIM_FOR_KDIALOG" -c) == 1 ]]
-then
-#deliminate all double quotes
-translationtext=$(echo $translationtext | sed 's/\"/\\\"/g' ) 
-fi
-
-
-#replace contents of the file
-sed -i  "s/$translationname/$translationtext/g" "/media/LiveDiskCreAtionChrootFolDer/temp$translationfile"
-
-#replace contents of the files rename translation information
-if [ -f "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILEFOLDERNAME" ]
-then
-sed -i  "s/$translationname/$translationtext/g" "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILEFOLDERNAME"
-fi
-
-let $(( stringworkcount=stringworkcount-1 )) 
-done
-
-#rename the file if it has renaming data
-#if [ -f "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILENAME" ]
-#then
-#origname=$(echo $translationfile | rev | awk -F"/" '{print $1}' |rev)
-# newname=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILENAME" | awk 'NR==1')
-# dirname=$(dirname "/media/LiveDiskCreAtionChrootFolDer/temp$translationfile")
-#mv "$dirname"/"$origname" "$dirname"/"$newname"
-#fi
-
-
-let $(( fileworkcount=fileworkcount-1 ))
-done
-
-
-
-#Find files/folders that want to be renamed                                                                
-find /media/LiveDiskCreAtionChrootFolDer/build_language/file_translations/ | awk -F"/file_translations" '{print $2}'   | grep "FILEFOLDERNAME" | awk -F"/FILEFOLDERNAME" '{print $1}'  >> /media/LiveDiskCreAtionChrootFolDer/tmp/renamingfiles
-filerenamecount=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/renamingfiles | wc -l)
-filerenameworkcount=$filerenamecount
-while (( $filerenameworkcount!=0))
-do
-translationfile=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/renamingfiles | awk "NR==$filerenameworkcount")
-origname=$(echo $translationfile | rev | awk -F"/" '{print $1}' |rev)
- newname=$(cat "/media/LiveDiskCreAtionChrootFolDer/build_language/file_translations$translationfile/FILEFOLDERNAME" | awk 'NR==1' | awk -F"~~~~~~~~~~~" '{print $1}')
- dirname=$(dirname /media/LiveDiskCreAtionChrootFolDer/temp$translationfile)
-mv "$dirname"/"$origname" "$dirname"/"$newname"
-let $(( filerenameworkcount=filerenameworkcount-1 ))
-done
-
-
-
-
-
-#End of single file translations
-
-#Get the global translation string information for every file thats part of LinuxRCD
-ls /media/LiveDiskCreAtionChrootFolDer/build_language/ -1Ap | grep -v / > /media/LiveDiskCreAtionChrootFolDer/tmp/filelisting
-
-filecount=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/filelisting | wc -l)
-fileworkcount=$filecount
-
-while (( $fileworkcount!=0))
-do
-filename=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/filelisting | awk "NR==$fileworkcount")
-
-echo $filename |tr -d "\n" >> /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable   
-echo '~~~~~~~~~~~' | tr -d "\n" >> /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable
-cat "/media/LiveDiskCreAtionChrootFolDer/build_language/$filename" | awk 'NR==1' |awk -F"~~~~~~~~~~~" '{print $1}'>> /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable
-let $(( fileworkcount=fileworkcount-1 ))
-done
-
-
-#replace Global strings in the files
-fileworkcount=$filecount
-while (( $fileworkcount!=0))
-do
-translationname=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
-translationtext=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
-translationopts=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $3}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
-#DELIM_FOR_KDIALOG : allow strings to be deliminated for kdialog without the translator worring about certian chars messing it up 
-if [[ $(echo "$translationopts" | grep "DELIM_FOR_KDIALOG" -c) == 1 ]]
-then
-#deliminate all double quotes
-translationtext=$(echo $translationtext | sed 's/\"/\\\"/g' ) 
-fi
-
-find /media/LiveDiskCreAtionChrootFolDer/temp/ -name \* -exec sed -i  "s/$translationname/$translationtext/g" {} \;
-let $(( fileworkcount=fileworkcount-1 ))
-done
-
-
-#get information for the files to rename
-fileworkcount=$filecount
-while (( $fileworkcount!=0))
-do
-translationname=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}'  | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
-translationtext=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globaltranstable | awk "NR==$fileworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}'  | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
-find /media/LiveDiskCreAtionChrootFolDer/temp -name \*$translationname\*   >> /media/LiveDiskCreAtionChrootFolDer/tmp/globalrename
-
-stringcount=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globalrename | wc -l)
-
-
-#replace placeholder string in filename with global strings
-stringworkcount=$stringcount
-while (( $stringworkcount!=0))
-do
-oldfilepath=$(cat /media/LiveDiskCreAtionChrootFolDer/tmp/globalrename | awk "NR==$stringworkcount")
-filedir=$(dirname $oldfilepath)
-oldfilename=$(echo $oldfilepath | awk -F"$filedir/" '{print $2}') 
-newfilename=$(echo $oldfilename | sed "s/$translationname/$translationtext/g")
-
-mv "$oldfilepath" "$filedir"/"$newfilename"
-let $(( stringworkcount=stringworkcount-1 )) 
-done
-
-
-let $(( fileworkcount=fileworkcount-1 ))
-done
-####END LANGUAGE CHANGER
-
-
-
-
-
-
 
 
 #copy the new translated executable files to where they belong
@@ -484,14 +297,14 @@ chroot /media/LiveDiskCreAtionChrootFolDer /tmp/cd_phase_2.sh
 echo -en \\033[00m\\033[8] > $(tty)
 
 #delete the old copy of the ISO 
-rm ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
+rm ~/LinuxRCD_${CPU_ARCHITECTURE}.iso
 #move the iso out of the chroot fs    
-cp /media/LiveDiskCreAtionChrootFolDer/home/remastersys/remastersys/custombackup.iso ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
+cp /media/LiveDiskCreAtionChrootFolDer/home/remastersys/remastersys/custombackup.iso ~/LinuxRCD_${CPU_ARCHITECTURE}.iso
 
 #allow the user to actually read the iso   
-chown $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
-chgrp $LOGNAME ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
-chmod 777 ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso
+chown $LOGNAME ~/LinuxRCD_${CPU_ARCHITECTURE}.iso
+chgrp $LOGNAME ~/LinuxRCD_${CPU_ARCHITECTURE}.iso
+chmod 777 ~/LinuxRCD_${CPU_ARCHITECTURE}.iso
 
 
 #go back to the users home folder
@@ -533,23 +346,19 @@ apt-get purge debootstrap -y
 fi
 rm ~/LiveDiskCreAtionWasDeBootStrapNotInStalled
 
-#uninstall pv if it was uninstalled before
-if (( 0==PVStatus ));
-then
-apt-get purge pv -y
-fi
-rm ~/LiveDiskCreAtionWasPVNotInStalled
+
+
 
 #If the live cd did not build then tell user  
-if [ ! -f ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso ];
+if [ ! -f ~/LinuxRCD_${CPU_ARCHITECTURE}.iso ];
 then  
 echo "The Live CD did not succesfuly build. if you did not edit this script please make sure you are conneced to 'the Internet', and be able to reach the Ubuntu archives, and Remastersys's archives and try agian. if you did edit it, check your syntax"
 exit 1
 fi 
 
 #If the live cd did  build then tell user   
-if [  -f ~/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso ];
+if [  -f ~/LinuxRCD_${CPU_ARCHITECTURE}.iso ];
 then  
-echo "Live CD image build was successful. It was created at ${HOME}/LinuxRCD_${Language_Name}_${CPU_ARCHITECTURE}.iso"
+echo "Live CD image build was successful. It was created at ${HOME}/LinuxRCD_${CPU_ARCHITECTURE}.iso"
 exit 1
 fi

@@ -64,8 +64,7 @@ exit 1
 fi
 #make the language folder.
 mkdir -p "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename"
-#make the language file for the universal string. There is only one universal string in LinuxRCD, and thats the language name
-echo "$languagename~~~~~~~~~~~" > "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/@%@Language_Name@%@"
+
 
 #find all files in the linux_rcd files that have the string in them to show themselves as translatable.
 find "$linuxrcdfolderlocaton" \( -name .svn \) -prune -o -print | while read FILE

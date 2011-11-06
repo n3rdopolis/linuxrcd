@@ -1,9 +1,6 @@
 
 
-@@@TRANSLATABLE_FILE@@@
-@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Boot linuxrcd message@%@~~~~~~~~~~~Should say  Wait 10 seconds or press enter to boot into LinuxRCD. And should say Make sure all text is blank past boot: 
 
-@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@Boot hd message@%@~~~~~~~~~~~Should say Type HD and press enter to boot from hard drive
 
 
 
@@ -134,15 +131,9 @@
 
 
 
+LinuxRCD
 
+10 sec = boot
 
-
-
-
-
-
-
-@%@Boot linuxrcd message@%@
-
-@%@Boot hd message@%@
+boot: <ENTER> = boot
 
