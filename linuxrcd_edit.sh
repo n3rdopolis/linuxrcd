@@ -16,12 +16,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+export BUILDLOCATION=~/LRCD_Build_Files
 
 export OriginalText=$1
 export TargetText=$2
 
 #Change all references to /$OriginalText to /$TargetText in the folder containg the LiveCD system
-find "/media/LiveDiskCreAtionChrootFolDer" -type f   -not -path "/media/LiveDiskCreAtionChrootFolDer/proc/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/sys/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/dev/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/tmp/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/usr/bin/recoverylauncher" -not -path "/media/LiveDiskCreAtionChrootFolDer/usr/RCDbin/recoverychrootscript" -not -path "/media/LiveDiskCreAtionChrootFolDer/usr/launchers/Apps" | sort -r | while read FILE
+find "$BUILDLOCATION" -type f   -not -path "$BUILDLOCATION/proc/*" -not -path "$BUILDLOCATION/sys/*" -not -path "$BUILDLOCATION/dev/*" -not -path "$BUILDLOCATION/tmp/*" -not -path "$BUILDLOCATION/usr/bin/recoverylauncher" -not -path "$BUILDLOCATION/usr/RCDbin/recoverychrootscript" -not -path "$BUILDLOCATION/usr/launchers/Apps" | sort -r | while read FILE
 do
 echo "editing file $FILE"
 #replace all instances of $OriginalText with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
@@ -31,7 +32,7 @@ rm "$FILE.tmp"
 done
 
 #change all symbolic links that point to $OriginalText to point to $TargetText
-find "/media/LiveDiskCreAtionChrootFolDer" -type l   -not -path "/media/LiveDiskCreAtionChrootFolDer/proc/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/sys/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/dev/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/tmp/*" | sort -r  |while read FILE
+find "$BUILDLOCATION" -type l   -not -path "$BUILDLOCATION/proc/*" -not -path "$BUILDLOCATION/sys/*" -not -path "$BUILDLOCATION/dev/*" -not -path "$BUILDLOCATION/tmp/*" | sort -r  |while read FILE
 do
 echo "relinking $FILE"
 newlink=$(readlink $FILE | sed -re "s/(\W|^)$OriginalText(\W|$)/\1$TargetText\2/g")
@@ -39,7 +40,7 @@ ln -s -f "$newlink" "$FILE"
 done
 
 #find all items contianing $OriginalText in the name
-find "/media/LiveDiskCreAtionChrootFolDer"  -type d  -not -path "/media/LiveDiskCreAtionChrootFolDer/proc/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/sys/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/dev/*" -not -path "/media/LiveDiskCreAtionChrootFolDer/tmp/*" | sort -r | while read FILEPATH
+find "$BUILDLOCATION"  -type d  -not -path "$BUILDLOCATION/proc/*" -not -path "$BUILDLOCATION/sys/*" -not -path "$BUILDLOCATION/dev/*" -not -path "$BUILDLOCATION/tmp/*" | sort -r | while read FILEPATH
 do
 cd "$FILEPATH"
 rename -v "s/(\W|^)$OriginalText(\W|$)/\1$TargetText\2/g" * 2> /dev/null
