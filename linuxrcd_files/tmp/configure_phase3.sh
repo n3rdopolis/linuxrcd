@@ -64,7 +64,7 @@ cat /usr/share/logs/build_core/*/GetSourceVersion > /usr/share/build_core_revisi
 mv /usr/share/logs	/tmp
 
 # #start the remastersys job
-# remastersys dist
+# remastersys backup
 # 
 # mv /home/remastersys/remastersys/custom.iso /home/remastersys/remastersys/custom-full.iso
 # 
@@ -115,7 +115,7 @@ rm -rf /var/cache/apt-xapian-index/*
 rm -rf /var/lib/apt/lists/*
 rm -rf /var/lib/dlocate/*
 #start the remastersys job
-remastersys dist
+remastersys backup
 
 #move logs back
 mv /tmp/logs /usr/share
