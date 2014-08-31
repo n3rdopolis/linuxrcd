@@ -1,0 +1,3 @@
+packagename1::PART
+packagename2::FULL
+packagename3::BUILDDEP
