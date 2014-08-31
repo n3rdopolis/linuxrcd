@@ -30,7 +30,7 @@ isanwered=$?
 done
 
 
-kdialog --progressbar LANG... 0 &
+kdialog --title "LANG..." --caption LinuxRCD --progressbar LANG... 0 &
 
 #copy the Language selected into the working folder
 rsync "/usr/share/linuxrcd/translations/$Language_Name"/* -r /build_language/
