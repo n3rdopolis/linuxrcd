@@ -166,7 +166,7 @@ if [[ ! -f "$BUILDLOCATION"/build/$BUILDARCH/workdir/home/remastersys/remastersy
 then  
   ISOFAILED=1
 else
-    mv "$BUILDLOCATION"/build/$BUILDARCH/remastersys/remastersys/custom.iso "$HOMELOCATION"/LinuxRCD$BUILDARCH.iso
+    mv "$BUILDLOCATION"/build/$BUILDARCH/remastersys/remastersys/custom.iso "$HOMELOCATION"/LinuxRCD_$BUILDARCH.iso
 fi 
 
 
