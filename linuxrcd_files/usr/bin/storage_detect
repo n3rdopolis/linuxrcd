@@ -55,7 +55,7 @@ mdadm --assemble --scan
 
 
 #get a list of all usable volumes
-lvmdiskscan | grep -v "] L" | grep ] | awk -F [ '{print $1}' | sed 's/^  //g' > /tmp/allvolumes
+lvmdiskscan | awk '{print $1}' | grep / > /tmp/allvolumes
 
 encrypteddrivenumber=0
 #detect LVM encryption on the list of volumes
