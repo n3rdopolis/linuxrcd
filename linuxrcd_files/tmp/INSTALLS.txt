@@ -12,6 +12,7 @@ syslinux::PART
 syslinux-common::PART
 isolinux::PART
 efilinux::PART
+ubiquity::FULL
 ubiquity-casper::FULL
 ubuntu-standard::FULL
 mkisofs::PART
