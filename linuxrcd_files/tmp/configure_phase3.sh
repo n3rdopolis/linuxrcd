@@ -112,6 +112,7 @@ useradd browser -u 999999999 -g 999999999 -s /bin/bash
 
 
 #give browser user rights to the folder
+mkdir -p /home/browser
 chown browser /home/browser
 chgrp browser /home/browser
 chmod 777       /home/browser
