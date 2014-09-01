@@ -50,7 +50,7 @@ lxde::PART
 xserver-xephyr::PART
 network-manager-gnome::PART
 hicolor-icon-theme::PART
-chromium-browser::PART
+rekonq::PART
 libpango1.0-dev::PART
 plymouth-theme-spinfinity::PART
 gvfs::PART
