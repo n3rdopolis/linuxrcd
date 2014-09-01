@@ -280,9 +280,10 @@ if [[ $xephyrquery == 1 ]]
 then
 quittext=shutdown
 quitanswer=0
+break
 fi
 
-if [[ $quittext == shutdown ]]
+if [[ $quittext != "" ]]
 then
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /tmp/osonline)"
 quitanswer=$?
