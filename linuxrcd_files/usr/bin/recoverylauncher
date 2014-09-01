@@ -269,11 +269,11 @@ exec 1000<> /tmp/exit_recovery
 
 quittext=null
 quitanswer=1
-while [  $quitanswer != 0  -a $quittext != shutdown ] 
+while [[  $quitanswer != 0  && $quittext != shutdown ]] 
 do
 
 read -n 20 -t 1 quittext <&1000
-kill -0 xephyrjob
+kill -0 $xephyrjob
 xephyrquery=$?
 
 if [[ $xephyrquery == 1 ]]
