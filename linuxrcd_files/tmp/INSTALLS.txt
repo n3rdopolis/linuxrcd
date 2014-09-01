@@ -70,6 +70,7 @@ btrfs-tools::PART
 xfsprogs::PART
 dmraid::PART
 kpartx::PART
+grub-common::FULL
 #Featued Utilities
 kuser::PART
 gparted::PART
