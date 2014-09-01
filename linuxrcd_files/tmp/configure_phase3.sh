@@ -67,6 +67,12 @@ cp /usr/share/icons/oxygen/128x128/apps/system-diagnosis.png /lib/plymouth/ubunt
 echo FRAMEBUFFER=y > /etc/initramfs-tools/conf.d/splash
 update-alternatives --config default.plymouth
 
+#remove the panel background, making it all white.
+rm /usr/share/lxpanel/images/background.png
+
+#Make a note of this. should be /root/.config/...
+#mkdir -p /.config/pcmanfm/LXDE/
+
 #delete the upstart tty configs
 rm /etc/event.d/tty1
 rm /etc/event.d/tty2
