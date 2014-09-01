@@ -7,6 +7,17 @@ language-pack-en::PART
 linux-generic::PART
 gdebi::PART
 xserver-xorg::PART
+#ISO boot and live utils
+syslinux::PART
+syslinux-common::PART
+isolinux::PART
+efilinux::PART
+ubiquity-casper::FULL
+ubuntu-standard::FULL
+mkisofs::PART
+genisoimage::PART
+squashfs-tools::PART
+archdetect-deb::PART
 #Disk Management
 lvm2::PART
 mdadm::PART
