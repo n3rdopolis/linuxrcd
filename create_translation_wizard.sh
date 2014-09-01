@@ -22,6 +22,8 @@
 folderlocation="$( dirname $(readlink -f "$0" ) )"
 linuxrcdfolderlocaton="$(echo $folderlocation/linuxrcd_files)"
 
+export BUILDLOCATION=~/LRCD_Build_Files
+
 #program dialog is needed to prompt user
 which dialog > /dev/null
 dialoginstalled=$?
@@ -32,14 +34,13 @@ exit 1
 fi
 
 #files needed for the translation
-mkdir "${HOME}/LiveDiskTranSlAtionCacheFolDer"
-
+mkdir -p "$BUILDLOCATION"/TranslationCache
 
 #introduce the translator to this script
 echo "This is the translation wizard for LinuxRCD. It scans the files for translatable strings and thier descriptions so that you can add a language translation for LinuxRCD."
 echo "This script must be in the root of the LinuxRCD build script folder. (you should see a folder called linuxrcd_files in the same folder as this script)"
 echo "This script will make changes to the following folders and files.
-File:              ${HOME}/LiveDiskTranSlAtionCacheFolDer/TRANSLATION_DATA
+File:              "$BUILDLOCATION"/TranslationCache/TRANSLATION_DATA
 Folder:            $linuxrcdfolderlocaton
 
 MAKE SURE this script will not overwrite anything before pressing enter to continue!!!!..."
@@ -118,14 +119,14 @@ newtranslationtext="$(dialog  --no-cancel --stdout --inputbox "Translating Linux
 
 translation description for string $translationname: $translationdescription" 20 999 "$oldtranslationtext" )"
 #copy the current translation in a cached location, without the old translation for this string
-cat "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA" | grep -v "$translationname" > "${HOME}/LiveDiskTranSlAtionCacheFolDer/TRANSLATION_DATA"
+cat "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA" | grep -v "$translationname" > ""$BUILDLOCATION"/TranslationCache/TRANSLATION_DATA"
 #put the new translation in the cached file
-echo "$translationname~~~~~~~~~~~$newtranslationtext~~~~~~~~~~~$translationoptions" >> "${HOME}/LiveDiskTranSlAtionCacheFolDer/TRANSLATION_DATA"
+echo "$translationname~~~~~~~~~~~$newtranslationtext~~~~~~~~~~~$translationoptions" >> ""$BUILDLOCATION"/TranslationCache/TRANSLATION_DATA"
 #create the folder for the new translation
 mkdir -p "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/"
 
 #move the edited cached file into the correct location so the new translation is applied
-mv "${HOME}/LiveDiskTranSlAtionCacheFolDer/TRANSLATION_DATA" "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA"
+mv ""$BUILDLOCATION"/TranslationCache/TRANSLATION_DATA" "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA"
 done
 
 fi
