@@ -77,11 +77,6 @@ rm /usr/share/lxpanel/images/background.png
 sudo apt-get autoclean
 sudo apt-get clean
 
-
-
-#replace the browser executable with a caller, that runs the renamed browser as a standard user
-mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
-cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
 ln -s "/proc/1/root$(which kdialog)" /usr/RCDbin/kdialog
 ln -s "/proc/1/root$(which kuser)" /usr/RCDbin/kuser
