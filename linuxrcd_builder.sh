@@ -20,7 +20,7 @@
 SCRIPTFILEPATH=$(readlink -f "$0")
 SCRIPTFOLDERPATH=$(dirname "$SCRIPTFILEPATH")
 
-export BUILDLOCATION=~/RBOS_Build_Files
+export BUILDLOCATION=~/LRCD_Build_Files
 
 #####Tell User what script does
 echo "
