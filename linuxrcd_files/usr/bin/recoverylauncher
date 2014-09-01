@@ -49,6 +49,13 @@
 #@@@TRANSLATABLE_STRING@@@~~~~~~~~~~~@%@recovery cd xephyr name@%@~~~~~~~~~~~Should say System Recovery Window: Press CTRL + SHIFT to lock/unlock cursor~~~~~~~~~~~
 
 
+#Remastersys seems to not copy folders in /media... Create the folders needed for some tools later on.
+mkdir /media/Downloads
+mkdir /mnt/RecoveryMount 
+
+#allow the browser user to save to the Downloads folder in /media
+chmod 777 /media/Downloads
+
 #detect if the lock file was created, if it was, tell the user, and then exit the script
 if [ -f /tmp/system_recovery_lock ]
 then
