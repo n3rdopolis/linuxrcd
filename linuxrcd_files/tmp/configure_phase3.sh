@@ -67,6 +67,83 @@ cp /usr/share/icons/oxygen/128x128/apps/system-diagnosis.png /lib/plymouth/ubunt
 echo FRAMEBUFFER=y > /etc/initramfs-tools/conf.d/splash
 update-alternatives --config default.plymouth
 
+#delete the upstart tty configs
+rm /etc/event.d/tty1
+rm /etc/event.d/tty2
+rm /etc/event.d/tty3
+rm /etc/event.d/tty4
+rm /etc/event.d/tty5
+rm /etc/event.d/tty6
+
+
+#delete the upstart tty configs
+rm /etc/init/tty1.conf
+rm /etc/init/tty2.conf
+rm /etc/init/tty3.conf
+rm /etc/init/tty4.conf
+rm /etc/init/tty5.conf
+rm /etc/init/tty6.conf
+#Add bash shell startup script to runlevel 2 
+ln -s  /etc/init.d/bash  /etc/rc2.d/S50bash
+
+#add the tranlator startup script to runlevel 2
+ln -s /etc/init.d/translate /etc/rc2.d/S51translate
+
+#add lxde startup script to runlevel 2
+ln -s  /etc/init.d/lxde  /etc/rc2.d/S52lxde
+
+#add HAL startup script to runlevel 2
+ln -s  /etc/init.d/hal  /etc/rc2.d/S53hal
+
+#add the preparer startup script to runlevel 2
+ln -s  /etc/init.d/prepare  /etc/rc2.d/S53prepare
+
+#add kwin startup script to runlevel 2
+ln -s /etc/init.d/kwin /etc/rc2.d/S53kwin
+
+#change caspers configuration of the ttys to open bash instead of getty. Delete caspers configuration o
+rm /usr/share/initramfs-tools/scripts/casper-bottom/25configure_init
+
+#create a default user that the live cd startup script, casper, needs a UID of 1000
+useradd linuxrcd -s /bin/bash
+#add the user account that will call up a web browser. Give it a high UID so that it probably will not have write access to the users system
+groupadd browser -g 999999999
+useradd browser -u 999999999 -g 999999999 -s /bin/bash
+
+
+#give browser user rights to the folder
+chown browser /home/browser
+chgrp browser /home/browser
+chmod 777       /home/browser
+
+#try to salvage some space from apt and aptitiude
+sudo apt-get autoclean
+sudo apt-get clean
+
+
+
+#replace the browser executable with a caller, that runs the renamed browser as a standard user
+mv /usr/bin/chromium-browser /usr/bin/chromium-webbrowser
+cp /usr/bin/chromium-browsercaller /usr/bin/chromium-browser
+###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
+ln -s "/proc/1/root$(which kdialog)" /usr/RCDbin/kdialog
+ln -s "/proc/1/root$(which kuser)" /usr/RCDbin/kuser
+ln -s "/proc/1/root$(which pcmanfm)" /usr/RCDbin/pcmanfm
+ln -s "/proc/1/root$(which gedit)" /usr/RCDbin/gedit
+ln -s "/proc/1/root$(which mountmanager)" /usr/RCDbin/mountmanager
+ln -s "/proc/1/root$(which lxsession)" /usr/RCDbin/lxsession
+ln -s "/proc/1/root$(which filelight)" /usr/RCDbin/filelight
+ln -s "/proc/1/root$(which ksystemlog)" /usr/RCDbin/ksystemlog
+ln -s "/proc/1/root$(which kwin)" /usr/RCDbin/kwin
+ln -s "/proc/1/root$(which lxpanel)" /usr/RCDbin/lxpanel
+ln -s "/proc/1/root$(which kdeinit4)" /usr/RCDbin/kdeinit4
+ln -s "/proc/1/root$(which lxterminal)" /usr/RCDbin/lxterminal
+ln -s "/proc/1/root$(which kded4)" /usr/RCDbin/kded4
+ln -s "/proc/1/root$(which kbuildsycoca4)" /usr/RCDbin/kbuildsycoca4
+ln -s "/proc/1/root$(which kfind)" /usr/RCDbin/kfind
+ln -s "/proc/1/root$(which xrandr)" /usr/RCDbin/xrandr
+ln -s "/proc/1/root$(which lxrandr)" /usr/RCDbin/lxrandr
+
 #save the build date of the CD.
 echo "$(date)" > /etc/builddate
 
