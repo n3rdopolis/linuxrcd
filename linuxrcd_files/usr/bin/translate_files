@@ -26,8 +26,7 @@ isanwered=$?
 done
 
 
-kdialog --title "LANG..." --caption LinuxRCD --progressbar LANG... 0 &
-kdialogjob=$!
+kdialogjob=$(kdialog --title "LANG..." --caption LinuxRCD --progressbar LANG... 0)
 
 #copy the Language selected into the working folder
 rsync "/usr/share/linuxrcd/translations/$Language_Name"/* -r /build_language/
@@ -103,4 +102,4 @@ let $(( filerenameworkcount=filerenameworkcount-1 ))
 done
 
 
-killall -9 $kdialogjob
+qdbus $kdialogjob org.kde.kdialog.ProgressDialog.close
