@@ -22,7 +22,7 @@ export OriginalText=$1
 export TargetText=$2
 
 #Change all references to /$OriginalText to /$TargetText in the folder containg the LiveCD system
-find "$BUILDLOCATION" -type f   -not -path "$BUILDLOCATION/proc/*" -not -path "$BUILDLOCATION/sys/*" -not -path "$BUILDLOCATION/dev/*" -not -path "$BUILDLOCATION/tmp/*" -not -path "$BUILDLOCATION/usr/bin/recoverylauncher" -not -path "$BUILDLOCATION/usr/RCDbin/recoverychrootscript" -not -path "$BUILDLOCATION/usr/launchers/Apps" | sort -r | while read FILE
+find ""$BUILDLOCATION"/build/$BUILDARCH/workdir" -type f   -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/proc/*" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/sys/*" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/dev/*" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/tmp/*" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/usr/bin/recoverylauncher" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/usr/RCDbin/recoverychrootscript" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/usr/launchers/Apps" | sort -r | while read FILE
 do
 echo "editing file $FILE"
 #replace all instances of $OriginalText with the new folder name only if its not near a-z A-Z or 0-9. Thanks to @ofnuts on Ubuntu Fourms for helping me with the sed expression
@@ -32,7 +32,7 @@ rm "$FILE.tmp"
 done
 
 #change all symbolic links that point to $OriginalText to point to $TargetText
-find "$BUILDLOCATION" -type l   -not -path "$BUILDLOCATION/proc/*" -not -path "$BUILDLOCATION/sys/*" -not -path "$BUILDLOCATION/dev/*" -not -path "$BUILDLOCATION/tmp/*" | sort -r  |while read FILE
+find ""$BUILDLOCATION"/build/$BUILDARCH/workdir" -type l   -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/proc/*" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/sys/*" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/dev/*" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/tmp/*" | sort -r  |while read FILE
 do
 echo "relinking $FILE"
 newlink=$(readlink $FILE | sed -re "s/(\W|^)$OriginalText(\W|$)/\1$TargetText\2/g")
@@ -40,7 +40,7 @@ ln -s -f "$newlink" "$FILE"
 done
 
 #find all items contianing $OriginalText in the name
-find "$BUILDLOCATION"  -type d  -not -path "$BUILDLOCATION/proc/*" -not -path "$BUILDLOCATION/sys/*" -not -path "$BUILDLOCATION/dev/*" -not -path "$BUILDLOCATION/tmp/*" | sort -r | while read FILEPATH
+find ""$BUILDLOCATION"/build/$BUILDARCH/workdir"  -type d  -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/proc/*" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/sys/*" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/dev/*" -not -path ""$BUILDLOCATION"/build/$BUILDARCH/workdir/tmp/*" | sort -r | while read FILEPATH
 do
 cd "$FILEPATH"
 rename -v "s/(\W|^)$OriginalText(\W|$)/\1$TargetText\2/g" * 2> /dev/null
