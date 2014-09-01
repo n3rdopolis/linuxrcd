@@ -42,6 +42,7 @@ gvfs::PART
 gvfs-backends::PART
 mtools::PART
 gnome-settings-daemon::PART
+policykit-desktop-privileges::PART
 #Storage Utilities
 cryptsetup::PART
 lvm2::PART

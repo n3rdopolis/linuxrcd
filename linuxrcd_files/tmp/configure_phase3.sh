@@ -16,6 +16,14 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#swap all /usr references in the environment to the /RCD folder
+while read VAR
+do
+VARSET="$(echo "$VAR" | sed 's/usr/RCD/g' )"
+export "$VARSET"
+done < <(/RCD/bin/env)
+
+
 #function to handle moving back dpkg redirect files for chroot
 function RevertFile {
   TargetFile=$1
@@ -53,6 +61,11 @@ rm -r /usr/import
 
 #run the script that calls all compile scripts in a specified order, in build only mode
 compile_all build-only
+
+#configure plymouth, enable it, set the default theme, and replace the Ubuntu logo, with a fitting icon as its not an official Ubuntu disk, and can be used for other distros. 
+cp /usr/share/icons/oxygen/128x128/apps/system-diagnosis.png /lib/plymouth/ubuntu-logo.png
+echo FRAMEBUFFER=y > /etc/initramfs-tools/conf.d/splash
+update-alternatives --config default.plymouth
 
 #save the build date of the CD.
 echo "$(date)" > /etc/builddate
