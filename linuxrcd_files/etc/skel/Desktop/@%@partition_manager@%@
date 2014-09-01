@@ -19,6 +19,6 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say "Partition Manager~~~~~~~~~~~
 
-Exec=gpartedcaller
+Exec=gksudo gpartedcaller
 Type=Application
 Icon=/usr/share/icons/oxygen/64x64/apps/partitionmanager.png
