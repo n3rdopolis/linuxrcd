@@ -106,11 +106,11 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 #find all detected oses.
 storage_detect
 #take the information from storage_detect, and put it in the file the script searches
-cat /tmp/linuxinstalls | grep -v /dev/loop0 > /RCD/share/detectedoses
-echo " " >>     /RCD/share/detectedoses
+cat /tmp/linuxinstalls | grep -v /dev/loop0 > /tmp/detectedoses
+echo " " >>     /tmp/detectedoses
 
 #capture number of oses
-oscount=$(cat /RCD/share/detectedoses | grep : -c)
+oscount=$(cat /tmp/detectedoses | grep : -c)
 #if no oses detected then quit this script
 if (( 0==oscount ));
 then
@@ -119,16 +119,16 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 rm /tmp/system_recovery_lock
 exit 0
 fi
-oschoice=$(kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --combobox "@%@recovery cd os choice message@%@" $(cat /RCD/share/detectedoses | sed s/" "/"_"/g ))
+oschoice=$(kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --combobox "@%@recovery cd os choice message@%@" $(cat /tmp/detectedoses | sed s/" "/"_"/g ))
  
 #run os prober again, and grab the entire OS line
-echo $oschoice  > /RCD/share/osline
+echo $oschoice  > /tmp/osonline
 #get the device file name where the OS is installed
-cat /RCD/share/osline | sed  's/:.*/ /' > /RCD/share/devname
+cat /tmp/osonline | sed  's/:.*/ /' > /tmp/devname
 
 
 #mount the system with the device name as readonly
-mount $(cat /RCD/share/devname) /mnt/RecoveryMount -o ro
+mount $(cat /tmp/devname) /mnt/RecoveryMount -o ro
 #test chroot,
 chroot /mnt/RecoveryMount  /bin/true
 #if it failed 
@@ -139,7 +139,7 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 
 
 
-@%@recovery cd choice string@%@ $(cat /RCD/share/osline)"
+@%@recovery cd choice string@%@ $(cat /tmp/osonline)"
 umount /mnt/RecoveryMount
 
 rm /tmp/system_recovery_lock
@@ -159,14 +159,14 @@ if [[ $checkdisk -eq 0 ]]
 then
 #check the specified root file system for errors
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd fsck message@%@" &
-lxterminal -e fsck -p $(cat /RCD/share/devname)
+lxterminal -e fsck -p $(cat /tmp/devname)
 fi
 
 
 
 
 #mount the system with the device name
-mount $(cat /RCD/share/devname) /mnt/RecoveryMount
+mount $(cat /tmp/devname) /mnt/RecoveryMount
 
 #mount all fses in the target folder, running as the target system
 chroot /mnt/RecoveryMount  /bin/mount -a
@@ -212,10 +212,6 @@ cp /etc/LD.SO.CACHE /mnt/RecoveryMount/etc
 #hide the livecd's system binaries
 mount --rbind /mnt/RecoveryMount/RCD/RCDbin /mnt/RecoveryMount/RCD/bin
 mount --rbind /mnt/RecoveryMount/RCD/RCDbin /mnt/RecoveryMount/RCD/sbin
-
-#bind mount over the systems /usr/share/mountmanager/BackUps over the imported RCD ones so that the files get saved to disk
-mkdir -p /mnt/RecoveryMount/usr/share/mountmanager/BackUps
-mount --rbind /mnt/RecoveryMount/usr/share/mountmanager/BackUps /mnt/RecoveryMount/RCD/share/mountmanager/BackUps
 
 #lock shutdown
 touch /tmp/noshutdown
@@ -281,7 +277,7 @@ if [[ $quittext == shutdown ]]
 then
 break
 fi
-kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /RCD/share/osline)"
+kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /tmp/osonline)"
 quitanswer=$? 
 done 
 
@@ -302,9 +298,6 @@ fuser -k /mnt/RecoveryMount
 #change the hostname of the live cd back to the default
 hostname -F /etc/hostname
 
-
-#unmount the bind mount of mountmanagers backup folder
-umount -lf /mnt/RecoveryMount/RCD/share/mountmanager/BackUps
 #unhide the livecd's system binaries
 umount -lf /mnt/RecoveryMount/RCD/bin
 umount -lf /mnt/RecoveryMount/RCD/RCDbin /mnt/RecoveryMount/RCD/sbin
