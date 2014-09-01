@@ -135,45 +135,6 @@ kill -9 $PID
 done
 }
 
-function RenameFiles() 
-{
-  #make sure the editor is executable
-  chmod +x "$SCRIPTFOLDERPATH"/linuxrcd_edit.sh
-  #edit some folder path strings
-  "$SCRIPTFOLDERPATH"/linuxrcd_edit.sh usr RCD
-  "$SCRIPTFOLDERPATH"/linuxrcd_edit.sh lib LYB
-  "$SCRIPTFOLDERPATH"/linuxrcd_edit.sh lib64 LYB64
-  #fix for Xorg, it uses wildcards.
-  find "$BUILDLOCATION"/RCD/LYB/xorg -name "lib*"   | while read FILEPATH
-  do
-    echo "Renaming $FILEPATH"
-    rename "s/lib/\1LYB\2/g" "$FILEPATH"
-  done
-
-
-  #fix for NetworkManager, it uses wildcards.
-  find "$BUILDLOCATION"/RCD/LYB/NetworkManager -name "lib*"   | while read FILEPATH
-  do
-    echo "Renaming $FILEPATH"
-    rename "s/lib/\1LYB\2/g" "$FILEPATH"
-  done
-
-  #Do this for X
-  ln -s -f /var/LYB "$BUILDLOCATION"/var/lib
-
-  #delete the usr folder in the Live CD
-  rm -rf "$BUILDLOCATION"/usr
-
-  #Do this for OS prober as it works with a normal system with lib. not LYB
-  sed -i 's/LYB/lib/g' "$BUILDLOCATION"/RCD/LYB/os-probes/mounted/90linux-distro
-
-  #Do this for the main library interpreter, so that it does not use the target system's ld.so.cache
-  sed -i 's@/ld.so.cache@/LD.SO.CACHE@g' "$BUILDLOCATION"/LYB/ld-linux*
-  mv "$BUILDLOCATION"/etc/ld.so.cache "$BUILDLOCATION"/etc/LD.SO.CACHE
-
-
-}
-
 UnmountAll
 
 #Delete buildoutput based on a control file
