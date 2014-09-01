@@ -166,8 +166,5 @@ umount /tmp/volumemountpoint
 umount -lf /tmp/volumemountpoint
 done
 
-#delete the temporary file created by this script
-rm /tmp/allvolumes
-
 
 echo -n "@%@storage mounter no os@%@" >> /tmp/linuxinstalls
