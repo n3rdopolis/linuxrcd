@@ -221,7 +221,7 @@ xmodmap -pke > /tmp/keyboardlayout
 
 #start Xephyr 
 Xephyr :1  -title "@%@recovery cd xephyr name@%@" -noreset &
-
+xephyrjob=$!
 #wait for Xephyr to start
 sleep 5
 
@@ -271,7 +271,14 @@ while [  $quitanswer != 0  -a $quittext != shutdown ]
 do
 #create a and read a fifo to pause and wait for input. When the user runs the exit launcher, it echos text into it, and the script resumes to exit the recovery
 mkfifo /tmp/exit_recovery  
-quittext=$(cat /tmp/exit_recovery )
+exec 1000<> /tmp/exit_recovery
+read -n 20 -t 1 quittext <&1000
+kill -0 xephyrjob
+xephyrquery=$?
+if [[ $xephyrquery == 1 ]]
+then
+break
+fi
 if [[ $quittext == shutdown ]]
 then
 break
@@ -286,7 +293,7 @@ export DISPLAY=:0
 killall clipboardmgr
 
 #kill all X apps by destroying the display. Many apps perform a safe exit routine when the X server dies
-killall Xephyr
+kill -9 $xephyrjob
 
 #gently kill any other processess
 fuser -15 -k /mnt/RecoveryMount
