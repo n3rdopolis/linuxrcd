@@ -82,7 +82,6 @@ ln -s "/proc/1/root$(which kdialog)" /usr/RCDbin/kdialog
 ln -s "/proc/1/root$(which kuser)" /usr/RCDbin/kuser
 ln -s "/proc/1/root$(which pcmanfm)" /usr/RCDbin/pcmanfm
 ln -s "/proc/1/root$(which gedit)" /usr/RCDbin/gedit
-ln -s "/proc/1/root$(which mountmanager)" /usr/RCDbin/mountmanager
 ln -s "/proc/1/root$(which lxsession)" /usr/RCDbin/lxsession
 ln -s "/proc/1/root$(which filelight)" /usr/RCDbin/filelight
 ln -s "/proc/1/root$(which ksystemlog)" /usr/RCDbin/ksystemlog

@@ -73,7 +73,6 @@ grub-common::FULL
 #Featued Utilities
 kuser::PART
 gparted::PART
-mountmanager::PART
 kfind::PART
 filelight::PART
 ksystemlog::PART
