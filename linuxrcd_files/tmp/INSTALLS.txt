@@ -28,6 +28,7 @@ cryptsetup::PART
 parted::PART
 #Minimal UI
 lightdm::PART
+lightdm-kde-greeter::PART
 xinit::PART
 lxde-common::PART
 lxde-core::PART
