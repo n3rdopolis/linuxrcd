@@ -14,6 +14,7 @@ dmraid::PART
 cryptsetup::PART
 parted::PART
 #Minimal UI
+lightdm::PART
 xinit::PART
 lxde-common::PART
 lxde-core::PART

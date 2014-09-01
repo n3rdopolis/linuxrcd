@@ -110,18 +110,18 @@ ln -s /etc/init.d/kwin /etc/rc2.d/S53kwin
 #change caspers configuration of the ttys to open bash instead of getty. Delete caspers configuration o
 rm /usr/share/initramfs-tools/scripts/casper-bottom/25configure_init
 
-#create a default user that the live cd startup script, casper, needs a UID of 1000
-useradd linuxrcd -s /bin/bash
-#add the user account that will call up a web browser. Give it a high UID so that it probably will not have write access to the users system
-groupadd browser -g 999999999
-useradd browser -u 999999999 -g 999999999 -s /bin/bash
-
-
-#give browser user rights to the folder
-mkdir -p /home/browser
-chown browser /home/browser
-chgrp browser /home/browser
-chmod 777       /home/browser
+# #create a default user that the live cd startup script, casper, needs a UID of 1000
+# useradd linuxrcd -s /bin/bash
+# #add the user account that will call up a web browser. Give it a high UID so that it probably will not have write access to the users system
+# groupadd browser -g 999999999
+# useradd browser -u 999999999 -g 999999999 -s /bin/bash
+# 
+# 
+# #give browser user rights to the folder
+# mkdir -p /home/browser
+# chown browser /home/browser
+# chgrp browser /home/browser
+# chmod 777       /home/browser
 
 #try to salvage some space from apt and aptitiude
 sudo apt-get autoclean
@@ -161,7 +161,7 @@ cat /usr/share/logs/build_core/*/GetSourceVersion > /usr/share/build_core_revisi
 mv /usr/share/logs	/tmp
 
 # #start the remastersys job
-# remastersys backup
+# remastersys dist
 # 
 # mv /home/remastersys/remastersys/custom.iso /home/remastersys/remastersys/custom-full.iso
 # 
@@ -212,7 +212,7 @@ rm -rf /var/cache/apt-xapian-index/*
 rm -rf /var/lib/apt/lists/*
 rm -rf /var/lib/dlocate/*
 #start the remastersys job
-remastersys backup
+remastersys dist
 
 #move logs back
 mv /tmp/logs /usr/share
