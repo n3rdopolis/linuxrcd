@@ -17,10 +17,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #Ask the user to select a Language to set the live environment to, and then apply it
 
-Xorg :0 &
-export DISPLAY=:0
-sleep 10
-kwin &
 isanwered=1
 while [ $isanwered -eq 1 ]
 do 
@@ -112,5 +108,3 @@ then
 # Delete all of mountmanager's translations to force it to use the built in English one.
 rm /usr/lib/mountmanager/trans/*
 fi
-
-killall Xorg
