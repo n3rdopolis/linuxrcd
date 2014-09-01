@@ -15,10 +15,7 @@
 @%@recovery cd os choice message@%@~~~~~~~~~~~Choose the OS to recover.~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd no os found message@%@~~~~~~~~~~~No operating systems where found. This could be because of corrupted data or partitions, or an unrecongised file system.~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd shortcomming notice@%@~~~~~~~~~~~This live CD can not detect WUBI installs.~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@recovery cd root warning@%@~~~~~~~~~~~In this live cd session, everything runs as root except for the web browser.~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@recovery cd exercise caution message@%@~~~~~~~~~~~Be aware of what you do or what you run, as some commands can ruin your data, even when your system is not yet mounted, and even though this is a live cd.~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd xephyr description@%@~~~~~~~~~~~When your system is successfuly mounted, the interface for controling your system will appear in the System Recovery Window. The layout of the interface might look different that what you are used to seeing.~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%@recovery cd web browser description@%@~~~~~~~~~~~The web brower does not run as root. It is installed so that you can search for information on how to recover your system.~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd dialog description@%@~~~~~~~~~~~A set of dialogs will appear that will help you find and mount your system.~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd os selector description@%@~~~~~~~~~~~You will soon be able to select the OS you want to recover. Only Linux ones will appear, and it might take the next dialog a while as your OSes are detected.~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@recovery cd support message@%@~~~~~~~~~~~If you do not see your intended Linux install, report to linuxrcd.sourceforge.net for help.~~~~~~~~~~~DELIM_FOR_KDIALOG

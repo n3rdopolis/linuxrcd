@@ -87,17 +87,8 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 @%@recovery cd continue message@%@
 "
 
-kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd root warning@%@
-
-@%@recovery cd exercise caution message@%@
- 
-
-@%@recovery cd continue message@%@"
-
 
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%@recovery cd xephyr description@%@ 
-
-@%@recovery cd web browser description@%@
 
 @%@recovery cd dialog description@%@
 
