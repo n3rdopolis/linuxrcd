@@ -263,28 +263,31 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 
 @%@recovery cd fstab multipartition warning@%@" &
 
-
+#create a and read a fifo to pause and wait for input. When the user runs the exit launcher, it echos text into it, and the script resumes to exit the recovery
+mkfifo /tmp/exit_recovery  
+exec 1000<> /tmp/exit_recovery
 
 quittext=null
 quitanswer=1
 while [  $quitanswer != 0  -a $quittext != shutdown ] 
 do
-#create a and read a fifo to pause and wait for input. When the user runs the exit launcher, it echos text into it, and the script resumes to exit the recovery
-mkfifo /tmp/exit_recovery  
-exec 1000<> /tmp/exit_recovery
+
 read -n 20 -t 1 quittext <&1000
 kill -0 xephyrjob
 xephyrquery=$?
+
 if [[ $xephyrquery == 1 ]]
 then
-break
+quittext=shutdown
+quitanswer=0
 fi
+
 if [[ $quittext == shutdown ]]
 then
-break
-fi
 kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --yesno "@%@recovery cd quit prompt@%@ $(cat /tmp/osonline)"
-quitanswer=$? 
+quitanswer=$?
+fi
+
 done 
 
 export DISPLAY=:0
