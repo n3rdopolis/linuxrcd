@@ -40,7 +40,6 @@ lxpanel::PART
 lxrandr::PART
 lxsession-lite::PART
 lxsession-edit::PART
-kde-window-manager::PART
 x11-xserver-utils::PART
 xsel::PART
 kdebase-bin::PART
