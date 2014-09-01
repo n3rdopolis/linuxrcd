@@ -27,7 +27,7 @@ echo "
 NOTE THAT THE FOLDERS LISTED BELOW ARE DELETED OR OVERWRITTEN ALONG WITH THE CONTENTS (file names are case sensitive)
     
    Folder:            $BUILDLOCATION
-   File:              ${HOME}/LinuxRCD.iso or ${HOME}/RebeccaBlackLinux_amd64.iso
+   File:              ${HOME}/LinuxRCD.iso or ${HOME}/LinuxRCD_amd64.iso
    File:              ${HOME}/LinuxRCD_Revisions.txt
 "
 
