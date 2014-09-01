@@ -27,6 +27,7 @@ done
 
 
 kdialog --title "LANG..." --caption LinuxRCD --progressbar LANG... 0 &
+kdialogjob=$!
 
 #copy the Language selected into the working folder
 rsync "/usr/share/linuxrcd/translations/$Language_Name"/* -r /build_language/
@@ -102,9 +103,4 @@ let $(( filerenameworkcount=filerenameworkcount-1 ))
 done
 
 
-#if this is english set mountmanager to use the English translations
-if [ "$Language_Name" == "en_us" ];
-then
-# Delete all of mountmanager's translations to force it to use the built in English one.
-rm /usr/lib/mountmanager/trans/*
-fi
+killall -9 $kdialogjob
