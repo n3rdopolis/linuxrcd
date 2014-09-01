@@ -107,7 +107,6 @@ kdialog  --title "@%@recovery cd dialog name@%@" --caption LinuxRCD --msgbox "@%
 storage_detect
 #take the information from storage_detect, and put it in the file the script searches
 cat /tmp/linuxinstalls | grep -v /dev/loop0 > /tmp/detectedoses
-echo " " >>     /tmp/detectedoses
 
 #capture number of oses
 oscount=$(cat /tmp/detectedoses | grep : -c)

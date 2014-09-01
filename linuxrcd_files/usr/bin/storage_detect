@@ -167,4 +167,4 @@ umount -lf /tmp/volumemountpoint
 done
 
 
-echo -n "@%@storage mounter no os@%@" >> /tmp/linuxinstalls
+echo -n :"@%@storage mounter no os@%@":: >> /tmp/linuxinstalls
