@@ -1,0 +1,116 @@
+#!  /bin/bash
+#    Copyright (c) 2009, 2010, 2011, nerdopolis (or n3rdopolis) <bluescreen_avenger@version.net>
+#
+#    This file is part of LinuxRCD.
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 2 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#Ask the user to select a Language to set the live environment to, and then apply it
+
+Xorg :0 &
+export DISPLAY=:0
+sleep 10
+kwin &
+isanwered=1
+while [ $isanwered -eq 1 ]
+do 
+#add more languages here as they are translated: kdialog --radiolist "LANG?????" LANGUAGEID LANGUAGENAME on LANGUAGEID LANGUAGENAME off LANGUAGEID LANGUAGENAME off 
+Language_Name=$(kdialog --title "LANG?" --caption LinuxRCD --radiolist "LANG?????" "en_us" "American English" on "en_us" "Default" off)
+isanwered=$?
+done
+
+
+kdialog --title "LANG..." --caption LinuxRCD --progressbar LANG... 0 &
+
+#copy the Language selected into the working folder
+rsync "/usr/share/linuxrcd/translations/$Language_Name"/* -r /build_language/
+
+
+
+#search for any folder containing a file "TRANSLATION_DATA" in /build_language/file_translations/ 
+#this will tell what files will need to be translated.
+find /build_language/file_translations/ | awk -F"/file_translations" '{print $2}' | grep TRANSLATION_DATA | awk -F"TRANSLATION_DATA" '{print $1}' |sed s/.$//g >> /tmp/convertingfiles
+ 
+
+
+filecount=$(cat /tmp/convertingfiles | wc -l)
+fileworkcount=$filecount
+while (( $fileworkcount!=0))
+do
+translationfile=$(cat /tmp/convertingfiles | awk "NR==$fileworkcount")
+stringcount=$(cat /build_language/file_translations$translationfile/TRANSLATION_DATA | grep ~~~~~~~~~~~ | wc -l)
+stringworkcount=$stringcount
+
+while (( $stringworkcount!=0))
+do
+translationname=$(cat "/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep ~~~~~~~~~~~ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $1}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
+translationtext=$(cat "/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep ~~~~~~~~~~~ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $2}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
+translationopts=$(cat "/build_language/file_translations$translationfile/TRANSLATION_DATA"  | grep ~~~~~~~~~~~ | awk "NR==$stringworkcount" | awk -F"~~~~~~~~~~~" '{ print $3}' | perl '-ple$_=quotemeta' | sed "s/\\\\ $/  /" )
+#DELIM_FOR_KDIALOG : allow strings to be deliminated for kdialog without the translator worring about certian chars messing it up 
+if [[ $(echo "$translationopts" | grep "DELIM_FOR_KDIALOG" -c) == 1 ]]
+then
+#deliminate all double quotes
+translationtext=$(echo $translationtext | sed 's/\"/\\\"/g' ) 
+fi
+
+
+#replace contents of the file
+sed -i  "s/$translationname/$translationtext/g" "$translationfile"
+
+#replace contents of the files rename translation information
+if [ -f "/build_language/file_translations$translationfile/FILEFOLDERNAME" ]
+then
+sed -i  "s/$translationname/$translationtext/g" "/build_language/file_translations$translationfile/FILEFOLDERNAME"
+fi
+
+let $(( stringworkcount=stringworkcount-1 )) 
+done
+
+#rename the file if it has renaming data
+#if [ -f "/build_language/file_translations$translationfile/FILENAME" ]
+#then
+#origname=$(echo $translationfile | rev | awk -F"/" '{print $1}' |rev)
+# newname=$(cat "/build_language/file_translations$translationfile/FILENAME" | awk 'NR==1')
+# dirname=$(dirname "$translationfile")
+#mv "$dirname"/"$origname" "$dirname"/"$newname"
+#fi
+
+
+let $(( fileworkcount=fileworkcount-1 ))
+done
+
+
+
+#Find files/folders that want to be renamed                                                                
+find /build_language/file_translations/ | awk -F"/file_translations" '{print $2}'   | grep "FILEFOLDERNAME" | awk -F"/FILEFOLDERNAME" '{print $1}'  >> /tmp/renamingfiles
+filerenamecount=$(cat /tmp/renamingfiles | wc -l)
+filerenameworkcount=$filerenamecount
+while (( $filerenameworkcount!=0))
+do
+translationfile=$(cat /tmp/renamingfiles | awk "NR==$filerenameworkcount")
+origname=$(echo $translationfile | rev | awk -F"/" '{print $1}' |rev)
+ newname=$(cat "/build_language/file_translations$translationfile/FILEFOLDERNAME" | awk 'NR==1' | awk -F"~~~~~~~~~~~" '{print $1}')
+ dirname=$(dirname $translationfile)
+mv "$dirname"/"$origname" "$dirname"/"$newname"
+let $(( filerenameworkcount=filerenameworkcount-1 ))
+done
+
+
+#if this is english set mountmanager to use the English translations
+if [ "$Language_Name" == "en_us" ];
+then
+# Delete all of mountmanager's translations to force it to use the built in English one.
+rm /usr/lib/mountmanager/trans/*
+fi
+
+killall Xorg
