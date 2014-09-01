@@ -73,42 +73,42 @@ rm /usr/share/lxpanel/images/background.png
 #Make a note of this. should be /root/.config/...
 #mkdir -p /.config/pcmanfm/LXDE/
 
-#delete the upstart tty configs
-rm /etc/event.d/tty1
-rm /etc/event.d/tty2
-rm /etc/event.d/tty3
-rm /etc/event.d/tty4
-rm /etc/event.d/tty5
-rm /etc/event.d/tty6
-
-
-#delete the upstart tty configs
-rm /etc/init/tty1.conf
-rm /etc/init/tty2.conf
-rm /etc/init/tty3.conf
-rm /etc/init/tty4.conf
-rm /etc/init/tty5.conf
-rm /etc/init/tty6.conf
-#Add bash shell startup script to runlevel 2 
-ln -s  /etc/init.d/bash  /etc/rc2.d/S50bash
-
-#add the tranlator startup script to runlevel 2
-ln -s /etc/init.d/translate /etc/rc2.d/S51translate
-
-#add lxde startup script to runlevel 2
-ln -s  /etc/init.d/lxde  /etc/rc2.d/S52lxde
-
-#add HAL startup script to runlevel 2
-ln -s  /etc/init.d/hal  /etc/rc2.d/S53hal
-
-#add the preparer startup script to runlevel 2
-ln -s  /etc/init.d/prepare  /etc/rc2.d/S53prepare
-
-#add kwin startup script to runlevel 2
-ln -s /etc/init.d/kwin /etc/rc2.d/S53kwin
+# #delete the upstart tty configs
+# rm /etc/event.d/tty1
+# rm /etc/event.d/tty2
+# rm /etc/event.d/tty3
+# rm /etc/event.d/tty4
+# rm /etc/event.d/tty5
+# rm /etc/event.d/tty6
+# 
+# 
+# #delete the upstart tty configs
+# rm /etc/init/tty1.conf
+# rm /etc/init/tty2.conf
+# rm /etc/init/tty3.conf
+# rm /etc/init/tty4.conf
+# rm /etc/init/tty5.conf
+# rm /etc/init/tty6.conf
+# #Add bash shell startup script to runlevel 2 
+# ln -s  /etc/init.d/bash  /etc/rc2.d/S50bash
+# 
+# #add the tranlator startup script to runlevel 2
+# ln -s /etc/init.d/translate /etc/rc2.d/S51translate
+# 
+# #add lxde startup script to runlevel 2
+# ln -s  /etc/init.d/lxde  /etc/rc2.d/S52lxde
+# 
+# #add HAL startup script to runlevel 2
+# ln -s  /etc/init.d/hal  /etc/rc2.d/S53hal
+# 
+# #add the preparer startup script to runlevel 2
+# ln -s  /etc/init.d/prepare  /etc/rc2.d/S53prepare
+# 
+# #add kwin startup script to runlevel 2
+# ln -s /etc/init.d/kwin /etc/rc2.d/S53kwin
 
 #change caspers configuration of the ttys to open bash instead of getty. Delete caspers configuration o
-rm /usr/share/initramfs-tools/scripts/casper-bottom/25configure_init
+# rm /usr/share/initramfs-tools/scripts/casper-bottom/25configure_init
 
 # #create a default user that the live cd startup script, casper, needs a UID of 1000
 # useradd linuxrcd -s /bin/bash
