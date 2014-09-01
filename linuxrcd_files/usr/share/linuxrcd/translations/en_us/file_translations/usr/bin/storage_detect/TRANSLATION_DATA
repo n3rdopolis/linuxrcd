@@ -2,4 +2,4 @@
 @%@storage mounter enter password@%@~~~~~~~~~~~Enter the password for the encrypted drive:~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@storage mounter wrong password@%@~~~~~~~~~~~Wrong password entered. Enter password for the encrypted drive:~~~~~~~~~~~DELIM_FOR_KDIALOG
 @%@storage mounter already unlocked@%@~~~~~~~~~~~This drive was already unlocked~~~~~~~~~~~DELIM_FOR_KDIALOG
-@%storage mounter no os@%@~~~~~~~~~~~Manually Mounted~~~~~~~~~~~DELIM_FOR_KDIALOG
+@%@storage mounter no os@%@~~~~~~~~~~~Manually Mounted~~~~~~~~~~~DELIM_FOR_KDIALOG
