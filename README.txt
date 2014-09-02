@@ -1,4 +1,4 @@
-To build, just run the included script. This script only works on Ubuntu/Debain (I think it would work on Debian) based systems. 
+To build, just run the included script.
 
 Problems:
   It has only been semi-thoroughly tested on Ubuntu.
