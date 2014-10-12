@@ -28,7 +28,7 @@ NOTE THAT THE FOLDERS LISTED BELOW ARE DELETED OR OVERWRITTEN ALONG WITH THE CON
     
    Folder:            $BUILDLOCATION
    File:              ${HOME}/LinuxRCD.iso or ${HOME}/LinuxRCD_amd64.iso
-   File:              ${HOME}/LinuxRCD_Revisions.txt
+   File:              ${HOME}/LinuxRCD_Revisions_i386.txt or ${HOME}/LinuxRCD_Revisions_amd64.txt
 "
 
 
@@ -211,6 +211,7 @@ rm -rf "$BUILDLOCATION"/build/$BUILDARCH/vartmp
 rm -rf "$BUILDLOCATION"/build/$BUILDARCH/remastersys
 rm -rf "$BUILDLOCATION"/build/$BUILDARCH/importdata
 "$SCRIPTFOLDERPATH"/externalbuilders/cleanup_srcbuild.sh
+UnmountAll
 
 ENDTIME=$(date +%s)
 echo "build finished in $((ENDTIME-STARTTIME)) seconds $REBUILT"

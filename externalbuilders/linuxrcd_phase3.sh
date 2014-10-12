@@ -160,8 +160,10 @@ mkdir -p ""$BUILDLOCATION"/logs/$ENDDATE $BUILDARCH"
 #Export the log files to the location
 cp -a ""$BUILDLOCATION"/build/$BUILDARCH/phase_1/usr/share/logs/"* ""$BUILDLOCATION"/logs/$ENDDATE $BUILDARCH"
 cp -a ""$BUILDLOCATION"/build/$BUILDARCH/workdir/usr/share/logs/"* ""$BUILDLOCATION"/logs/$ENDDATE $BUILDARCH"
+rm ""$BUILDLOCATION"/logs/latest"
+ln -s ""$BUILDLOCATION"/logs/$ENDDATE $BUILDARCH" ""$BUILDLOCATION"/logs/latest"
 cp -a ""$BUILDLOCATION"/build/$BUILDARCH/workdir/usr/share/build_core_revisions.txt" ""$BUILDLOCATION"/logs/$ENDDATE $BUILDARCH" 
-cp -a ""$BUILDLOCATION"/build/$BUILDARCH/workdir/usr/share/build_core_revisions.txt" ""$HOMELOCATION"/LinuxRCD.txt" 
+cp -a ""$BUILDLOCATION"/build/$BUILDARCH/workdir/usr/share/build_core_revisions.txt" ""$HOMELOCATION"/LinuxRCD_Revisions_$BUILDARCH.txt" 
 if [[ ! -f "$BUILDLOCATION"/build/$BUILDARCH/workdir/home/remastersys/remastersys/custom.iso ]]
 then  
   ISOFAILED=1
@@ -171,9 +173,9 @@ fi
 
 
 #allow the user to actually read the iso   
-chown $SUDO_USER "$HOMELOCATION"/LinuxRCD*.iso
-chgrp $SUDO_USER "$HOMELOCATION"/LinuxRCD*.iso
-chmod 777 "$HOMELOCATION"/LinuxRCD*.iso
+chown $SUDO_USER "$HOMELOCATION"/LinuxRCD*.iso "$HOMELOCATION"/LinuxRCD*.txt
+chgrp $SUDO_USER "$HOMELOCATION"/LinuxRCD*.iso "$HOMELOCATION"/LinuxRCD*.txt
+chmod 777 "$HOMELOCATION"/LinuxRCD*.iso "$HOMELOCATION"/LinuxRCD*.txt
 
 #If the live cd did  build then tell user   
 if [[ $ISOFAILED != 1  ]];
