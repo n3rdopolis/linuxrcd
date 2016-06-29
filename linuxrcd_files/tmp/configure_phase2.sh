@@ -16,6 +16,13 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+#Require root privlages
+if [[ $UID != 0 ]]
+then
+  echo "Must be run as root."
+  exit
+fi
+
 #function to handle moving back dpkg redirect files for chroot
 function RevertFile {
   TargetFile=$1
@@ -39,17 +46,23 @@ RedirectFile /usr/sbin/grub-probe
 RedirectFile /sbin/initctl
 RedirectFile /usr/sbin/invoke-rc.d
 
-#Create dpkg config file to speed up install operations for the ISO build. It gets removed once done. 
+#Configure dpkg
 echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/force-unsafe-io
+echo "force-confold"   > /etc/dpkg/dpkg.cfg.d/force-confold
+echo "force-confdef"   > /etc/dpkg/dpkg.cfg.d/force-confdef
 
-#perl outputs complaints if a locale isn't generated
-sudo locale-gen en_US.UTF-8
+#Create _apt user that apt drops to to run things as non-root
+adduser --no-create-home --disabled-password --system --force-badname _apt
 
 #Create the correct /etc/resolv.conf symlink
 ln -s ../run/resolvconf/resolv.conf /etc/resolv.conf 
 
 #install basic applications that the system needs to get repositories and packages
-apt-get install aptitude git bzr subversion mercurial wget dselect -y --force-yes 
+apt-get install aptitude git bzr subversion mercurial wget dselect locales -y --force-yes 
+
+#perl outputs complaints if a locale isn't generated
+locale-gen en_US.UTF-8
+localedef -i en_US -f UTF-8 en_US.UTF-8
 
 #attempt to prevent packages from prompting for debconf
 export DEBIAN_FRONTEND=noninteractive
@@ -63,7 +76,6 @@ mkdir -p /usr/share/logs/package_operations/Installs
 #Get the packages that need to be installed, by determining new packages specified, and packages that did not complete.
 sed -i 's/^ *//;s/ *$//' /tmp/FAILEDREMOVES.txt
 sed -i 's/^ *//;s/ *$//' /tmp/FAILEDINSTALLS.txt
-sed -i 's/^ *//;s/ *$//' /tmp/INSTALLS.txt
 sed -i 's/^ *//;s/ *$//' /tmp/INSTALLS.txt.installbak
 touch /tmp/FAILEDINSTALLS.txt
 diff -u -N -w1000 /tmp/INSTALLS.txt.installbak /tmp/INSTALLS.txt | grep -v ::BUILDDEP | grep -v ::REMOVE | grep ^- | grep -v "\---" | cut -c 2- | awk -F "#" '{print $1}' >> /tmp/FAILEDREMOVES.txt
@@ -73,7 +85,7 @@ $(diff -u -N -w1000 /tmp/INSTALLS.txt.installbak /tmp/INSTALLS.txt | grep ^+ | g
 INSTALLS+="
 $(diff -u10000 -w1000 -N /tmp/INSTALLS.txt /tmp/FAILEDINSTALLS.txt | grep "^ " | cut -c 2- )"
 INSTALLS="$(echo "$INSTALLS" | awk ' !x[$0]++')"
-
+INSTALLS+=$'\n'
 
 #DOWNLOAD THE PACKAGES SPECIFIED
 while read PACKAGEINSTRUCTION
@@ -86,28 +98,37 @@ do
   then
     echo "Installing with partial dependancies for $PACKAGE"                        2>&1 |tee -a /usr/share/logs/package_operations/Installs/"$PACKAGE".log
     apt-get --no-install-recommends install $PACKAGE -y --force-yes       2>&1 |tee -a /usr/share/logs/package_operations/Installs/"$PACKAGE".log
-    Result=${PIPESTATUS[1]}
+    Result=${PIPESTATUS[0]}
   #This is for full installs
   elif [[ $METHOD == "FULL" ]]
   then
     echo "Installing with all dependancies for $PACKAGE"                            2>&1 |tee -a /usr/share/logs/package_operations/Installs/"$PACKAGE".log
     apt-get install $PACKAGE -y --force-yes                               2>&1 |tee -a /usr/share/logs/package_operations/Installs/"$PACKAGE".log
-    Result=${PIPESTATUS[1]}
+    Result=${PIPESTATUS[0]}
   #this is for build dependancies
   elif [[ $METHOD == "BUILDDEP" ]]
   then
     echo "Installing build dependancies for $PACKAGE"                               2>&1 |tee -a /usr/share/logs/package_operations/Installs/"$PACKAGE".log
     apt-get build-dep $PACKAGE -y --force-yes                               2>&1 |tee -a /usr/share/logs/package_operations/Installs/"$PACKAGE".log
-    Result=${PIPESTATUS[1]}
+    Result=${PIPESTATUS[0]}
   #Remove packages if specified, or if a package is no longer specified in INSTALLS.txt
   elif [[ $METHOD == "REMOVE" ]]
   then
     echo "Removing $PACKAGE"                                                       	2>&1 |tee -a /usr/share/logs/package_operations/Installs/"$PACKAGE".log
     apt-get purge $PACKAGE -y --force-yes                                  	2>&1 |tee -a /usr/share/logs/package_operations/Installs/"$PACKAGE".log
-    Result=${PIPESTATUS[1]}
+    Result=${PIPESTATUS[0]}
+    if [[ $Result != 0 ]]
+    then
+      dpkg -l $PACKAGE &> /dev/null
+      if [[ $? != 0 ]]
+      then
+         Result=0
+      fi
+    fi
   else
     echo "Invalid Install Operation: $METHOD on package $PACKAGE"                   2>&1 |tee -a /usr/share/logs/package_operations/Installs/"$PACKAGE".log
     Result=1
+    METHOD="INVALID OPERATION SPECIFIED"
   fi
 
   #if the install resut for the current package failed, then log it. If it worked, then remove it from the list of unfinished installs
@@ -121,7 +142,7 @@ do
     rm /tmp/FAILEDINSTALLS.txt.bak
     if [[ $METHOD == "REMOVE" ]]
     then
-      grep -v "$PACKAGEINSTRUCTION" /tmp/FAILEDREMOVES.txt > /tmp/FAILEDREMOVES.txt.bak
+      grep -v "$PACKAGE::" /tmp/FAILEDREMOVES.txt > /tmp/FAILEDREMOVES.txt.bak
       cat /tmp/FAILEDREMOVES.txt.bak > /tmp/FAILEDREMOVES.txt
       rm /tmp/FAILEDREMOVES.txt.bak
     fi
@@ -137,10 +158,10 @@ cp /tmp/INSTALLS.txt /tmp/INSTALLS.txt.installbak
 CURRENTKERNELVERSION=$(basename $(readlink /vmlinuz) |awk -F "-" '{print $2"-"$3}')
 if [[ -z $CURRENTKERNELVERSION ]]
 then
-  CURRENTKERNELVERSION=$(dpkg --get-selections | awk '{print $1}' | grep linux-image-[0-9] | tail -1 |awk -F "-" '{print $3"-"$4}')
+  CURRENTKERNELVERSION=$(dpkg --get-selections | awk '{print $1}' | grep linux-image-[0-9]'\.'[0-9] | tail -1 |awk -F "-" '{print $3"-"$4}')
 fi
 
-dpkg --get-selections | awk '{print $1}' | grep -v "$CURRENTKERNELVERSION" | grep 'linux-image\|linux-headers' | grep -v linux-image-generic | grep -v linux-headers-generic | while read PACKAGE
+dpkg --get-selections | awk '{print $1}' | grep -v "$CURRENTKERNELVERSION" | grep 'linux-image\|linux-headers' | grep -E \(linux-image-[0-9]'\.'[0-9]\|linux-headers-[0-9]'\.'[0-9]\) | while read PACKAGE
 do
   apt-get purge $PACKAGE -y --force-yes 
 done
@@ -149,15 +170,24 @@ done
 apt-get dist-upgrade -y --force-yes					2>&1 |tee -a /usr/share/logs/package_operations/Installs/dist-upgrade.log
 
 #Delete the old depends of the packages no longer needed.
-apt-get --purge autoremove -y 						2>&1 |tee -a /usr/share/logs/package_operations/Installs/purge.log
+apt-get --purge autoremove -y 						2>&1 |tee -a /usr/share/logs/package_operations/Installs/purge_autoremove.log
 
+#prevent packages removed from the repositories upstream to not make it in the ISOS
+if [[ -f /var/cache/apt/pkgcache.bin ]]
+then
+  aptitude purge ?obsolete -y 						2>&1 |tee -a /usr/share/logs/package_operations/Installs/purge_obsolete.log
+else
+  echo	"Not purging older packages, because apt-get update failed"	2>&1 |tee -a /usr/share/logs/package_operations/Installs/purge_obsolete.log
+fi
 #Reset the utilites back to the way they are supposed to be.
 RevertFile /usr/sbin/grub-probe
 RevertFile /sbin/initctl
 RevertFile /usr/sbin/invoke-rc.d
 
-#delete the dpkg config file that speeds up the installs, so the user doesn't get it.
+#set dpkg to defaults
 rm /etc/dpkg/dpkg.cfg.d/force-unsafe-io
+rm /etc/dpkg/dpkg.cfg.d/force-confold
+rm /etc/dpkg/dpkg.cfg.d/force-confdef
 
 #Capture the packages that are installed and not installed.
 dpkg --get-selections > /tmp/INSTALLSSTATUS.txt
