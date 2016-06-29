@@ -23,6 +23,13 @@
 #export "$VARSET"
 #done < <(/RCD/bin/env)
 
+#Require root privlages
+if [[ $UID != 0 ]]
+then
+  echo "Must be run as root."
+  exit
+fi
+
 
 #function to handle moving back dpkg redirect files for chroot
 function RevertFile {
@@ -42,8 +49,25 @@ function RedirectFile {
   ln -s /bin/true "$1"
 }
 
+#Redirect some files that get changed
+export DEBIAN_DISTRO=$(awk '{print $1}' /etc/issue)
+if [[ $DEBIAN_DISTRO == Ubuntu ]]
+then
+  dpkg-divert --local --rename --add /lib/plymouth/ubuntu_logo.png
+elif [[ $DEBIAN_DISTRO == Debian ]]
+then
+  dpkg-divert --local --rename --add /usr/share/plymouth/debian-logo.png
+fi
 
-#Copy the import files into the system, and create menu items while creating a deb with checkinstall.
+if [[ $DEBIAN_DISTRO == Debian ]]
+then
+  echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
+fi
+#Create a folder for lightdm, so that casper and ubiquity configure autologin, as waylandloginmanager reads the config files
+mkdir /etc/lightdm/
+
+#Copy the import files into the system, while creating a deb with checkinstall.
+cp /usr/import/tmp/* /tmp
 cd /tmp
 mkdir debian
 touch debian/control
@@ -58,6 +82,36 @@ rsync /usr/import/* -a /
 
 #delete the import folder
 rm -r /usr/import
+
+#workaround for Debian not including legacy systemd files
+export DEB_HOST_MULTIARCH=$(dpkg-architecture -qDEB_HOST_MULTIARCH 2>/dev/null)
+echo -e "daemon\nid128\njournal\nlogin" | while read LIBRARY
+do
+  if [[ ! -e /usr/lib/$DEB_HOST_MULTIARCH/pkgconfig/libsystemd-$LIBRARY.pc ]]
+  then
+    ln -s /usr/lib/$DEB_HOST_MULTIARCH/pkgconfig/libsystemd.pc /usr/lib/$DEB_HOST_MULTIARCH/pkgconfig/libsystemd-$LIBRARY.pc
+  fi
+done
+
+#Redirect grub-install if lupin isn't 1st tier
+if [[ ! -e /usr/share/initramfs-tools/hooks/lupin_casper ]]
+then
+  dpkg-divert --add --rename --divert /usr/sbin/grub-install.real /usr/sbin/grub-install
+  echo 'if [ -x /usr/sbin/grub-install.lupin ]; then /usr/sbin/grub-install.lupin "$@"; else /usr/sbin/grub-install.real "$@"; fi; exit $?' > /usr/sbin/grub-install
+  chmod +x /usr/sbin/grub-install
+fi
+
+#Set the plymouth themes
+if [[ $DEBIAN_DISTRO == Ubuntu ]]
+then
+  update-alternatives --install /lib/plymouth/themes/text.plymouth text.plymouth /lib/plymouth/themes/linuxrcd-text/linuxrcd-text.plymouth 100
+  update-alternatives --set text.plymouth /lib/plymouth/themes/linuxrcd-text/linuxrcd-text.plymouth
+  update-alternatives --set default.plymouth /lib/plymouth/themes/spinfinity/spinfinity.plymouth
+elif [[ $DEBIAN_DISTRO == Debian ]]
+then
+  /usr/sbin/plymouth-set-default-theme spinfinity
+fi
+
 
 #run the script that calls all compile scripts in a specified order, in build only mode
 compile_all build-only
@@ -99,7 +153,8 @@ ln -s "/proc/1/root$(which lxrandr)" /usr/RCDbin/lxrandr
 echo "$(date)" > /etc/builddate
 
 #Get all Source 
-cat /usr/share/logs/build_core/*/GetSourceVersion > /usr/share/build_core_revisions.txt
+echo "#This script is used to specify the revisions of the repositories which the ISO was built with. See output of the main builder for how to use this file, if you want to build the exact revisions, instead of the latest ones" > /usr/share/build_core_revisions.txt
+cat /usr/share/logs/build_core/*/GetSourceVersion >> /usr/share/build_core_revisions.txt
 
 #hide buildlogs in tmp from remastersys
 mv /usr/share/logs	/tmp
