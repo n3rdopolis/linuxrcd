@@ -18,72 +18,12 @@
 # Code cleanup with suggestions and code from Ivailo (a.k.a. SmiL3y) 
 
 #Detect Kernel Version
-KERNELVERSION=$(basename $(readlink /vmlinuz) |awk -F "-" '{print $2"-"$3"-"$4}')
+KERNELVERSION=$(basename $(readlink /vmlinuz) | cut -d'-' -f 2-)
 
 # checking to make sure script is running with root privileges
 if [ "$(whoami)" != "root" ]; then
     echo "Need to be root or run with sudo. Exiting."
     exit 1
-fi
-
-#create remastersys-firstboot script if it doesn't exist and populate with at least removal of the ubiquity*.desktop file from users Desktop and fix for recovery mode
-fbtest=`grep "REM302" /etc/init.d/remastersys-firstboot`
-
-if [ "$fbtest" = "" ]; then
-    cat > /etc/init.d/remastersys-firstboot <<FOO
-#! /bin/sh
-### BEGIN INIT INFO
-# Provides:          remastersys-firstboot
-# Required-Start:    \$remote_fs \$syslog \$all
-# Required-Stop:
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Run firstboot items for remastersys after a remastered system has been installed
-### END INIT INFO
-
-PATH=/sbin:/usr/sbin:/bin:/usr/bin:/usr/local/bin:/usr/local/sbin
-
-. /lib/init/vars.sh
-. /lib/lsb/init-functions
-
-do_start() {
-        #REM302
-        if [ "\`cat /proc/cmdline | grep casper\`" = "" ]; then
-            [ "\$VERBOSE" != no ] && log_begin_msg "Running remastersys-firstboot"
-            (sleep 60 && update-rc.d -f remastersys-firstboot remove) &
-            sed -i -e 's/root:x:/root:!:/g' /etc/shadow
-            rm -rf /home/*/Desktop/ubiquity*.desktop
-            #Place your custom commands below this line
-
-            #Place your custom commands above this line
-            ES=\$?
-            [ "\$VERBOSE" != no ] && log_end_msg \$ES
-            return \$ES
-        fi
-
-        
-
-
-} 
-
-case "\$1" in
-    start)
-        do_start
-        ;;
-    restart|reload|force-reload)
-        echo "Error: argument '\$1' not supported" >&2
-        exit 3
-        ;;
-    stop)
-        ;;
-    *)
-        echo "Usage: \$0 start|stop" >&2
-        exit 3
-        ;;
-esac
-
-FOO
-
 fi
 
 
@@ -240,6 +180,7 @@ update-rc.d remastersys-firstboot defaults
         rm -rf $WORKDIR/dummysys/etc/*
         rm -rf $WORKDIR/dummysys/run/*
         rm -rf $WORKDIR/ISOTMP/{isolinux,grub,.disk}
+        rm -rf $WORKDIR/efibuild
     else
         log_msg "Creating $WORKDIR folder tree"
         mkdir -p $WORKDIR/ISOTMP/{casper,preseed}
@@ -253,6 +194,7 @@ update-rc.d remastersys-firstboot defaults
 
     log_msg "Creating $WORKDIR/ISOTMP folder tree"
     mkdir -p $WORKDIR/ISOTMP/{isolinux,install,.disk}
+    mkdir -p $WORKDIR/efibuild
 
     log_msg "Copying /var and /etc to temp area and excluding extra files  ... this will take a while so be patient"
 
@@ -309,32 +251,25 @@ update-rc.d remastersys-firstboot defaults
         done
 
         log_msg "Cleaning up passwd, group, shadow and gshadow files for the live system"
-        grep '^[^:]*:[^:]*:[0-9]:' /etc/passwd > $WORKDIR/dummysys/etc/passwd
-        grep '^[^:]*:[^:]*:[0-9][0-9]:' /etc/passwd >> $WORKDIR/dummysys/etc/passwd
-        grep '^[^:]*:[^:]*:[0-9][0-9][0-9]:' /etc/passwd >> $WORKDIR/dummysys/etc/passwd
-        grep '^[^:]*:[^:]*:[3-9][0-9][0-9][0-9][0-9]:' /etc/passwd >> $WORKDIR/dummysys/etc/passwd
+        sort /etc/passwd -t: -n -k3 > $WORKDIR/dummysys/etc/passwd
+        sort /etc/group -t: -n -k3 > $WORKDIR/dummysys/etc/group
 
-        grep '^[^:]*:[^:]*:[0-9]:' /etc/group > $WORKDIR/dummysys/etc/group
-        grep '^[^:]*:[^:]*:[0-9][0-9]:' /etc/group >> $WORKDIR/dummysys/etc/group
-        grep '^[^:]*:[^:]*:[0-9][0-9][0-9]:' /etc/group >> $WORKDIR/dummysys/etc/group
-        grep '^[^:]*:[^:]*:[3-9][0-9][0-9][0-9][0-9]:' /etc/group >> $WORKDIR/dummysys/etc/group
+        pwconv -R $WORKDIR/dummysys
+        grpconv -R $WORKDIR/dummysys
 
-        grep '^[^:]*:[^:]*:[5-9][0-9][0-9]:' /etc/passwd | awk -F ":" '{print $1}'> $WORKDIR/tmpusers1
-        grep '^[^:]*:[^:]*:[1-9][0-9][0-9][0-9]:' /etc/passwd | awk -F ":" '{print $1}'> $WORKDIR/tmpusers2
-        grep '^[^:]*:[^:]*:[1-2][0-9][0-9][0-9][0-9]:' /etc/passwd | awk -F ":" '{print $1}'> $WORKDIR/tmpusers3
 
-        cat $WORKDIR/tmpusers1 $WORKDIR/tmpusers2 $WORKDIR/tmpusers3 > $WORKDIR/tmpusers
-        rm -f $WORKDIR/tmpusers[0-9] &> /dev/null
+        #cat $WORKDIR/tmpusers1 $WORKDIR/tmpusers2 $WORKDIR/tmpusers3 > $WORKDIR/tmpusers
+        #rm -f $WORKDIR/tmpusers[0-9] &> /dev/null
 
         #cp /etc/shadow $WORKDIR/dummysys/etc/shadow
         #cp /etc/gshadow $WORKDIR/dummysys/etc/gshadow
 
-        cat $WORKDIR/tmpusers | while read LINE ;do
+        #cat $WORKDIR/tmpusers | while read LINE ;do
 
-            echo $LINE | xargs -i sed -e 's/,{}$//g' $WORKDIR/dummysys/etc/group > $WORKDIR/dummysys/etc/group.new1
-            echo $LINE | xargs -i sed -e 's/,{},/,/g' $WORKDIR/dummysys/etc/group.new1 > $WORKDIR/dummysys/etc/group.new2
-            echo $LINE | xargs -i sed -e 's/:{}$/:/g' $WORKDIR/dummysys/etc/group.new2 > $WORKDIR/dummysys/etc/group.new3
-            echo $LINE | xargs -i sed -e 's/:{},/:/g' $WORKDIR/dummysys/etc/group.new3 > $WORKDIR/dummysys/etc/group
+            #echo $LINE | xargs -i sed -e 's/,{}$//g' $WORKDIR/dummysys/etc/group > $WORKDIR/dummysys/etc/group.new1
+            #echo $LINE | xargs -i sed -e 's/,{},/,/g' $WORKDIR/dummysys/etc/group.new1 > $WORKDIR/dummysys/etc/group.new2
+            #echo $LINE | xargs -i sed -e 's/:{}$/:/g' $WORKDIR/dummysys/etc/group.new2 > $WORKDIR/dummysys/etc/group.new3
+            #echo $LINE | xargs -i sed -e 's/:{},/:/g' $WORKDIR/dummysys/etc/group.new3 > $WORKDIR/dummysys/etc/group
 
             # /etc/shadow and /etc/gshadow needed for rescue mode boot root access - removed due to user creation issues for live boot
 
@@ -348,9 +283,9 @@ update-rc.d remastersys-firstboot defaults
             #echo $LINE | xargs -i sed -e 's/:{}$/:/g' $WORKDIR/dummysys/etc/gshadow.new3 > $WORKDIR/dummysys/etc/gshadow.new4
             #echo $LINE | xargs -i sed -e 's/:{},/:/g' $WORKDIR/dummysys/etc/gshadow.new4 > $WORKDIR/dummysys/etc/gshadow
 
-            rm -f $WORKDIR/dummysys/etc/group.new* &> /dev/null
+            #rm -f $WORKDIR/dummysys/etc/group.new* &> /dev/null
 
-        done
+        #done
 
     fi
 
@@ -391,7 +326,7 @@ update-rc.d remastersys-firstboot defaults
     fi
 
     log_msg "Checking the ARCH of the system and setting the README.diskdefines file"
-    ARCH=`archdetect | awk -F "/" '{print $1}'`
+    ARCH=$(dpkg --print-architecture)
 
     cat > $WORKDIR/ISOTMP/README.diskdefines <<FOO
 #define DISKNAME  $LIVECDLABEL
@@ -415,6 +350,7 @@ FOO
     cp $WORKDIR/ISOTMP/casper/filesystem.manifest $WORKDIR/ISOTMP/casper/filesystem.manifest-desktop
     # Suggested by lkjoel from Ubuntu Forums - Joel Leclerc to remove the frontend so the Install menu item is not on the installed system
     sed -i '/ubiquity-frontend/d' $WORKDIR/ISOTMP/casper/filesystem.manifest-desktop
+    sed -i '/calamares-rbos/d' $WORKDIR/ISOTMP/casper/filesystem.manifest-desktop
 
     sleep 1
 
@@ -516,6 +452,7 @@ FOO
     # make a new initial ramdisk including the casper scripts
     log_msg "Creating a new initial ramdisk for the live system"
     mkinitramfs -o /boot/initrd.img-$KERNELVERSION $KERNELVERSION
+    sha1sum /boot/initrd.img-$KERNELVERSION > /var/lib/initramfs-tools/$KERNELVERSION
 
     log_msg "Copying your kernel and initrd for the livecd"
     cp /boot/vmlinuz-$KERNELVERSION $WORKDIR/ISOTMP/casper/vmlinuz
@@ -640,9 +577,17 @@ FOO
 
 iso (){
 
-    CREATEISO="`which mkisofs`"
+    CREATEISO="`which xorrisofs`"
+    CREATEISOHASEFI=1
+    if [ "$CREATEISO" = "" ]; then
+        CREATEISO="`which mkisofs`"
+        CREATEISOHASEFI=0
+        log_msg "xorrisofs not found. using mkisofs, which may not support EFI on all distribtions"
+    fi
     if [ "$CREATEISO" = "" ]; then
         CREATEISO="`which genisoimage`"
+        CREATEISOHASEFI=0
+        log_msg "xorrisofs not found. using genisoimage, which may not support EFI on all distribtions"
     fi
 
     # check to see if the cd filesystem exists
@@ -664,13 +609,99 @@ iso (){
     touch $WORKDIR/ISOTMP/ubuntu
     touch $WORKDIR/ISOTMP/.disk/base_installable
     echo "full_cd/single" > $WORKDIR/ISOTMP/.disk/cd_type
-    ARCH=`archdetect | awk -F "/" '{print $1}'`
+    ARCH=$(dpkg --print-architecture)
     # starting with 12.04 need to have correct ubuntu version or startup disk creator uses syslinux-legacy which won't work
     DISKINFONAME=`echo $LIVECDLABEL | awk '{print $1}'`
     echo $DISKINFONAME $DISTRIB_RELEASE - Release $ARCH > $WORKDIR/ISOTMP/.disk/info
     echo $LIVECDURL > $WORKDIR/ISOTMP/.disk/release_notes_url
 
-    # Step 7 - Make md5sum.txt for the files on the livecd - this is used during the
+    # Step 7 - Make the EFI bootloader #i386=ia32, x86_64/amd64=x64 arm=arm arm64=aa64
+
+    #Get the current architecture, and set arrays for each architecture the CPU supports. 
+    #(a 32 bit ISO might be started on a 64 bit only EFI, a 64 bit computers have 32 bit only EFIs)
+    cd $WORKDIR/efibuild
+    if [[ $ARCH == i386 ]]
+    then
+      EFIARCHPREFIXES=(ia32 x64)
+      GRUBARCHPREFIXES=(i386 x86_64)
+      ARCHHASEFI=1
+    elif [[ $ARCH == amd64 ]]
+    then
+      EFIARCHPREFIXES=(ia32 x64)
+      GRUBARCHPREFIXES=(i386 x86_64)
+      ARCHHASEFI=1
+    else
+      log_msg "The current architecture, $ARCH, either does not support have EFI support, or does not have the prefixes defined in the script"
+      ARCHHASEFI=0
+    fi
+
+    #determine if the grub files needed for each arch are installed or not
+    INSTALLEDGRUBEFIARCHES=()
+    INSTALLEDEFIARCHPREFIXES=()
+    for (( i=0; i<${#GRUBARCHPREFIXES[@]}; i++ ))
+    do
+        ls /usr/lib/grub/${GRUBARCHPREFIXES[$i]}-efi &>/dev/null
+        if [[ $? == 0 ]]
+        then
+            INSTALLEDGRUBEFIARCHES+=(${GRUBARCHPREFIXES[$i]})
+            INSTALLEDEFIARCHPREFIXES+=(${EFIARCHPREFIXES[$i]})
+        else 
+            echo "EFI Support for ${GRUBARCHPREFIXES[$i]} not installed, skipping"
+        fi
+    done
+    
+    #If the iso creator supports efi, the cpu architecture supports efi, and there is at least 1 compatible package for grub and EFI, then build EFI
+    if [[ $CREATEISOHASEFI == 1 && $ARCHHASEFI == 1 && ${#INSTALLEDGRUBEFIARCHES[@]} != 0  ]]
+    then
+      BUILDEFI=1
+    fi
+    
+    if [[ $BUILDEFI == 1 ]]
+    then
+      log_msg "Creating GRUB images for EFI boot"
+      #Create the config file
+      echo "search --set=root --label $LIVECDLABEL"                      > ./grub.cfg
+#      echo "set gfxmode=auto"                                           >> ./grub.cfg
+#      echo "insmod all_video"                                           >> ./grub.cfg
+#      echo "insmod gfxterm"                                             >> ./grub.cfg
+#      echo "insmod png"                                                 >> ./grub.cfg
+#      echo "terminal_output gfxterm"                                    >> ./grub.cfg
+#      echo "loadfont (memdisk)/boot/grub/fonts/unicode.pf2"             >> ./grub.cfg
+#      echo "set color_normal=white/black"                               >> ./grub.cfg
+#      echo "set gfxpayload=keep"                                        >> ./grub.cfg
+      echo "syslinux_configfile (\$root)/isolinux/isolinux.cfg"         >> ./grub.cfg
+
+      #Build each supported EFI image
+      IMAGESIZE=0
+      for (( i=0; i<${#INSTALLEDGRUBEFIARCHES[@]}; i++ ))
+      do
+        EFIFILENAME=boot${INSTALLEDEFIARCHPREFIXES[$i]}.efi
+        grub-mkstandalone -o $EFIFILENAME -O ${INSTALLEDGRUBEFIARCHES[$i]}-efi --compress=gz --modules="part_gpt part_msdos iso9660" "boot/grub/grub.cfg=./grub.cfg"
+        (( IMAGESIZE+=$(( $(du -b -c $EFIFILENAME | tail -1| cut -f 1)  )) ))
+      done
+
+      #Make the number of sectors (with 512b a sector) divisible by 32, by getting the next largest possible size, add a padding of 32*8 sectors, and then get the number of bytes
+      IMAGESIZE=$(( ( ($IMAGESIZE/512) + (32 - ($IMAGESIZE/512) %32 ) + 256 ) * 512 ))
+
+      log_msg "Creating FAT file system image for EFI boot" 
+      #Create the FAT filesystem
+      dd if=/dev/zero of=efiboot.img seek=$IMAGESIZE bs=1 count=0
+      #Ensure 512 bytes a sector, use FAT12 as that's what other EFI alt boot images appear to be. The bootloader should at most be a few MB, so FAT12 is fine
+      mkfs.vfat efiboot.img -v -S 512 -F 12
+      mmd -i efiboot.img ::/efi
+      mmd -i efiboot.img ::/efi/boot
+      
+      #Copy all built EFI images to the EFI FAT file system
+      for (( i=0; i<${#INSTALLEDEFIARCHPREFIXES[@]}; i++ ))
+      do
+        mcopy -i efiboot.img boot${INSTALLEDEFIARCHPREFIXES[$i]}.efi ::/efi/boot
+      done
+      
+      mkdir -p $WORKDIR/ISOTMP/boot/EFI/
+      cp efiboot.img $WORKDIR/ISOTMP/boot/EFI/grub.efi
+    fi
+    
+    # Step 8 - Make md5sum.txt for the files on the livecd - this is used during the
     # checking function of the livecd
     log_msg "Creating md5sum.txt for the livecd/dvd"
     cd $WORKDIR/ISOTMP && find . -type f -print0 | xargs -0 md5sum > md5sum.txt
@@ -684,9 +715,14 @@ iso (){
 
     sleep 1
 
-    # Step 8 - Make the ISO file
+    # Step 9 - Make the ISO file
     log_msg "Creating $CUSTOMISO in $WORKDIR"
-    $CREATEISO -iso-level 3 -quiet -r -V "$LIVECDLABEL" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $WORKDIR/$CUSTOMISO "$WORKDIR/ISOTMP" 2>>$WORKDIR/remastersys.log 1>>$WORKDIR/remastersys.log
+    if [[ $BUILDEFI == 1 ]]
+    then
+      $CREATEISO -iso-level 3 -quiet -r -V "$LIVECDLABEL" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -eltorito-alt-boot -e boot/EFI/grub.efi -no-emul-boot -o $WORKDIR/$CUSTOMISO "$WORKDIR/ISOTMP" 2>>$WORKDIR/remastersys.log 1>>$WORKDIR/remastersys.log
+    else
+      $CREATEISO -iso-level 3 -quiet -r -V "$LIVECDLABEL" -cache-inodes -J -l -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o $WORKDIR/$CUSTOMISO "$WORKDIR/ISOTMP" 2>>$WORKDIR/remastersys.log 1>>$WORKDIR/remastersys.log
+    fi
     if [ ! -f $WORKDIR/$CUSTOMISO ]; then
         log_msg "The iso was not created. There was a problem. Exiting"
         exit 1
@@ -694,7 +730,12 @@ iso (){
     
     # Make the iso hybrid so it can be simply dd copied to a usb flash drive.
     log_msg "Making $CUSTOMISO a hybrid iso"
-    isohybrid $WORKDIR/$CUSTOMISO
+    if [[ $BUILDEFI == 1 ]]
+    then
+      isohybrid -u $WORKDIR/$CUSTOMISO
+    else
+      isohybrid $WORKDIR/$CUSTOMISO
+    fi
 
     # create the md5 sum file so the user doesn't have to - this is good so the iso
     # file can later be tested to ensure it hasn't become corrupted
