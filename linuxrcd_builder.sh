@@ -15,12 +15,95 @@
 #
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+#If user presses CTRL+C, kill any namespace, remove the lock file, exit the script
+trap 'kill -9 $ROOTPID; rm "$BUILDLOCATION"/build/"$BUILDARCH"/lockfile; exit' 2
+
+#Function to start all arguments as a command in a seperate PID and mount namespace
+function NAMESPACE_EXECUTE {
+  #Create the PID and Mount namespaces to start the command in
+  unshare -f --pid --mount --mount-proc $@ &
+  UNSHAREPID=$!
   
+  #Get the PID of the unshared process, which is pid 1 for the namespace, wait at the very most 1 minute for the process to start, 120 attempts with half 1 second intervals.
+  #Abort if not started in 1 minute
+  for (( element = 0 ; element < 120 ; element++ ))
+  do
+    ROOTPID=$(pgrep -P $UNSHAREPID)
+    if [[ ! -z $ROOTPID ]]
+    then
+      break
+    fi
+    sleep .5
+  done
+  if [[ -z $ROOTPID ]]
+  then
+    echo "The main namespace process failed to start, in 1 minute. This should not take that long"
+    exit
+  fi
+  
+  #Wait for the PID to complete
+  wait $UNSHAREPID
+}
+
 
 SCRIPTFILEPATH=$(readlink -f "$0")
 SCRIPTFOLDERPATH=$(dirname "$SCRIPTFILEPATH")
 
 export BUILDLOCATION=~/LRCD_Build_Files
+
+#make a folder containing the live cd tools in the users local folder
+mkdir -p "$BUILDLOCATION"
+
+#switch to that folder
+cd "$BUILDLOCATION"
+
+echo "Build script for LinuxRCD The build process requires no user interaction, apart from specifing the build architecture, and sending a keystroke to confirm to starting the build process.
+
+
+"
+
+export BUILDARCH=$(echo $1| awk -F = '{print $2}')
+if [[ -z "$BUILDARCH" ]]
+then
+  echo "Select Arch. Enter 1 for i386, 2 for amd64, 3 for custom. Default=i386."
+  echo "The arch can also be selected by passing BUILDARCH=(architecture) as the first argument."
+  read archselect
+  if [[ $archselect == 2 ]]
+  then
+    export BUILDARCH=amd64
+  elif [[ $archselect == 3 ]]
+  then
+    echo "Enter custom CPU arch. Please ensure your processor is capable of running the selected architecture."
+    read BUILDARCH
+    export BUILDARCH
+  else
+    export BUILDARCH=i386
+  fi
+else 
+  SKIPPROMPT=1
+fi
+
+
+#Detect another instance, by creating a testing a lockfile, which is a symlink to /proc/pid/cmdline, and making sure the second line of /proc/pid/cmdline matches (as it's the path to the script).
+ls $(readlink -f "$BUILDLOCATION"/build/"$BUILDARCH"/lockfile) &> /dev/null
+result=$?
+if [[ $result != 0 || ! -e "$BUILDLOCATION"/build/"$BUILDARCH"/lockfile  ]]
+then
+  rm "$BUILDLOCATION"/build/"$BUILDARCH"/lockfile &> /dev/null
+  "$BUILDLOCATION"/build/"$BUILDARCH"/lockfile 2>/dev/null
+  ln -s /proc/"$$"/cmdline "$BUILDLOCATION"/build/"$BUILDARCH"/lockfile
+else
+  echo "Error: Another instance is already running for $BUILDARCH"
+  exit
+fi
+
+#Create the placeholder for the revisions import, so that it's easy for the user to get the name correct. It is only used if it's more than 0 bytes
+if [[ ! -e "$BUILDLOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt ]]
+then
+  touch "$BUILDLOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt
+fi
 
 #####Tell User what script does
 echo "
@@ -31,23 +114,28 @@ NOTE THAT THE FOLDERS LISTED BELOW ARE DELETED OR OVERWRITTEN ALONG WITH THE CON
    File:              ${HOME}/LinuxRCD_Revisions_i386.txt or ${HOME}/LinuxRCD_Revisions_amd64.txt
 "
 
-
-
-
-
 echo "PLEASE READ ALL TEXT ABOVE. YOU CAN SCROLL BY USING SHIFT-PGUP or SHIFT-PGDOWN (OR THE SCROLL WHEEL OR SCROLL BAR IF AVALIBLE) AND THEN PRESS ENTER TO CONTINUE..."
 
-read a
 
-echo "Select Arch. Enter 1 for i386, 2 for amd64. Default=i386."
-read archselect
-if [[ $archselect == 2 ]]
+echo "If you want to build revisions specified in a list file from a previous build, overwrite 
+
+     "$BUILDLOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt 
+
+with the requested revisions file generated from a previous build, or a downloaded instance. 
+
+Although the files have the CPU architecture as the suffix in the file name, there is nothing CPU dependant in them, and the suffix only exists to identify them. 
+For example LinuxRCD_Revisions_amd64.txt can be used in "$BUILDLOCATION"/LinuxRCD_Revisions_i386.txt 
+
+Ensure the file is copied, and not moved, as it is treated as a one time control file, and deleted after the next run."
+
+if [[ $SKIPPROMPT != 1 ]]
 then
-  export BUILDARCH=amd64
+  echo "Most users can ignore this message. Press Enter to continue..."
+  read wait
 else
-  export BUILDARCH=i386
+  echo "Most users can ignore this message. The build process will start in 5 seconds"
+  sleep 5
 fi
-
 STARTTIME=$(date +%s)
 
 #prepare debootstrap
@@ -95,123 +183,87 @@ echo "Setting up live system..."
 
 REBUILT="to update"
 
-#This function unmounts all known mountpoints created by all of the scripts in externalbuilders
-function UnmountAll()
-{
-#unmount the chrooted procfs from the outside 
-umount -lf "$BUILDLOCATION"/build/$BUILDARCH/workdir/proc
-
-#unmount the chrooted sysfs from the outside
-umount -lf "$BUILDLOCATION"/build/$BUILDARCH/workdir/sys
-
-#unmount the chrooted devfs from the outside 
-umount -lf "$BUILDLOCATION"/build/$BUILDARCH/workdir/dev
-
-#unmount the external archive folder
-umount -lf "$BUILDLOCATION"/build/$BUILDARCH/workdir/var/cache/apt/archives
-umount -lf "$BUILDLOCATION"/build/$BUILDARCH/phase_1/var/cache/apt/archives
-umount -lf "$BUILDLOCATION"/build/$BUILDARCH/phase_2/var/cache/apt/archives
-
-#unmount the debs data
-umount -lf "$BUILDLOCATION"/build/$BUILDARCH/workdir/srcbuild/buildoutput
-
-#unmount the source download folder
-umount -lf "$BUILDLOCATION"/build/$BUILDARCH/workdir/srcbuild
-
-#unmount the cache /var/tmp folder
-umount -lf "$BUILDLOCATION"/build/$BUILDARCH/workdir/var/tmp
-
-#unmount the cache /var/tmp folder
-umount -lf "$BUILDLOCATION"/build/$BUILDARCH/workdir/home/remastersys
-
-#unmount the FS at the workdir and phase 2
-umount -lfd "$BUILDLOCATION"/build/$BUILDARCH/workdir
-umount -lfd "$BUILDLOCATION"/build/$BUILDARCH/phase_2
-
-#Terminate processess using files in the build folder for the architecture
-lsof -t +D "$BUILDLOCATION"/build/$BUILDARCH |while read PID 
-do 
-kill -9 $PID
-done
-}
-
-UnmountAll
-
 #Delete buildoutput based on a control file
-if [[ ! -f "$BUILDLOCATION"/DontRestartBuildoutput$BUILDARCH ]]
+if [[ ! -f "$BUILDLOCATION"/DontRestartBuildoutput"$BUILDARCH" ]]
 then
-  rm -rf "$BUILDLOCATION"/build/$BUILDARCH/buildoutput
-  mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/buildoutput
-  touch "$BUILDLOCATION"/DontRestartBuildoutput$BUILDARCH
+  rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput
+  mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput
+  touch "$BUILDLOCATION"/DontRestartBuildoutput"$BUILDARCH"
 fi
 
 #Delete archives based on a control file
-if [[ ! -f "$BUILDLOCATION"/DontRestartArchives$BUILDARCH ]]
+if [[ ! -f "$BUILDLOCATION"/DontRestartArchives"$BUILDARCH" ]]
 then
-  rm -rf "$BUILDLOCATION"/build/$BUILDARCH/archives
-  mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/archives
-  touch "$BUILDLOCATION"/DontRestartArchives$BUILDARCH
+  rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/archives
+  mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/archives
+  touch "$BUILDLOCATION"/DontRestartArchives"$BUILDARCH"
+fi
+
+#Delete downloaded source based on a control file
+if [[ ! -f "$BUILDLOCATION"/DontRestartSourceDownload"$BUILDARCH" ]]
+then
+  rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild
+  mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild
+  touch "$BUILDLOCATION"/DontRestartSourceDownload"$BUILDARCH"
 fi
 
 #Only run phase0 if phase1 and phase2 are going to be reset. phase0 only resets 
-if [[ ! -f "$BUILDLOCATION"/DontStartFromScratch$BUILDARCH || ! -f "$BUILDLOCATION"/DontRestartPhase1$BUILDARCH || ! -f "$BUILDLOCATION"/DontRestartPhase2$BUILDARCH ]]
+if [[ ! -f "$BUILDLOCATION"/DontStartFromScratch"$BUILDARCH" || ! -f "$BUILDLOCATION"/DontRestartPhase1"$BUILDARCH" || ! -f "$BUILDLOCATION"/DontRestartPhase2"$BUILDARCH" ]]
 then
   #if set to rebuild phase 1
-  if [ ! -f "$BUILDLOCATION"/DontRestartPhase1$BUILDARCH ]
+  if [ ! -f "$BUILDLOCATION"/DontRestartPhase1"$BUILDARCH" ]
   then
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/phase_1/*
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/*
   fi
 
   #if set to rebuild phase 2
-  if [ ! -f "$BUILDLOCATION"/DontRestartPhase2$BUILDARCH ]
+  if [ ! -f "$BUILDLOCATION"/DontRestartPhase2"$BUILDARCH" ]
   then
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/phase_2/*
-    mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/phase_2/tmp
-    touch "$BUILDLOCATION"/build/$BUILDARCH/phase_2/tmp/INSTALLS.txt.bak
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/*
+    mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/tmp
+    touch "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/tmp/INSTALLS.txt.bak
   fi
 
-  if [ ! -f "$BUILDLOCATION"/DontStartFromScratch$BUILDARCH ]
+  if [ ! -f "$BUILDLOCATION"/DontStartFromScratch"$BUILDARCH" ]
   then
     #clean up old files
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/phase_1
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/phase_2
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/phase_3
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/workdir
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/importdata
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/vartmp
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/remastersys
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/buildoutput
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/archives
-    rm -rf "$BUILDLOCATION"/build/$BUILDARCH/srcbuild
-    rm "$BUILDLOCATION"/DontRestartPhase1$BUILDARCH
-    rm "$BUILDLOCATION"/DontRestartPhase2$BUILDARCH
-    touch "$BUILDLOCATION"/DontStartFromScratch$BUILDARCH
-    mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/phase_2/tmp
-    touch "$BUILDLOCATION"/build/$BUILDARCH/phase_2/tmp/INSTALLS.txt.bak
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/importdata
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/vartmp
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/remastersys
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/archives
+    rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild
+    rm "$BUILDLOCATION"/DontRestartPhase1"$BUILDARCH"
+    rm "$BUILDLOCATION"/DontRestartPhase2"$BUILDARCH"
+    touch "$BUILDLOCATION"/DontStartFromScratch"$BUILDARCH"
+    mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/tmp
+    touch "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/tmp/INSTALLS.txt.bak
     REBUILT="to rebuild from scratch"
   fi
-  "$SCRIPTFOLDERPATH"/externalbuilders/linuxrcd_phase0.sh
+  NAMESPACE_EXECUTE "$SCRIPTFOLDERPATH"/externalbuilders/linuxrcd_phase0.sh
 fi
 
 #run the build scripts
-UnmountAll
-"$SCRIPTFOLDERPATH"/externalbuilders/linuxrcd_phase1.sh 
-UnmountAll
-"$SCRIPTFOLDERPATH"/externalbuilders/linuxrcd_phase2.sh  
-UnmountAll
-"$SCRIPTFOLDERPATH"/externalbuilders/linuxrcd_phase3.sh 
-UnmountAll
+NAMESPACE_EXECUTE "$SCRIPTFOLDERPATH"/externalbuilders/linuxrcd_phase1.sh 
+NAMESPACE_EXECUTE "$SCRIPTFOLDERPATH"/externalbuilders/linuxrcd_phase2.sh  
+NAMESPACE_EXECUTE "$SCRIPTFOLDERPATH"/externalbuilders/linuxrcd_phase3.sh 
 
 
 echo "CLEANUP PHASE 3"  
 
 #Clean up Phase 3 data.
-rm -rf "$BUILDLOCATION"/build/$BUILDARCH/phase_3/*
-rm -rf "$BUILDLOCATION"/build/$BUILDARCH/vartmp
-rm -rf "$BUILDLOCATION"/build/$BUILDARCH/remastersys
-rm -rf "$BUILDLOCATION"/build/$BUILDARCH/importdata
-"$SCRIPTFOLDERPATH"/externalbuilders/cleanup_srcbuild.sh
-UnmountAll
+rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3/*
+rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/vartmp
+rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/remastersys
+rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild/buildhome/
+NAMESPACE_EXECUTE "$SCRIPTFOLDERPATH"/externalbuilders/cleanup_srcbuild.sh
+rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/importdata
+
+rm "$BUILDLOCATION"/build/"$BUILDARCH"/lockfile 
 
 ENDTIME=$(date +%s)
 echo "build finished in $((ENDTIME-STARTTIME)) seconds $REBUILT"

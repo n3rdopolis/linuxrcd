@@ -19,63 +19,114 @@ echo "PHASE 1"
 SCRIPTFILEPATH=$(readlink -f "$0")
 SCRIPTFOLDERPATH=$(dirname "$SCRIPTFILEPATH")
 
+HASOVERLAYFS=$(grep -c overlay$ /proc/filesystems)
+if [[ $HASOVERLAYFS == 0 ]]
+then
+  HASOVERLAYFSMODULE=$(modprobe -n overlay; echo $?)
+  if [[ $HASOVERLAYFSMODULE == 0 ]]
+  then
+    HASOVERLAYFS=1
+  fi
+fi
+
 unset HOME
 
-if [[ -z $BUILDARCH || -z $BUILDLOCATION || $UID != 0 ]]
+if [[ -z "$BUILDARCH" || -z $BUILDLOCATION || $UID != 0 ]]
 then
   echo "BUILDARCH variable not set, or BUILDLOCATION not set, or not run as root. This external build script should be called by the main build script."
   exit
 fi
 
 #create a folder for the media mountpoints in the media folder
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/phase_1
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/phase_2
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/phase_3
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/srcbuild/buildoutput
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/buildoutput
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/workdir
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/archives
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild/buildoutput
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/archives
 
+#Ensure that all the mountpoints in the namespace are private, and won't be shared to the main system
+mount --make-rprivate /
 
 #copy in the files needed
-rm -rf "$BUILDLOCATION"/build/$BUILDARCH/importdata/
-rsync "$SCRIPTFOLDERPATH"/../linuxrcd_files/* -Cr "$BUILDLOCATION"/build/$BUILDARCH/importdata/
+rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/
+rsync "$SCRIPTFOLDERPATH"/../linuxrcd_files/* -Cr "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/
+rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/exportsource/
+rsync "$SCRIPTFOLDERPATH"/../* -Cr "$BUILDLOCATION"/build/"$BUILDARCH"/exportsource
+
+#Support importing the control file to use fixed revisions of the source code
+rm "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/tmp/buildcore_revisions.txt
+rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/buildcore_revisions.txt
+rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/tmp/buildcore_revisions.txt
+rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3/tmp/buildcore_revisions.txt
+if [ -s "$BUILDLOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt ]
+then
+  cp "$BUILDLOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/tmp/buildcore_revisions.txt
+  rm "$BUILDLOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt
+  touch "$BUILDLOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt
+fi
 
 #delete old logs
-rm -r "$BUILDLOCATION"/build/$BUILDARCH/phase_1/usr/share/logs/*
+rm -r "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/usr/share/logs/*
 
 #copy the dselect data saved in phase 2 into phase 1
-cp "$BUILDLOCATION"/build/$BUILDARCH/phase_2/tmp/INSTALLSSTATUS.txt "$BUILDLOCATION"/build/$BUILDARCH/phase_1/tmp/INSTALLSSTATUS.txt
+cp "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/tmp/INSTALLSSTATUS.txt "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/INSTALLSSTATUS.txt
 
 #make the imported files executable 
-chmod 0755 -R "$BUILDLOCATION"/build/$BUILDARCH/importdata/
-chown  root  -R "$BUILDLOCATION"/build/$BUILDARCH/importdata/
-chgrp  root  -R "$BUILDLOCATION"/build/$BUILDARCH/importdata/
+chmod 0755 -R "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/
+chown  root  -R "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/
+chgrp  root  -R "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/
 
-#bind mount phase1 to the workdir. 
-mount --rbind "$BUILDLOCATION"/build/$BUILDARCH/phase_1 "$BUILDLOCATION"/build/$BUILDARCH/workdir
+if [[ $HASOVERLAYFS == 0 ]]
+then
+  #bind mount phase1 to the workdir. 
+  mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1 "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
+  OLDPWD=$PWD
+  cd "$BUILDLOCATION"/build/"$BUILDARCH"/importdata
+  RESULT=$?
+    if [[ $RESULT == 0 ]]
+    then
+      find | grep -v ^./etc | while read FILE 
+      do
+	rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/"$FILE" &> /dev/null
+      done
+    fi
+  cd $OLDPWD
+  rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/usr/bin/Compile/*
+  #copy the files to where they belong
+  rsync "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/* -Cr "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/ 
+else
+  #Union mount importdata and phase1
+  mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/unionwork
+  mount -t overlay overlay -o lowerdir="$BUILDLOCATION"/build/"$BUILDARCH"/importdata,upperdir="$BUILDLOCATION"/build/"$BUILDARCH"/phase_1,workdir="$BUILDLOCATION"/build/"$BUILDARCH"/unionwork "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
+fi
 
 #mounting critical fses on chrooted fs with bind 
-mount --rbind /dev "$BUILDLOCATION"/build/$BUILDARCH/workdir/dev/
-mount --rbind /proc "$BUILDLOCATION"/build/$BUILDARCH/workdir/proc/
-mount --rbind /sys "$BUILDLOCATION"/build/$BUILDARCH/workdir/sys/
+mount --rbind /dev "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/dev
+mount --rbind /proc "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/proc
+mount --rbind /sys "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/sys
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/run/shm
+mount --bind /run/shm "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/run/shm
 
 #Mount in the folder with previously built debs
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/workdir/srcbuild/buildoutput
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/workdir/var/cache/apt/archives
-mount --rbind "$BUILDLOCATION"/build/$BUILDARCH/srcbuild "$BUILDLOCATION"/build/$BUILDARCH/workdir/srcbuild
-mount --rbind "$BUILDLOCATION"/build/$BUILDARCH/buildoutput "$BUILDLOCATION"/build/$BUILDARCH/workdir/srcbuild/buildoutput
-mount --rbind "$BUILDLOCATION"/build/$BUILDARCH/archives "$BUILDLOCATION"/build/$BUILDARCH/workdir/var/cache/apt/archives
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild/buildoutput
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/var/cache/apt/archives
+mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild
+mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild/buildoutput
+mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/archives "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/var/cache/apt/archives
 
-#copy the files to where they belong
-rsync "$BUILDLOCATION"/build/$BUILDARCH/importdata/* -Cr "$BUILDLOCATION"/build/$BUILDARCH/workdir/ 
 
 
 #Configure the Live system########################################
-if [[ $BUILDARCH == i386 ]]
+TARGETBITSIZE=$(chroot "$BUILDLOCATION"/build/"$BUILDARCH"/workdir /usr/bin/getconf LONG_BIT)
+if [[ $TARGETBITSIZE == 32 ]]
 then
-  linux32 chroot "$BUILDLOCATION"/build/$BUILDARCH/workdir /tmp/configure_phase1.sh
+  linux32 chroot "$BUILDLOCATION"/build/"$BUILDARCH"/workdir /tmp/configure_phase1.sh
+elif [[ $TARGETBITSIZE == 64 ]]
+then
+  linux64 chroot "$BUILDLOCATION"/build/"$BUILDARCH"/workdir /tmp/configure_phase1.sh
 else
-  chroot "$BUILDLOCATION"/build/$BUILDARCH/workdir /tmp/configure_phase1.sh
+  echo "chroot execution failed. Please ensure your processor can handle the "$BUILDARCH" architecture, or that the target system isn't corrupt."
 fi

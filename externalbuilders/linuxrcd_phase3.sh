@@ -143,11 +143,15 @@ rm -rf "$BUILDLOCATION"/build/$BUILDARCH/workdir/temp/
 
 
 #Configure the Live system########################################
-if [[ $BUILDARCH == i386 ]]
+TARGETBITSIZE=$(chroot "$BUILDLOCATION"/build/"$BUILDARCH"/workdir /usr/bin/getconf LONG_BIT)
+if [[ $TARGETBITSIZE == 32 ]]
 then
-  linux32 chroot "$BUILDLOCATION"/build/$BUILDARCH/workdir /tmp/configure_phase3.sh
+  linux32 chroot "$BUILDLOCATION"/build/"$BUILDARCH"/workdir /tmp/configure_phase3.sh
+elif [[ $TARGETBITSIZE == 64 ]]
+then
+  linux64 chroot "$BUILDLOCATION"/build/"$BUILDARCH"/workdir /tmp/configure_phase3.sh
 else
-  chroot "$BUILDLOCATION"/build/$BUILDARCH/workdir /tmp/configure_phase3.sh
+  echo "chroot execution failed. Please ensure your processor can handle the "$BUILDARCH" architecture, or that the target system isn't corrupt."
 fi
 
 

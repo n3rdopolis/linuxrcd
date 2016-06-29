@@ -18,46 +18,73 @@
 SCRIPTFILEPATH=$(readlink -f "$0")
 SCRIPTFOLDERPATH=$(dirname "$SCRIPTFILEPATH")
 
+HASOVERLAYFS=$(grep -c overlay$ /proc/filesystems)
+if [[ $HASOVERLAYFS == 0 ]]
+then
+  HASOVERLAYFSMODULE=$(modprobe -n overlay; echo $?)
+  if [[ $HASOVERLAYFSMODULE == 0 ]]
+  then
+    HASOVERLAYFS=1
+  fi
+fi
+
 HOMELOCATION=~
 unset HOME
 
-if [[ -z $BUILDARCH || -z "$BUILDLOCATION" || $UID != 0 ]]
+if [[ -z "$BUILDARCH" || -z "$BUILDLOCATION" || $UID != 0 ]]
 then
   echo "BUILDARCH variable not set, or BUILDLOCATION not set, or not run as root. This external build script should be called by the main build script."
   exit
 fi
 
 #create a folder for the media mountpoints in the media folder
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/phase_1
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/phase_2
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/phase_3
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/srcbuild/buildoutput
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/buildoutput
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/workdir
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/archives
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/remastersys
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/vartmp
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild/buildoutput
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/archives
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/remastersys
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/vartmp
+
+#Ensure that all the mountpoints in the namespace are private, and won't be shared to the main system
+mount --make-rprivate /
 
 #Use phase_1 as the system to cleanup srcbuild
-mount --rbind "$BUILDLOCATION"/build/$BUILDARCH/phase_1 "$BUILDLOCATION"/build/$BUILDARCH/workdir
-
+if [[ $HASOVERLAYFS == 0 ]]
+then
+  #bind mount phase1 to the workdir. 
+  mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1 "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
+  rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/usr/bin/Compile/*
+  #copy the files to where they belong
+  rsync "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/* -Cr "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/ 
+else
+  #Union mount importdata and phase1
+  mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/unionwork
+  mount -t overlay overlay -o lowerdir="$BUILDLOCATION"/build/"$BUILDARCH"/importdata,upperdir="$BUILDLOCATION"/build/"$BUILDARCH"/phase_1,workdir="$BUILDLOCATION"/build/"$BUILDARCH"/unionwork "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
+fi
 
 #mounting critical fses on chrooted fs with bind 
-mount --rbind /dev "$BUILDLOCATION"/build/$BUILDARCH/workdir/dev/
-mount --rbind /proc "$BUILDLOCATION"/build/$BUILDARCH/workdir/proc/
-mount --rbind /sys "$BUILDLOCATION"/build/$BUILDARCH/workdir/sys/
+mount --rbind /dev "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/dev
+mount --rbind /proc "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/proc
+mount --rbind /sys "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/sys
 
 #Mount in the folder with previously built debs
-mkdir -p "$BUILDLOCATION"/build/$BUILDARCH/workdir/srcbuild/buildoutput
-mount --rbind "$BUILDLOCATION"/build/$BUILDARCH/srcbuild "$BUILDLOCATION"/build/$BUILDARCH/workdir/srcbuild
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild/buildoutput
+mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild
 
 
 
 #Call compile_all to cleanup srcbuild########################################
-if [[ $BUILDARCH == i386 ]]
+TARGETBITSIZE=$(chroot "$BUILDLOCATION"/build/"$BUILDARCH"/workdir /usr/bin/getconf LONG_BIT)
+if [[ $TARGETBITSIZE == 32 ]]
 then
-  linux32 chroot "$BUILDLOCATION"/build/$BUILDARCH/workdir /usr/bin/compile_all clean
+  linux32 chroot "$BUILDLOCATION"/build/"$BUILDARCH"/workdir /usr/bin/compile_all clean
+elif [[ $TARGETBITSIZE == 64 ]]
+then
+  linux64 chroot "$BUILDLOCATION"/build/"$BUILDARCH"/workdir /usr/bin/compile_all clean
 else
-  chroot "$BUILDLOCATION"/build/$BUILDARCH/workdir /usr/bin/compile_all clean
+  echo "chroot execution failed. Please ensure your processor can handle the "$BUILDARCH" architecture, or that the target system isn't corrupt."
 fi
