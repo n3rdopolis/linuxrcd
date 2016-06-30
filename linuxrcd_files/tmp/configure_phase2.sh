@@ -58,7 +58,7 @@ adduser --no-create-home --disabled-password --system --force-badname _apt
 ln -s ../run/resolvconf/resolv.conf /etc/resolv.conf 
 
 #install basic applications that the system needs to get repositories and packages
-apt-get install aptitude git bzr subversion mercurial wget dselect locales -y --force-yes 
+apt-get install aptitude git bzr subversion mercurial wget dselect locales -y --force-yes --no-install-recommends
 
 #perl outputs complaints if a locale isn't generated
 locale-gen en_US.UTF-8

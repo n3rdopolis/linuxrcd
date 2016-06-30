@@ -1,21 +1,20 @@
-aptitude::FULL
+aptitude::PART
 binutils::PART
 wget::PART
 #LanguagePacks
 language-pack-en::PART
 #
 linux-generic::PART
-gdebi::PART
 xserver-xorg::PART
 #ISO boot and live utils
 syslinux::PART
 syslinux-common::PART
 isolinux::PART
 efilinux::PART
-casper::FULL
+casper::PART
 #ubiquity::FULL
 ubiquity-casper::FULL
-ubuntu-standard::FULL
+ubuntu-standard::PART
 mkisofs::PART
 genisoimage::PART
 squashfs-tools::PART
@@ -28,7 +27,7 @@ cryptsetup::PART
 parted::PART
 #Minimal UI
 lightdm::PART
-lightdm-kde-greeter::PART
+razorqt-lightdm-greeter::PART
 xinit::PART
 lxde-common::PART
 lxde-core::PART
@@ -43,7 +42,7 @@ lxsession-edit::PART
 x11-xserver-utils::PART
 xsel::PART
 kdebase-bin::PART
-ksnapshot::PART
+spectacle::PART
 pcmanfm::PART
 lxde::PART
 xserver-xephyr::PART
