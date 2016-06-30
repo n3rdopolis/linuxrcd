@@ -68,7 +68,13 @@ btrfs-tools::PART
 xfsprogs::PART
 dmraid::PART
 kpartx::PART
-grub-common::FULL
+grub2-common::FULL
+grub-efi-ia32-bin::FULL::$DEBIAN_ARCH == i386
+grub-efi-amd64-bin::FULL::$DEBIAN_ARCH == i386
+grub-efi-ia32-bin::FULL::$DEBIAN_ARCH == amd64
+grub-efi-amd64-bin::FULL::$DEBIAN_ARCH == amd64
+grub-pc-bin::FULL
+grub-pc::FULL
 #Featued Utilities
 kuser::PART
 gparted::PART
