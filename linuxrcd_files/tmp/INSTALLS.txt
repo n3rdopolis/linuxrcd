@@ -16,6 +16,7 @@ casper::PART
 ubiquity-casper::FULL
 ubuntu-standard::PART
 mkisofs::PART
+isohybrid::PART
 genisoimage::PART
 squashfs-tools::PART
 archdetect-deb::PART
