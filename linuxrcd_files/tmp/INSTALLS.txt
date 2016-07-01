@@ -10,7 +10,6 @@ xserver-xorg::PART
 syslinux::PART
 syslinux-common::PART
 isolinux::PART
-efilinux::PART
 casper::PART
 #ubiquity::FULL
 ubiquity-casper::FULL
@@ -38,7 +37,6 @@ lxinput::PART
 lxmenu-data::PART
 lxpanel::PART
 lxrandr::PART
-lxsession-lite::PART
 lxsession-edit::PART
 x11-xserver-utils::PART
 xsel::PART
@@ -51,7 +49,7 @@ network-manager-gnome::PART
 hicolor-icon-theme::PART
 rekonq::PART
 libpango1.0-dev::PART
-plymouth-theme-spinfinity::PART
+plymouth-themes::PART
 gvfs::PART
 gvfs-backends::PART
 mtools::PART
