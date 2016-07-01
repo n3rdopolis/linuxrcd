@@ -163,14 +163,18 @@ mv /usr/share/logs	/tmp
 # remastersys dist
 # 
 # mv /home/remastersys/remastersys/custom.iso /home/remastersys/remastersys/custom-full.iso
-# 
-# 
-# 
-# #Redirect these utilitues to /bin/true during the live CD Build process. They aren't needed and cause package installs to complain
-# RedirectFile /usr/sbin/grub-probe
-# RedirectFile /sbin/initctl
-# RedirectFile /usr/sbin/invoke-rc.d
-# 
+
+#Configure dpkg
+echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/force-unsafe-io
+echo "force-confold"   > /etc/dpkg/dpkg.cfg.d/force-confold
+echo "force-confdef"   > /etc/dpkg/dpkg.cfg.d/force-confdef
+
+#Redirect these utilitues to /bin/true during the live CD Build process. They aren't needed and cause package installs to complain
+RedirectFile /usr/sbin/grub-probe
+RedirectFile /sbin/initctl
+RedirectFile /usr/sbin/invoke-rc.d
+
+
 # #This will remove my abilities to build packages from the ISO, but should make it a bit smaller
 # REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dev$"  | grep -v python-dbus-dev | grep -v dpkg-dev)
 # 
@@ -186,24 +190,29 @@ mv /usr/share/logs	/tmp
 # 
 # REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dbg:"  | grep -v python-dbus-dev | grep -v dpkg-dev)
 # apt-get purge $REMOVEDEVPGKS -y --force-yes | tee -a /tmp/logs/package_operations/removes.txt
-# 
-# REMOVEDEVPGKS="texlive-base ubuntu-docs gnome-user-guide cmake libgl1-mesa-dri-dbg libglib2.0-doc valgrind cmake-rbos smbclient freepats libc6-dbg doxygen git subversion bzr mercurial checkinstall texinfo"
-# apt-get purge $REMOVEDEVPGKS -y --force-yes | tee -a /tmp/logs/package_operations/removes.txt
-# 
-# 
-# apt-get autoremove -y --force-yes >> /tmp/logs/package_operations/removes.txt
-# 
-# #Reset the utilites back to the way they are supposed to be.
-# RevertFile /usr/sbin/grub-probe
-# RevertFile /sbin/initctl
-# RevertFile /usr/sbin/invoke-rc.d
 
-# #Reduce binary sizes
-# echo "Reducing binary file sizes"
-# find /opt/bin /opt/lib /opt/sbin | while read FILE
-# do
-#   strip $FILE 2>/dev/null
-# done
+
+#Handle these packages one at a time, as they are not automatically generated. one incorrect specification and apt-get quits. The automatic generated ones are done with one apt-get command for speed
+REMOVEDEVPGKS=(git subversion bzr mercurial)
+for (( Iterator = 0; Iterator < ${#REMOVEDEVPGKS[@]}; Iterator++ ))
+do
+  REMOVEPACKAGENAME=${REMOVEDEVPGKS[$Iterator]}
+  apt-get purge $REMOVEPACKAGENAME -y --force-yes | tee -a /tmp/logs/package_operations/Removes/$REMOVEPACKAGENAME.log
+done
+
+
+apt-get autoremove -y --force-yes >> /tmp/logs/package_operations/removes.txt
+
+
+Reset the utilites back to the way they are supposed to be.
+RevertFile /usr/sbin/grub-probe
+RevertFile /sbin/initctl
+RevertFile /usr/sbin/invoke-rc.d
+
+#set dpkg to defaults
+rm /etc/dpkg/dpkg.cfg.d/force-unsafe-io
+rm /etc/dpkg/dpkg.cfg.d/force-confold
+rm /etc/dpkg/dpkg.cfg.d/force-confdef
 
 #clean more apt stuff
 apt-get clean
