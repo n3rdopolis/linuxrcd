@@ -88,7 +88,7 @@ done
 
 
 #Find files/folders that want to be renamed                                                                
-find /build_language/file_translations/ | awk -F"/file_translations" '{print $2}'   | grep "FILEFOLDERNAME" | awk -F"/FILEFOLDERNAME" '{print $1}'  >> /tmp/renamingfiles
+find /build_language/file_translations/ | awk -F"/file_translations" '{print $2}'   | grep "FILEFOLDERNAME" | awk -F"/FILEFOLDERNAME" '{print $1}' | sort  >> /tmp/renamingfiles
 filerenamecount=$(cat /tmp/renamingfiles | wc -l)
 filerenameworkcount=$filerenamecount
 while (( $filerenameworkcount!=0))
