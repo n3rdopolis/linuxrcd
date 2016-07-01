@@ -4,7 +4,9 @@ wget::PART
 #LanguagePacks
 language-pack-en::PART
 #
-linux-generic::PART
+linux-generic::FULL::$DEBIAN_DISTRO == Ubuntu
+linux-image-$DEBIAN_ARCH::FULL::$DEBIAN_DISTRO == Debian, $DEBIAN_ARCH != i386
+linux-image-686-pae::FULL::$DEBIAN_DISTRO == Debian, $DEBIAN_ARCH == i386
 xserver-xorg::PART
 #ISO boot and live utils
 syslinux::PART
