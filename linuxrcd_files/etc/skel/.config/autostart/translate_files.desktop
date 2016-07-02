@@ -17,7 +17,7 @@
 
 [Desktop Entry]
 
-Exec=gksu translate_files
+Exec=gksudo translate_files
 MimeType=
 Name=Notify
 Path=
