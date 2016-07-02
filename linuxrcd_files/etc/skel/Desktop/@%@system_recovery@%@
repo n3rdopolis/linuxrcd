@@ -19,6 +19,6 @@
 #@@@TRANSLATABLE_FILE@@@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say: Recover an installed System~~~~~~~~~~~
 
-Exec=gksudo /usr/bin/recoverylauncher 
+Exec=sudo /usr/bin/recoverylauncher 
 Type=Application
 Icon=/usr/share/icons/oxygen/64x64/actions/configure.png
