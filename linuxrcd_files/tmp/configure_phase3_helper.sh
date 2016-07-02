@@ -43,8 +43,8 @@ cp -a /usr/import/lib/* /lib
 
 if [[ $DEBIAN_DISTRO == Debian ]]
 then
-  cp /usr/import/lib/plymouth/ubuntu_logo.png /usr/share/plymouth/debian-logo.png
-  cp -a /lib/plymouth/themes/rebeccablackos-text/ /usr/share/plymouth/themes
+  cp /usr/share/icons/oxygen/128x128/apps/system-diagnosis.png /usr/share/plymouth/debian-logo.png
+  cp -a /lib/plymouth/themes/linuxrcd-text/ /usr/share/plymouth/themes
   echo FRAMEBUFFER=y >> /etc/initramfs-tools/conf.d/splash
 fi
 

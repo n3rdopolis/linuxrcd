@@ -73,7 +73,7 @@ mkdir debian
 touch debian/control
 #remove any old deb files for this package
 rm "/srcbuild/buildoutput/"lrcd-lrcd_*.deb
-checkinstall -y -D --nodoc --dpkgflags=--force-overwrite --install=yes --backup=no --pkgname=rbos-rbos --pkgversion=1 --pkgrelease=$(date +%s)  --maintainer=rbos@rbos --pkgsource=rbos --pkggroup=rbos --requires="kde-baseapps-bin" /tmp/configure_phase3_helper.sh
+checkinstall -y -D --nodoc --dpkgflags=--force-overwrite --install=yes --backup=no --pkgname=lrcd-lrcd --pkgversion=1 --pkgrelease=$(date +%s)  --maintainer=lrcd@lrcd --pkgsource=lrcd --pkggroup=lrcd --requires="kde-baseapps-bin" /tmp/configure_phase3_helper.sh
 cp *.deb "/srcbuild/buildoutput/"
 cd $OLDPWD
 
@@ -116,11 +116,6 @@ fi
 #run the script that calls all compile scripts in a specified order, in build only mode
 compile_all build-only
 
-#configure plymouth, enable it, set the default theme, and replace the Ubuntu logo, with a fitting icon as its not an official Ubuntu disk, and can be used for other distros. 
-cp /usr/share/icons/oxygen/128x128/apps/system-diagnosis.png /lib/plymouth/ubuntu-logo.png
-echo FRAMEBUFFER=y > /etc/initramfs-tools/conf.d/splash
-update-alternatives --config default.plymouth
-
 #remove the panel background, making it all white.
 rm /usr/share/lxpanel/images/background.png
 
@@ -128,8 +123,8 @@ rm /usr/share/lxpanel/images/background.png
 #mkdir -p /.config/pcmanfm/LXDE/
 
 #try to salvage some space from apt and aptitiude
-sudo apt-get autoclean
-sudo apt-get clean
+apt-get autoclean
+apt-get clean
 
 ###PREPARE RECOVERY PROGRAMS TO BE USABLE IN THE TARGET SYSTEM.
 ln -s "/proc/1/root$(which kdialog)" /usr/RCDbin/kdialog
@@ -175,25 +170,23 @@ RedirectFile /sbin/initctl
 RedirectFile /usr/sbin/invoke-rc.d
 
 
-# #This will remove my abilities to build packages from the ISO, but should make it a bit smaller
-# REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dev$"  | grep -v python-dbus-dev | grep -v dpkg-dev)
-# 
-# apt-get purge $REMOVEDEVPGKS -y --force-yes | tee /tmp/logs/package_operations/removes.txt
-# 
-# 
-# REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dev:"  | grep -v python-dbus-dev | grep -v dpkg-dev)
-# apt-get purge $REMOVEDEVPGKS -y --force-yes | tee -a /tmp/logs/package_operations/removes.txt
-# 
-# 
-# REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dbg$"  | grep -v python-dbus-dev | grep -v dpkg-dev)
-# apt-get purge $REMOVEDEVPGKS -y --force-yes | tee -a /tmp/logs/package_operations/removes.txt
-# 
-# REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dbg:"  | grep -v python-dbus-dev | grep -v dpkg-dev)
-# apt-get purge $REMOVEDEVPGKS -y --force-yes | tee -a /tmp/logs/package_operations/removes.txt
+#This will remove my abilities to build packages from the ISO, but should make it a bit smaller
+REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dev$"  | grep -v python-dbus-dev | grep -v dpkg-dev)
+ 
+apt-get purge $REMOVEDEVPGKS -y --force-yes | tee /tmp/logs/package_operations/removes.txt
+ 
+REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dev:"  | grep -v python-dbus-dev | grep -v dpkg-dev)
+apt-get purge $REMOVEDEVPGKS -y --force-yes | tee -a /tmp/logs/package_operations/removes.txt
+
+REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dbg$"  | grep -v python-dbus-dev | grep -v dpkg-dev)
+apt-get purge $REMOVEDEVPGKS -y --force-yes | tee -a /tmp/logs/package_operations/removes.txt
+
+REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dbg:"  | grep -v python-dbus-dev | grep -v dpkg-dev)
+apt-get purge $REMOVEDEVPGKS -y --force-yes | tee -a /tmp/logs/package_operations/removes.txt
 
 
 #Handle these packages one at a time, as they are not automatically generated. one incorrect specification and apt-get quits. The automatic generated ones are done with one apt-get command for speed
-REMOVEDEVPGKS=(git subversion bzr mercurial)
+REMOVEDEVPGKS=(git subversion bzr mercurial gcc)
 for (( Iterator = 0; Iterator < ${#REMOVEDEVPGKS[@]}; Iterator++ ))
 do
   REMOVEPACKAGENAME=${REMOVEDEVPGKS[$Iterator]}
@@ -204,7 +197,7 @@ done
 apt-get autoremove -y --force-yes >> /tmp/logs/package_operations/removes.txt
 
 
-Reset the utilites back to the way they are supposed to be.
+#Reset the utilites back to the way they are supposed to be.
 RevertFile /usr/sbin/grub-probe
 RevertFile /sbin/initctl
 RevertFile /usr/sbin/invoke-rc.d

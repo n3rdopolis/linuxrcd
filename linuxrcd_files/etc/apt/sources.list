@@ -1,9 +1,2 @@
-deb http://ubuntu.osuosl.org/ubuntu xenial main restricted
-deb-src http://ubuntu.osuosl.org/ubuntu xenial restricted main multiverse universe 
-deb http://ubuntu.osuosl.org/ubuntu xenial-updates main restricted
-deb-src http://ubuntu.osuosl.org/ubuntu xenial-updates restricted main multiverse universe 
-deb http://ubuntu.osuosl.org/ubuntu xenial universe
-deb http://ubuntu.osuosl.org/ubuntu xenial-updates universe
-deb http://ubuntu.osuosl.org/ubuntu xenial multiverse
-deb http://ubuntu.osuosl.org/ubuntu xenial-updates multiverse
-deb-src http://ubuntu.osuosl.org/ubuntu xenial-security restricted main multiverse universe 
+deb http://httpredir.debian.org/debian stretch main contrib
+deb-src http://httpredir.debian.org/debian stretch main contrib
