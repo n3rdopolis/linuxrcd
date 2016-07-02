@@ -62,6 +62,8 @@ dmraid::PART
 cryptsetup::PART
 parted::PART
 #Minimal UI
+oxygen-icon-theme::PART
+kdebase-bin::PART
 lightdm::PART
 xinit::PART
 lxde-common::PART
