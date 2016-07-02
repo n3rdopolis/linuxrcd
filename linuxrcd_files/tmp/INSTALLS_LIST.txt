@@ -40,6 +40,7 @@ acl::PART
 gcc::PART
 libplymouth-dev::PART
 eject::PART
+kbd::PART
 #ISO boot and live utils
 syslinux::PART
 syslinux-common::PART

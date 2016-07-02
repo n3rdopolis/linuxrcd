@@ -73,7 +73,7 @@ mkdir debian
 touch debian/control
 #remove any old deb files for this package
 rm "/srcbuild/buildoutput/"lrcd-lrcd_*.deb
-checkinstall -y -D --nodoc --dpkgflags=--force-overwrite --install=yes --backup=no --pkgname=lrcd-lrcd --pkgversion=1 --pkgrelease=$(date +%s)  --maintainer=lrcd@lrcd --pkgsource=lrcd --pkggroup=lrcd --requires="kde-baseapps-bin" /tmp/configure_phase3_helper.sh
+checkinstall -y -D --fstrans=no --nodoc --dpkgflags=--force-overwrite --install=yes --backup=no --pkgname=lrcd-lrcd --pkgversion=1 --pkgrelease=$(date +%s)  --maintainer=lrcd@lrcd --pkgsource=lrcd --pkggroup=lrcd --requires="kde-baseapps-bin" /tmp/configure_phase3_helper.sh
 cp *.deb "/srcbuild/buildoutput/"
 cd $OLDPWD
 

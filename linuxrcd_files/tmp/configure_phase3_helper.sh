@@ -29,8 +29,8 @@ fi
 mkdir -p /usr/bin
 cp -a /usr/import/usr/bin/* /usr/bin
 
-mkdir -p /usr/libexec
-cp -a /usr/import/usr/libexec/* /usr/libexec
+#mkdir -p /usr/libexec
+#cp -a /usr/import/usr/libexec/* /usr/libexec
 
 mkdir -p /usr/share/
 cp -a /usr/import/usr/share/* /usr/share
