@@ -22,6 +22,6 @@
 
 
 
-Exec=/usr/RCDbin/kfind
+Exec=/usr/RCDbin/catfish
 Type=Application
 Icon=/usr/share/icons/oxygen/64x64/apps/strigi.png

@@ -20,6 +20,6 @@
 #@@@TRANSLATABLE_FILENAME@@@~~~~~~~~~~~Should just say: Open Web browser~~~~~~~~~~~
 
 
-Exec=/usr/bin/rekonq
+Exec=/usr/bin/midori
 Type=Application
 Icon=/usr/share/icons/oxygen/64x64/apps/krfb.png

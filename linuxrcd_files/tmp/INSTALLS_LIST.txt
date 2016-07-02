@@ -35,7 +35,7 @@ xserver-xorg::PART
 checkinstall::PART
 rsync::PART
 sudo::PART
-isohybrid::PART
+syslinux-utils::PART
 acl::PART
 gcc::PART
 libplymouth-dev::PART
@@ -45,11 +45,13 @@ kbd::PART
 syslinux::PART
 syslinux-common::PART
 isolinux::PART
-casper::PART
-#ubiquity::FULL
-ubiquity-casper::FULL
-ubuntu-standard::PART
+casper::PART::$DEBIAN_DISTRO == Ubuntu
+#ubiquity::FULL::$DEBIAN_DISTRO == Ubuntu
+ubiquity-casper::FULL::$DEBIAN_DISTRO == Ubuntu
+ubuntu-standard::PART::$DEBIAN_DISTRO == Ubuntu
 mkisofs::PART
+xorrisofs::PART
+console-setup::PART
 genisoimage::PART
 squashfs-tools::PART
 archdetect-deb::PART
@@ -61,7 +63,6 @@ cryptsetup::PART
 parted::PART
 #Minimal UI
 lightdm::PART
-razorqt-lightdm-greeter::PART
 xinit::PART
 lxde-common::PART
 lxde-core::PART
@@ -74,21 +75,20 @@ lxrandr::PART
 lxsession-edit::PART
 x11-xserver-utils::PART
 xsel::PART
-kdebase-bin::PART
 spectacle::PART
 pcmanfm::PART
 lxde::PART
 xserver-xephyr::PART
 network-manager-gnome::PART
 hicolor-icon-theme::PART
-rekonq::PART
+midori::PART
 libpango1.0-dev::PART
 plymouth-themes::PART
 gvfs::PART
 gvfs-backends::PART
 mtools::PART
 gnome-settings-daemon::PART
-policykit-desktop-privileges::PART
+policykit-desktop-privileges::PART::$DEBIAN_DISTRO == Ubuntu
 #Storage Utilities
 cryptsetup::PART
 lvm2::PART
@@ -109,9 +109,8 @@ grub-efi-amd64-bin::FULL::$DEBIAN_ARCH == amd64
 grub-pc-bin::FULL
 grub-pc::FULL
 #Featued Utilities
-kuser::PART
+catfish::PART
 gparted::PART
-kfind::PART
 filelight::PART
 ksystemlog::PART
 gedit::PART

@@ -140,7 +140,7 @@ ln -s "/proc/1/root$(which kdeinit4)" /usr/RCDbin/kdeinit4
 ln -s "/proc/1/root$(which lxterminal)" /usr/RCDbin/lxterminal
 ln -s "/proc/1/root$(which kded4)" /usr/RCDbin/kded4
 ln -s "/proc/1/root$(which kbuildsycoca4)" /usr/RCDbin/kbuildsycoca4
-ln -s "/proc/1/root$(which kfind)" /usr/RCDbin/kfind
+ln -s "/proc/1/root$(which catfish)" /usr/RCDbin/catfish
 ln -s "/proc/1/root$(which xrandr)" /usr/RCDbin/xrandr
 ln -s "/proc/1/root$(which lxrandr)" /usr/RCDbin/lxrandr
 
