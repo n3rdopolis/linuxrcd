@@ -56,7 +56,7 @@ rm -r /usr/share/logs/package_operations/Downloads
 mkdir /usr/share/logs/package_operations/Downloads
 
 #Get the packages that need to be installed, by determining new packages specified, and packages that did not complete.
-mv /tmp/INSTALLS.txt /tmp/INSTALLS_LIST.txt
+rm /tmp/INSTALLS.txt
 sed -i 's/^ *//;s/ *$//' /tmp/FAILEDDOWNLOADS.txt
 
 #Set some variables
@@ -101,7 +101,7 @@ do
   #If all conditionals are true
   if [[ $UntrueConditionals == 0 && ! -z "${LINE[0]}" && ! -z "${LINE[1]}" ]]
   then
-   echo "${LINE[0]}::${LINE[1]}" >> /tmp/INSTALLS.txt
+   echo "${LINE[0]}::${LINE[1]}" |grep  -E -v "^#|^$" >> /tmp/INSTALLS.txt
   fi
 done
 
