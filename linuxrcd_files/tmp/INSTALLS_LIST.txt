@@ -25,7 +25,7 @@ aptitude::PART
 binutils::PART
 wget::PART
 #LanguagePacks
-language-pack-en::PART
+language-pack-en::PART::$DEBIAN_DISTRO == Ubuntu
 #
 linux-generic::FULL::$DEBIAN_DISTRO == Ubuntu
 linux-image-$DEBIAN_ARCH::FULL::$DEBIAN_DISTRO == Debian, $DEBIAN_ARCH != i386
@@ -50,8 +50,7 @@ casper::PART::$DEBIAN_DISTRO == Ubuntu
 #ubiquity::FULL::$DEBIAN_DISTRO == Ubuntu
 ubiquity-casper::FULL::$DEBIAN_DISTRO == Ubuntu
 ubuntu-standard::PART::$DEBIAN_DISTRO == Ubuntu
-mkisofs::PART
-xorrisofs::PART
+xorriso::PART
 console-setup::PART
 genisoimage::PART
 squashfs-tools::PART
