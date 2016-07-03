@@ -32,15 +32,17 @@ echo "package 'dialog' not installed. please install the package 'dialog' by usi
 exit 1
 fi
 
-#files needed for the translation
-mkdir -p "$BUILDLOCATION"/TranslationCache
+
+
+#Create a directory name where temporary files will be stored
+TranslationCacheFile="/tmp/translationgeneration$(date +%s)"
 
 #introduce the translator to this script
 echo "This is the translation wizard for LinuxRCD. It scans the files for translatable strings and thier descriptions so that you can add a language translation for LinuxRCD."
 echo "This script must be in the root of the LinuxRCD build script folder. (you should see a folder called linuxrcd_files in the same folder as this script)"
 echo "This script will make changes to the following folders and files.
-File:              "$BUILDLOCATION"/TranslationCache/TRANSLATION_DATA
-Folder:            $linuxrcdfolderlocaton
+File:              "$TranslationCacheFile"
+Folder:            "$linuxrcdfolderlocaton"
 
 MAKE SURE this script will not overwrite anything before pressing enter to continue!!!!..."
 read a
@@ -147,16 +149,16 @@ newtranslationtext="$(dialog  --no-cancel --stdout --inputbox "Translating Linux
 
 translation description for string $translationname: $translationdescription" 20 999 "$oldtranslationtext" )"
 #copy the current translation in a cached location, without the old translation for this string
-cat "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA" | grep -v "$translationname" > ""$BUILDLOCATION"/TranslationCache/TRANSLATION_DATA"
+cat "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA" | grep -v "$translationname" > "$TranslationCacheFile"
 #put the new translation in the cached file
-echo "$translationname~~~~~~~~~~~$newtranslationtext~~~~~~~~~~~$translationoptions" >> ""$BUILDLOCATION"/TranslationCache/TRANSLATION_DATA"
+echo "$translationname~~~~~~~~~~~$newtranslationtext~~~~~~~~~~~$translationoptions" >> "$TranslationCacheFile"
 #create the folder for the new translation
 mkdir -p "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/"
 
 #move the edited cached file into the correct location so the new translation is applied
-mv ""$BUILDLOCATION"/TranslationCache/TRANSLATION_DATA" "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA"
+mv "$TranslationCacheFile" "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/TRANSLATION_DATA"
 done
-
+rm $TranslationCacheFile
 fi
 
 done
