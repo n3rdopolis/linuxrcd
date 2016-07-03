@@ -67,8 +67,37 @@ mkdir -p "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename"
 
 
 #find all files in the linux_rcd files that have the string in them to show themselves as translatable.
-find "$linuxrcdfolderlocaton" \( -name .svn \) -prune -o -print | while read FILE
+find "$linuxrcdfolderlocaton" \( -name .svn \) -prune -o -print | grep -v '\.@@@TRANSLATABLE_FOLDERNAME@@@' | while read FILE
 do
+#If it's a translatable folder
+if [[ -d "$FILE" && -f "$FILE/.@@@TRANSLATABLE_FOLDERNAME@@@" ]]
+then
+#grab the file name of the file being translated
+filename="$(echo "$FILE" | rev | awk -F / '{print $1}' | rev )"
+#get the linuxrcd relitive path location.
+foldername="$(echo "$FILE" | awk -F "$linuxrcdfolderlocaton/" '{print $2}' | awk -F "$filename" '{print $1}' )" 
+
+#search the file for if the file name is translatable
+cat  "$FILE/.@@@TRANSLATABLE_FOLDERNAME@@@" | while read LINE
+do
+#get the name of the translation string In file string translation loop, its the file name
+translationname="$( echo $filename )"
+#get the translation descrition in the file, to aid the translator
+translationdescription="$( echo $LINE | awk -F"~~~~~~~~~~~" '{ print $1 }' )"
+#get the current contents of the translation
+oldtranslationtext=$(cat "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/FILEFOLDERNAME" | awk -F"~~~~~~~~~~~" '{ print $1 }'   )
+#prompt for the new translation, with the old translation in the line.
+newtranslationtext="$(dialog  --no-cancel --stdout --inputbox "Translating LinuxRCD's $foldername$filename
+
+translation description for string $translationname: $translationdescription" 20 999 "$oldtranslationtext" )"
+#make the folder for the translation
+mkdir -p "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/"
+#create the translation file for the file name
+echo "$newtranslationtext~~~~~~~~~~~" > "$linuxrcdfolderlocaton/usr/share/linuxrcd/translations/$languagename/file_translations/$foldername$filename/FILEFOLDERNAME"
+done
+
+fi
+
 #find if it is translatable by counting the number of the @@@TRANSLATABLE_FILE@@@ string in the file
 if [ `grep -c "@@@TRANSLATABLE_FILE@@@" "$FILE"` -eq 0 ]
 then
@@ -80,7 +109,7 @@ else
 #grab the file name of the file being translated
 filename="$(echo "$FILE" | rev | awk -F / '{print $1}' | rev )"
 #get the linuxrcd relitive path location.
-foldername="$(echo "$FILE" | awk -F "$filename" '{print $1}' | awk -F "$linuxrcdfolderlocaton/" '{print $2}' )" 
+foldername="$(echo "$FILE" | awk -F "$linuxrcdfolderlocaton/" '{print $2}' | awk -F "$filename" '{print $1}' )" 
 
 #search the file for if the file name is translatable
 cat  "$FILE" | grep @@@TRANSLATABLE_FILENAME@@@ | while read LINE
