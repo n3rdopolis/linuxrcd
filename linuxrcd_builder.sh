@@ -180,7 +180,7 @@ fi
 
 chmod +x "$SCRIPTFOLDERPATH"/externalbuilders/*
 
-echo "Setting up live system..."
+echo "Starting the build process..."
 
 REBUILT="to update"
 
@@ -267,4 +267,4 @@ rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/importdata
 rm "$BUILDLOCATION"/build/"$BUILDARCH"/lockfile 
 
 ENDTIME=$(date +%s)
-echo "build finished in $((ENDTIME-STARTTIME)) seconds $REBUILT"
+echo "build of $BUILDARCH finished in $((ENDTIME-STARTTIME)) seconds $REBUILT"

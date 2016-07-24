@@ -54,6 +54,10 @@ echo "force-confdef"   > /etc/dpkg/dpkg.cfg.d/force-confdef
 #Create _apt user that apt drops to to run things as non-root
 adduser --no-create-home --disabled-password --system --force-badname _apt
 
+#Attempt to repair the dpkg state if it was stopped
+apt-get install -f
+dpkg --configure -a
+
 #Create the correct /etc/resolv.conf symlink
 ln -s ../run/resolvconf/resolv.conf /etc/resolv.conf 
 
@@ -82,8 +86,13 @@ diff -u -N -w1000 /tmp/INSTALLS.txt.installbak /tmp/INSTALLS.txt | grep -v ::BUI
 INSTALLS=$(diff -u -N -w1000 /tmp/FAILEDREMOVES.txt /tmp/INSTALLS.txt | grep ^- | grep -v "\---" | cut -c 2- | awk -F :: '{print $1"::REMOVE"}')
 INSTALLS+="
 $(diff -u -N -w1000 /tmp/INSTALLS.txt.installbak /tmp/INSTALLS.txt | grep ^+ | grep -v +++ | cut -c 2- | awk -F "#" '{print $1}' | tee -a /tmp/FAILEDINSTALLS.txt )"
+
+sort /tmp/INSTALLS.txt        > /tmp/INSTALLS.txt.sorted
+sort /tmp/FAILEDINSTALLS.txt  > /tmp/FAILEDINSTALLS.txt.sorted
 INSTALLS+="
-$(diff -u10000 -w1000 -N /tmp/INSTALLS.txt /tmp/FAILEDINSTALLS.txt | grep "^ " | cut -c 2- )"
+$(comm -1 -2 /tmp/INSTALLS.txt.sorted /tmp/FAILEDINSTALLS.txt.sorted  )"
+rm /tmp/INSTALLS.txt.sorted
+rm /tmp/FAILEDINSTALLS.txt.sorted
 INSTALLS="$(echo "$INSTALLS" | awk ' !x[$0]++')"
 INSTALLS+=$'\n'
 
