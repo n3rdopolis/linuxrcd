@@ -30,6 +30,7 @@ then
   exit
 fi
 
+export PACKAGEOPERATIONLOGDIR=/buildlogs/package_operations
 
 #function to handle moving back dpkg redirect files for chroot
 function RevertFile {
@@ -48,6 +49,7 @@ function RedirectFile {
   dpkg-divert --local --rename --add "$1" 
   ln -s /bin/true "$1"
 }
+
 
 #Redirect some files that get changed
 export DEBIAN_DISTRO=$(awk '{print $1}' /etc/issue)
@@ -78,7 +80,8 @@ cp *.deb "/srcbuild/buildoutput/"
 cd $OLDPWD
 
 #copy all files
-rsync /usr/import/* -a /
+rsync /usr/import/* -Ka /
+chmod 777 /tmp
 
 #delete the import folder
 rm -r /usr/import
@@ -147,54 +150,45 @@ ln -s "/proc/1/root$(which lxrandr)" /usr/RCDbin/lxrandr
 #save the build date of the CD.
 echo "$(date)" > /etc/builddate
 
-#Get all Source 
-echo "#This script is used to specify the revisions of the repositories which the ISO was built with. See output of the main builder for how to use this file, if you want to build the exact revisions, instead of the latest ones" > /usr/share/build_core_revisions.txt
-cat /usr/share/logs/build_core/*/GetSourceVersion >> /usr/share/build_core_revisions.txt
-
-#hide buildlogs in tmp from remastersys
-mv /usr/share/logs	/tmp
-
-# #start the remastersys job
-# remastersys dist
-# 
-# mv /home/remastersys/remastersys/custom.iso /home/remastersys/remastersys/custom-full.iso
-
-#Configure dpkg
-echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/force-unsafe-io
-echo "force-confold"   > /etc/dpkg/dpkg.cfg.d/force-confold
-echo "force-confdef"   > /etc/dpkg/dpkg.cfg.d/force-confdef
 
 #Redirect these utilitues to /bin/true during the live CD Build process. They aren't needed and cause package installs to complain
 RedirectFile /usr/sbin/grub-probe
 RedirectFile /sbin/initctl
 RedirectFile /usr/sbin/invoke-rc.d
 
+#Configure dpkg
+echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/force-unsafe-io
+echo "force-confold"   > /etc/dpkg/dpkg.cfg.d/force-confold
+echo "force-confdef"   > /etc/dpkg/dpkg.cfg.d/force-confdef
 
-#This will remove my abilities to build packages from the ISO, but should make it a bit smaller
+#Create a log folder for the remove operations
+mkdir "$PACKAGEOPERATIONLOGDIR"/Removes
+
+#This will remove abilities to build packages from the reduced ISO, but should make it a bit smaller
 REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dev$"  | grep -v python-dbus-dev | grep -v dpkg-dev)
- 
-apt-get purge $REMOVEDEVPGKS -y --force-yes | tee /tmp/logs/package_operations/removes.txt
- 
+
+apt-get purge $REMOVEDEVPGKS -y | tee -a "$PACKAGEOPERATIONLOGDIR"/Removes/devpackages.log
+
+
 REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dev:"  | grep -v python-dbus-dev | grep -v dpkg-dev)
-apt-get purge $REMOVEDEVPGKS -y --force-yes | tee -a /tmp/logs/package_operations/removes.txt
+apt-get purge $REMOVEDEVPGKS -y | tee -a "$PACKAGEOPERATIONLOGDIR"/Removes/archdevpackages.log
+
 
 REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dbg$"  | grep -v python-dbus-dev | grep -v dpkg-dev)
-apt-get purge $REMOVEDEVPGKS -y --force-yes | tee -a /tmp/logs/package_operations/removes.txt
+apt-get purge $REMOVEDEVPGKS -y | tee -a "$PACKAGEOPERATIONLOGDIR"/Removes/dbgpackages.log
 
 REMOVEDEVPGKS=$(dpkg --get-selections | awk '{print $1}' | grep "\-dbg:"  | grep -v python-dbus-dev | grep -v dpkg-dev)
-apt-get purge $REMOVEDEVPGKS -y --force-yes | tee -a /tmp/logs/package_operations/removes.txt
-
+apt-get purge $REMOVEDEVPGKS -y | tee -a "$PACKAGEOPERATIONLOGDIR"/Removes/archdpgpackages.log
 
 #Handle these packages one at a time, as they are not automatically generated. one incorrect specification and apt-get quits. The automatic generated ones are done with one apt-get command for speed
 REMOVEDEVPGKS=(git subversion bzr mercurial gcc)
 for (( Iterator = 0; Iterator < ${#REMOVEDEVPGKS[@]}; Iterator++ ))
 do
   REMOVEPACKAGENAME=${REMOVEDEVPGKS[$Iterator]}
-  apt-get purge $REMOVEPACKAGENAME -y --force-yes | tee -a /tmp/logs/package_operations/Removes/$REMOVEPACKAGENAME.log
+  apt-get purge $REMOVEPACKAGENAME -y | tee -a "$PACKAGEOPERATIONLOGDIR"/Removes/$REMOVEPACKAGENAME.log
 done
 
-
-apt-get autoremove -y --force-yes >> /tmp/logs/package_operations/removes.txt
+apt-get autoremove -y | tee -a "$PACKAGEOPERATIONLOGDIR"/Removes/autoremoves.log 
 
 
 #Reset the utilites back to the way they are supposed to be.
@@ -214,6 +208,3 @@ rm -rf /var/lib/apt/lists/*
 rm -rf /var/lib/dlocate/*
 #start the remastersys job
 remastersys dist
-
-#move logs back
-mv /tmp/logs /usr/share

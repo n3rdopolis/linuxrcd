@@ -37,18 +37,6 @@ then
   exit
 fi
 
-#create a folder for the media mountpoints in the media folder
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild/buildoutput
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/archives
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/remastersys
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/vartmp
-
 #Ensure that all the mountpoints in the namespace are private, and won't be shared to the main system
 mount --make-rprivate /
 
@@ -59,7 +47,7 @@ then
   mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1 "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
   rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/usr/bin/Compile/*
   #copy the files to where they belong
-  rsync "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/* -Cr "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/ 
+  rsync "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/* -CKr "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/ 
 else
   #Union mount importdata and phase1
   mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/unionwork
@@ -71,10 +59,11 @@ mount --rbind /dev "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/dev
 mount --rbind /proc "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/proc
 mount --rbind /sys "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/sys
 
-#Mount in the folder with previously built debs
+#Bind mount shared directories
 mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild/buildoutput
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/buildlogs
 mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild
-
+mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/buildlogs "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/buildlogs
 
 
 #Call compile_all to cleanup srcbuild########################################

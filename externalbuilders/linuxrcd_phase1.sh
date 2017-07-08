@@ -37,47 +37,14 @@ then
   exit
 fi
 
-#create a folder for the media mountpoints in the media folder
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild/buildoutput
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/archives
-
 #Ensure that all the mountpoints in the namespace are private, and won't be shared to the main system
 mount --make-rprivate /
 
-#copy in the files needed
-rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/
-rsync "$SCRIPTFOLDERPATH"/../linuxrcd_files/* -Cr "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/
-rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/exportsource/
-rsync "$SCRIPTFOLDERPATH"/../* -Cr "$BUILDLOCATION"/build/"$BUILDARCH"/exportsource
-
-#Support importing the control file to use fixed revisions of the source code
-rm "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/tmp/buildcore_revisions.txt
-rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/buildcore_revisions.txt
-rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/tmp/buildcore_revisions.txt
-rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3/tmp/buildcore_revisions.txt
-if [ -s "$BUILDLOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt ]
-then
-  cp "$BUILDLOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/tmp/buildcore_revisions.txt
-  rm "$BUILDLOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt
-  touch "$BUILDLOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt
-fi
-
-#delete old logs
-rm -r "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/usr/share/logs/*
-
 #copy the dselect data saved in phase 2 into phase 1
-cp "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/tmp/INSTALLSSTATUS.txt "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/INSTALLSSTATUS.txt
-
-#make the imported files executable 
-chmod 0755 -R "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/
-chown  root  -R "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/
-chgrp  root  -R "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/
+if [[ -f "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/tmp/INSTALLSSTATUS.txt ]]
+then
+  cp "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/tmp/INSTALLSSTATUS.txt "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/INSTALLSSTATUS.txt
+fi
 
 if [[ $HASOVERLAYFS == 0 ]]
 then
@@ -90,13 +57,13 @@ then
     then
       find | grep -v ^./etc | while read FILE 
       do
-	rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/"$FILE" &> /dev/null
+        rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/"$FILE" &> /dev/null
       done
     fi
   cd $OLDPWD
   rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/usr/bin/Compile/*
   #copy the files to where they belong
-  rsync "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/* -Cr "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/ 
+  rsync "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/* -CKr "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/ 
 else
   #Force /etc/apt/sources.list in the importdata dir to win
   cp "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/etc/apt/sources.list "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/etc/apt/sources.list
@@ -112,13 +79,14 @@ mount --rbind /sys "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/sys
 mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/run/shm
 mount --bind /run/shm "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/run/shm
 
-#Mount in the folder with previously built debs
+#Bind mount shared directories
 mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild/buildoutput
 mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/var/cache/apt/archives
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/buildlogs
 mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild
 mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild/buildoutput
 mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/archives "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/var/cache/apt/archives
-
+mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/buildlogs "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/buildlogs
 
 
 #Configure the Live system########################################

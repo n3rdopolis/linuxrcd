@@ -26,7 +26,7 @@
 #REPOSITORYTYPE: The type of source repo. Supported types are GIT, SVN, BZR, HG, and ARCHIVE (for archive files instead of a source repo)
 #SOURCEREVISION: The revision to use from the source repo. This is ignored if the REPOSITORYTYPE is archive
 #INSTALLDIR: This specifies the location to install the source. This variable must be used or must match when specified to autogen or cmake or the like.
-#	It is used by build_vars to set the needed variables.
+#        It is used by build_vars to set the needed variables.
 #REBUILDNEWREVISION: This is for MAKEDEBS. Some packages are worth rebuilding even if the deb file for this is already built, as it might be getting features faster, and is a smaller source package.
 
 
@@ -58,11 +58,36 @@
 
 #buildcore also uses /tmp/buildcore_revisions.txt, when it is formatted from the list of all built revisions exported by the project. If it exists, the revision specified by the build script is overidden, and the exact commit is used instead
 
+#Allow build core to directly run a specified build descriptor file. They all source build_core, prevent an infinate loop
+if [[ $BUILDCOREDIRECTLYRUN == 1 ]]
+then
+  return 0
+fi
+BUILDCOREDIRECTLYRUN=1
+
+#if the first argument is buildspec, a file is being sourced.
+if [[ $1 == buildspec ]]
+then
+  function RunDownloadAndOrBuild { :; }
+  FILESPEC=1
+  . "$2"
+  shift
+  shift
+fi
+
 export NONROOTUSER=nobody
 export SOURCEDIR=/srcbuild
 export REBUILDNEWREVISION=0
 export PACKAGESUFFIX=lrcd
 export NONROOTCOMMAND="sudo -Eu $NONROOTUSER"
+export BUILDLOGDIR=/buildlogs/build_core
+
+if [[ -x /usr/libexec/build_core/checkinstall ]]
+then
+  CHECKINSTALLCMD=/usr/libexec/build_core/checkinstall
+else
+  CHECKINSTALLCMD=checkinstall
+fi
 
 #Control variable used by the build scripts, on if to set the build script as 'build-only' or 'download-only'
 export ACTION=$1
@@ -70,7 +95,8 @@ export ACTION=$1
 function SetACLPermissions
 {
   echo "Setting permissions to allow non root user '$NONROOTUSER' to manage $SOURCENAME source"
-  setfacl -Rm $NONROOTUSER:rwx -Rm mask::rwx -dRm $NONROOTUSER:rwx -dRm mask::rwx /"$SOURCEDIR"/"$SOURCENAME"
+  setfacl -Rm $NONROOTUSER:rwx -Rm mask::rwx -dRm $NONROOTUSER:rwx -dRm mask::rwx /"$SOURCEDIR"/"$SOURCENAME" "$SOURCEDIR"/buildhome/config/"$SOURCENAME" "$SOURCEDIR"/buildhome/sourcehome/"$SOURCENAME"
+  setfacl -Rm $NONROOTUSER:rwx -Rm mask::rwx -dRm $NONROOTUSER:rwx -dRm mask::rwx "$SOURCEDIR"/buildhome/cargocache
 }
 
 #This is the main function of the script that must be called by the script that sources it in.  It determines if the action is to build, download, or do both.
@@ -87,15 +113,17 @@ function RunDownloadAndOrBuild
     echo "SOURCENAME Not defined."
     exit
   fi
-  
-  rm -rf "$SOURCEDIR"/buildhome/"$SOURCENAME"
+
+  export CARGO_HOME="$SOURCEDIR"/buildhome/cargocache
+  rm -rf "$SOURCEDIR"/buildhome/sourcehome/"$SOURCENAME"
   rm -rf "$SOURCEDIR"/buildhome/config/"$SOURCENAME"
 
   export HOME="$SOURCEDIR"/buildhome/config/"$SOURCENAME"
 
   mkdir -p "$SOURCEDIR"/buildhome/config/"$SOURCENAME"
-  mkdir -p /usr/share/logs/build_core/$SOURCENAME
-  mkdir -p "$SOURCEDIR"/buildhome/"$SOURCENAME"
+  mkdir -p "$BUILDLOGDIR/$SOURCENAME"
+  mkdir -p "$SOURCEDIR"/buildhome/sourcehome/"$SOURCENAME"
+  mkdir -p "$SOURCEDIR"/buildhome/cargocache
 
   #create a variable for the package name that is the source name converted to all lower case.
   export PACKAGESOURCENAME="$(echo $SOURCENAME | tr [:upper:] [:lower:] | sed 's/_/-/g')"
@@ -109,10 +137,10 @@ function RunDownloadAndOrBuild
     then
       echo -n $CHAR
     else
-      printf '0x%d' "'$CHAR"
+      printf '_%o' "'$CHAR"
     fi
   done)
-  export EXTERNALBUILDHOME="$SOURCEDIR"/buildhome/"$SOURCENAME"
+  export EXTERNALBUILDHOME="$SOURCEDIR"/buildhome/sourcehome/"$SOURCENAME"
   export INTERNALBUILDHOME="$SOURCEDIR"/"$SOURCENAME"
 
   #Set ACL permissions to allow a non root user account manage the source repos
@@ -125,7 +153,7 @@ function RunDownloadAndOrBuild
   if [[ "$ACTION" == clean ]]
   then
     cd "$SOURCEDIR"
-    Cleanup$REPOSITORYTYPE 2>&1 | tee -a "/usr/share/logs/build_core/$SOURCENAME/Cleanup$REPOSITORYTYPE" | sed -e "s/^/$SOURCENAME: /"
+    Cleanup$REPOSITORYTYPE 2>&1 | tee -a "$BUILDLOGDIR/$SOURCENAME/Cleanup$REPOSITORYTYPE" | sed -e "s/^/$SOURCENAME: /"
     exit
   fi
 
@@ -133,9 +161,9 @@ function RunDownloadAndOrBuild
   if [[ "$ACTION" == installsmallpackage ]]
   then
     STARTTIME=$(date +%s)
-    dpkg -i --force-overwrite "/$SOURCEDIR/buildoutput/smallpackages/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb 2>&1 | tee "/usr/share/logs/build_core/$SOURCENAME/SmallDebInstall"
+    InstallDebFile "/$SOURCEDIR/buildoutput/smallpackages/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb 2>&1 | tee "$BUILDLOGDIR/$SOURCENAME/SmallDebInstall"
     ENDTIME=$(date +%s)
-    echo "SmallDebInstall finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "/usr/share/logs/build_core/$SOURCENAME/SmallDebInstall"
+    echo "SmallDebInstall finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "$BUILDLOGDIR/$SOURCENAME/SmallDebInstall"
     exit
   fi
   
@@ -143,20 +171,22 @@ function RunDownloadAndOrBuild
   if [[ "$ACTION" != build-only && "$ACTION" != env-only ]]
   then
     #Download the source using specified variables.
-    DownloadSource | sed -e "s/^/$SOURCENAME: /"
+    DownloadSource 2>&1 | sed -e "s/^/$SOURCENAME: /"
   fi
 
   #Build the source and install it, unless the argument passed to the build script is 'download-only'
   if [[ "$ACTION" != download-only && "$ACTION" != env-only ]]
   then
-    export HOME="$SOURCEDIR"/"$SOURCENAME"/home
-    mkdir -p "$SOURCEDIR"/"$SOURCENAME"/home
     #Start the compile or install Process
-    MakeAndInstall | sed -e "s/^/$SOURCENAME: /"
+    MakeAndInstall 2>&1 | sed -e "s/^/$SOURCENAME: /"
   fi
 }
 
-
+#Function to install build_core built deb files
+function InstallDebFile()
+{
+  dpkg -i --force-overwrite "$1"
+}
 
 #function to get the revison of GIT repos
 function GetVersionGIT()
@@ -168,7 +198,7 @@ function GetVersionGIT()
   SUBMODULEREVISIONS_EXPORT=($SUBMODULESTRING)
   unset IFS
   SUBMODULEREVISIONS=$(declare -p SUBMODULEREVISIONS_EXPORT)
-  FUNCTIONSTRING="{ $SOURCEREVISION ; SOURCEREVISION=\\\$SOURCEREVISION_EXPORT ; $SUBMODULEREVISIONS ; SUBMODULEREVISIONS=(\\\${SUBMODULEREVISIONS_EXPORT[*]}) ; }"
+  FUNCTIONSTRING="{ $SOURCEREVISION ; SOURCEREVISION=\\\$SOURCEREVISION_EXPORT ; $SUBMODULEREVISIONS ; SUBMODULEREVISIONS=(\\\${SUBMODULEREVISIONS_EXPORT[*]}) ; : $SOURCENAME; }"
   REVISIONSTRING="eval \"OverrideRevisions_${SAFESOURCENAME}() $FUNCTIONSTRING\""
 }
 
@@ -263,7 +293,7 @@ function GetVersionSVN()
 {
   SOURCEREVISION_EXPORT=$(svnversion .)
   SOURCEREVISION=$(declare -p SOURCEREVISION_EXPORT)
-  FUNCTIONSTRING="{ $SOURCEREVISION ; SOURCEREVISION=\\\$SOURCEREVISION_EXPORT ;}"
+  FUNCTIONSTRING="{ $SOURCEREVISION ; SOURCEREVISION=\\\$SOURCEREVISION_EXPORT ; : $SOURCENAME; }"
   REVISIONSTRING="eval \"OverrideRevisions_${SAFESOURCENAME}() $FUNCTIONSTRING\""
 }
 
@@ -304,7 +334,7 @@ function GetVersionBZR()
 {
   SOURCEREVISION_EXPORT=$(bzr version-info | grep revno | awk '{print $2}')
   SOURCEREVISION=$(declare -p SOURCEREVISION_EXPORT)
-  FUNCTIONSTRING="{ $SOURCEREVISION ; SOURCEREVISION=\\\$SOURCEREVISION_EXPORT ;}"
+  FUNCTIONSTRING="{ $SOURCEREVISION ; SOURCEREVISION=\\\$SOURCEREVISION_EXPORT ; : $SOURCENAME; }"
   REVISIONSTRING="eval \"OverrideRevisions_${SAFESOURCENAME}() $FUNCTIONSTRING\""
 }
 
@@ -347,7 +377,7 @@ function GetVersionHG()
 {
   SOURCEREVISION_EXPORT=$(hg --debug id -i | sed 's/+//g')
   SOURCEREVISION=$(declare -p SOURCEREVISION_EXPORT)
-  FUNCTIONSTRING="{ $SOURCEREVISION ; SOURCEREVISION=\\\$SOURCEREVISION_EXPORT ;}"
+  FUNCTIONSTRING="{ $SOURCEREVISION ; SOURCEREVISION=\\\$SOURCEREVISION_EXPORT ; : $SOURCENAME; }"
   REVISIONSTRING="eval \"OverrideRevisions_${SAFESOURCENAME}() $FUNCTIONSTRING\""
 }
 
@@ -356,14 +386,13 @@ function CleanupHG()
 {
   $NONROOTCOMMAND  mkdir -p "$SOURCENAME"
   cd "$SOURCENAME"
-  hg revert --all
-  hg st -un0 | xargs -0 rm
+  hg --config trusted.users=$NONROOTUSER,root revert --all
+  hg --config trusted.users=$NONROOTUSER,root --config extensions.purge= purge
 }
 
 #Function to download hg repos
 function DownloadHG()
 {
-  echo -e "[trusted]\nusers = $NONROOTUSER, root" > "$HOME/.hgrc"
   OLDSOURCEURL=$(hg paths -R "$SOURCENAME" default)
   if [[ -z "$OLDSOURCEURL" || "$SOURCEURL" != "$OLDSOURCEURL" ]]
   then
@@ -382,9 +411,8 @@ function DownloadHG()
   $NONROOTCOMMAND hg clone "$SOURCEURL" "$SOURCENAME"
   $NONROOTCOMMAND mkdir -p "$SOURCENAME"
   cd "$SOURCENAME"
-  chown $NONROOTUSER .hg/hgrc
-  $NONROOTCOMMAND hg pull
-  $NONROOTCOMMAND hg update -C -r $SOURCEREVISION
+  $NONROOTCOMMAND hg --config trusted.users=$NONROOTUSER,root pull
+  $NONROOTCOMMAND hg --config trusted.users=$NONROOTUSER,root update -C -r $SOURCEREVISION
 }
 
 
@@ -393,7 +421,7 @@ function GetVersionARCHIVE()
 {
   SOURCEREVISION_EXPORT=$(echo "Non-versioned File Archive")
   SOURCEREVISION=$(declare -p SOURCEREVISION_EXPORT)
-  FUNCTIONSTRING="{ $SOURCEREVISION ; SOURCEREVISION=\\\$SOURCEREVISION_EXPORT ;}"
+  FUNCTIONSTRING="{ $SOURCEREVISION ; SOURCEREVISION=\\\$SOURCEREVISION_EXPORT ; : $SOURCENAME; }"
   REVISIONSTRING="eval \"OverrideRevisions_${SAFESOURCENAME}() $FUNCTIONSTRING\""
 }
 
@@ -402,7 +430,7 @@ function CleanupARCHIVE()
 {
   $NONROOTCOMMAND mkdir -p "$SOURCENAME"
   cd "$SOURCENAME"
-  find | grep -v ./SOURCEFILE$ | while read FILE
+  find | grep -v ./SOURCEFILE$ | grep -v ./SOURCEURL | sort -r | while read FILE
   do
     rm -rf $FILE
   done
@@ -410,13 +438,40 @@ function CleanupARCHIVE()
 #Function to download archives
 function DownloadARCHIVE()
 {
+  OLDSOURCEURL=$(cat "$SOURCENAME/SOURCEURL")
+  if [[ -z "$OLDSOURCEURL" || "$SOURCEURL" != "$OLDSOURCEURL" ]]
+  then
+    rm "$SOURCENAME/SOURCEFILE"
+
+    if [[ $MAKEDEBS == 1 ]]
+    then
+      rm "/$SOURCEDIR/buildoutput/control/$SOURCENAME"
+      rm "/$SOURCEDIR/buildoutput/versioninfo/$SOURCENAME.txt"
+      rm "/$SOURCEDIR/buildoutput/versioninfo/$SOURCENAME.txt.old"
+    fi
+  fi
+
   if [[ ! -f "$SOURCENAME/SOURCEFILE" ]]
   then
     $NONROOTCOMMAND mkdir -p "$SOURCENAME"
-    cd "$SOURCENAME"
-    $NONROOTCOMMAND wget $SOURCEURL -O SOURCEFILE
+    $NONROOTCOMMAND wget "$SOURCEURL" -O $SOURCENAME/SOURCEFILE
+    echo "$SOURCEURL" > $SOURCENAME/SOURCEURL
   fi
+  cd "$SOURCENAME"
   $NONROOTCOMMAND tar xaf SOURCEFILE -C .
+}
+
+#Function to go through all toml files in the PWD, and fetch the dependancies they need
+function DownloadTOMLData()
+{
+
+  #Handle Cargo files for any potential rust programs
+  find | grep /Cargo.toml$ | while read CARGOFILE
+  do
+    echo "Downloading dependancies defined by $CARGOFILE"
+    #$CARGO_HOME/cargo update --aggressive --manifest-path $CARGOFILE
+    $CARGO_HOME/cargo fetch --manifest-path $CARGOFILE
+  done
 }
 
 #Function that calls download functions for GIT repos based on the repository type set by the main script
@@ -446,37 +501,70 @@ function DownloadSource()
   REPOSITORYTYPE=$(echo $REPOSITORYTYPE |tr [:lower:] [:upper:])
 
   #count the number of non-empty debs for this package
-  DEBFILECONTENTCOUNT=$(find "/$SOURCEDIR/buildoutput/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb -type f -maxdepth 1 | while read DEBFILE
+  DEBFILECONTENTCOUNT=0
+  while read DEBFILE
   do
-    dpkg-deb -c "$DEBFILE" | grep -v ^d | grep -v /include/ | grep -v "GetSourceVersion" 
-  done | wc -l)
-
+    while read LINE
+    do
+     LINEARRAY=($LINE)
+     if [[ ${LINEARRAY[5]} != "./usr/share/buildcore_revisions/buildresults/$SOURCENAME" ]]
+     then
+       ((DEBFILECONTENTCOUNT++))
+     else
+       DEBFILECONTENTCOUNT=0
+       break
+     fi
+    done < <(dpkg-deb -c "$DEBFILE" 2>/dev/null | grep -v ^d | grep -v /include/ | grep -v "/usr/share/buildcore_revisions/$SOURCENAME" )
+  done < <(find "/$SOURCEDIR/buildoutput/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb -maxdepth 1 -type f )
 
   #If there is no deb file, no control file, debs aren't being built, or the package is set to rebuild on every try, run the download routine
   if [[ ! $(ls "/$SOURCEDIR/buildoutput/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb ) || ! $(ls "/$SOURCEDIR/buildoutput/smallpackages/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb ) || ! -f "/$SOURCEDIR/buildoutput/control/$SOURCENAME" || $MAKEDEBS != 1 || $REBUILDNEWREVISION != 0 || $DEBFILECONTENTCOUNT == 0 ]]
   then
     STARTTIME=$(date +%s)
     SetACLPermissions
-    Cleanup$REPOSITORYTYPE 2>&1 | tee -a "/usr/share/logs/build_core/$SOURCENAME/Cleanup$REPOSITORYTYPE"
-    Download$REPOSITORYTYPE 2>&1 | tee "/usr/share/logs/build_core/$SOURCENAME/Download$REPOSITORYTYPE"
+    Cleanup$REPOSITORYTYPE 2>&1 | tee -a "$BUILDLOGDIR/$SOURCENAME/Cleanup$REPOSITORYTYPE"
+    Download$REPOSITORYTYPE 2>&1 | tee "$BUILDLOGDIR/$SOURCENAME/Download$REPOSITORYTYPE"
     ENDTIME=$(date +%s)
-    echo "Download$REPOSITORYTYPE finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "/usr/share/logs/build_core/$SOURCENAME/Download$REPOSITORYTYPE"
+    echo "Download$REPOSITORYTYPE finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "$BUILDLOGDIR/$SOURCENAME/Download$REPOSITORYTYPE"
 
+    #Download cargo bootstrap binary, to handle downloading cargo, only if the package has Cargo.toml files
+    TOMLFILES=$(find "/$SOURCEDIR/$SOURCENAME" | grep /Cargo.toml$)
+    if [[ ! -f $CARGO_HOME/cargo && ! -z $TOMLFILES ]]
+    then
+      DEBIAN_ARCH=$(dpkg --print-architecture)
+      if [[ $DEBIAN_ARCH == i386 ]]
+      then
+        CARGOFILENAME=cargo-nightly-i686-unknown-linux-gnu
+      fi
+      if [[ $DEBIAN_ARCH == amd64 ]]
+      then
+        CARGOFILENAME=cargo-nightly-x86_64-unknown-linux-gnu
+      fi
+      $NONROOTCOMMAND wget https://static.rust-lang.org/dist/$CARGOFILENAME.tar.gz -O /srcbuild/buildhome/cargocache/$CARGOFILENAME.tar.gz
+      tar -xzf /srcbuild/buildhome/cargocache/$CARGOFILENAME.tar.gz -C /srcbuild/buildhome/cargocache
+      cp /srcbuild/buildhome/cargocache/$CARGOFILENAME/cargo/bin/cargo $CARGO_HOME
+    fi
+
+    #Create a script that will run as a nonroot user, to handle the scripts custom download actions after its been downloaded, and run cargo.
     echo "#! /bin/bash
     $(declare -f PackageDownloadSource)
+    $(declare -f DownloadTOMLData)
     export SOURCEDIR=$SOURCEDIR
     export SOURCENAME=$SOURCENAME
     export INSTALLDIR=$INSTALLDIR
 
     cd "/$SOURCEDIR/$SOURCENAME"
+
+    DownloadTOMLData
     PackageDownloadSource
     
 " > packagedownloadscript
     chmod +x ./packagedownloadscript
     STARTTIME=$(date +%s)
-    $NONROOTCOMMAND ./packagedownloadscript   2>&1 | tee "/usr/share/logs/build_core/$SOURCENAME/PackageDownloadSource"
+    $NONROOTCOMMAND ./packagedownloadscript   2>&1 | tee "$BUILDLOGDIR/$SOURCENAME/PackageDownloadSource"
+
     ENDTIME=$(date +%s)
-    echo "PackageDownloadSource finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "/usr/share/logs/build_core/$SOURCENAME/PackageDownloadSource"
+    echo "PackageDownloadSource finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "$BUILDLOGDIR/$SOURCENAME/PackageDownloadSource"
     rm ./packagedownloadscript
   fi
 }
@@ -497,28 +585,25 @@ function GetSourceVersion()
 }
 
 
+function SetBuildVariables()
+{
+  #Create build variables
+  . /usr/bin/build_vars
+}
 
 #Function that calls common build preperations, and then calls upon the main builder scripts prepare function
 function PrepareBuild()
 {
-  #Create build variables
-  . /usr/bin/build_vars
-
+  SetBuildVariables
   mkdir -p "$SOURCEDIR"
   cd "$SOURCEDIR"
   mkdir -p "$SOURCENAME"
   cd "$SOURCENAME"
 
-  #Delete all .la files as they cause problems
-  find / | grep "\.la$" | while read LAFILE
-  do 
-    rm $LAFILE 2>/dev/null
-  done
-
   STARTTIME=$(date +%s)
-  PackagePrepareBuild 2>&1 | tee "/usr/share/logs/build_core/$SOURCENAME/PackagePrepareBuild"
+  PackagePrepareBuild 2>&1 | tee "/$SOURCEDIR/$SOURCENAME/Logs/PackagePrepareBuild"
   ENDTIME=$(date +%s)
-  echo "PackagePrepareBuild finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "/usr/share/logs/build_core/$SOURCENAME/PackagePrepareBuild"
+  echo "PackagePrepareBuild finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "/$SOURCEDIR/$SOURCENAME/Logs/PackagePrepareBuild"
 }
 
 #Function that handles the build of the source, creation of the deb file, or installation of the source
@@ -534,8 +619,15 @@ function MakeAndInstall()
   mkdir -p "$INSTALLDIR/doc"
   mkdir -p "$INSTALLDIR/include"
 
+  
+  #Get all Source 
+  if [[ ! -e /usr/share/buildcore_revisions.txt ]]
+  then
+    echo "#This script is used to specify the revisions of the repositories which the ISO was built with. See output of the main builder for how to use this file, if you want to build the exact revisions, instead of the latest ones" > /usr/share/buildcore_revisions.txt
+  fi
+
   #Log the source version
-  GetSourceVersion > "/usr/share/logs/build_core/$SOURCENAME/GetSourceVersion"
+  GetSourceVersion | tee -a /usr/share/buildcore_revisions.txt > "$BUILDLOGDIR/$SOURCENAME/GetSourceVersion"
 
   #If the script is set to always rebuild, then detect if the revision info changed.
   if [[ $REBUILDNEWREVISION == 1 && $MAKEDEBS == 1 ]]
@@ -546,47 +638,90 @@ function MakeAndInstall()
     DIFFERENTREVISION=0
   fi
 
-  #Count the number of non-empty debs
-  DEBFILECONTENTCOUNT=$(find "/$SOURCEDIR/buildoutput/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb -type f -maxdepth 1 | while read DEBFILE
+  #count the number of non-empty debs for this package
+  DEBFILECONTENTCOUNT=0
+  while read DEBFILE
   do
-    dpkg-deb -c "$DEBFILE" | grep -v ^d | grep -v /include/ | grep -v "GetSourceVersion" 
-  done | wc -l)
+    while read LINE
+    do
+     LINEARRAY=($LINE)
+     if [[ ${LINEARRAY[5]} != "./usr/share/buildcore_revisions/buildresults/$SOURCENAME" ]]
+     then
+       ((DEBFILECONTENTCOUNT++))
+     else
+       DEBFILECONTENTCOUNT=0
+       break
+     fi
+    done < <(dpkg-deb -c "$DEBFILE" 2>/dev/null | grep -v ^d | grep -v /include/ | grep -v "/usr/share/buildcore_revisions/$SOURCENAME" )
+  done < <(find "/$SOURCEDIR/buildoutput/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb -maxdepth 1 -type f )
 
   #If the deb file is gone, there is no control file, or the script is set to build a new revision and there is anew revision, or the scripts not configured to make deb files, then build the source
   if [[ ! $(ls "/$SOURCEDIR/buildoutput/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb ) || ! $(ls "/$SOURCEDIR/buildoutput/smallpackages/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb ) || ! -f "/$SOURCEDIR/buildoutput/control/$SOURCENAME" || $MAKEDEBS != 1 || $DIFFERENTREVISION != 0 || $DEBFILECONTENTCOUNT == 0 ]]
   then
-    #Call PrepareBuild functions
-    PrepareBuild 
-
-    #Complile the source
-    STARTTIME=$(date +%s)
-    PackageCompileSource 2>&1 | tee "/usr/share/logs/build_core/$SOURCENAME/PackageCompileSource"
-    ENDTIME=$(date +%s)
-    echo "PackageCompileSource finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "/usr/share/logs/build_core/$SOURCENAME/PackageCompileSource"
+    if [[ $MAKEDEBS == 1 ]]
+    then
+      rm "/$SOURCEDIR/buildoutput/control/$SOURCENAME" 2>/dev/null
+    fi
 
     #Empty any possible logs inside the source folder
-    rm "/$SOURCEDIR/$SOURCENAME/Logs/"* 
+    rm "/$SOURCEDIR/$SOURCENAME/Logs/"*
+
+    #Create a script that will be run as non root, to handle the custom configure and build options
+    echo "#! /bin/bash
+    mkdir -p \"/$SOURCEDIR/$SOURCENAME/Logs\"
+    $(declare -f SetBuildVariables)
+    $(declare -f PrepareBuild)
+    $(declare -f PackagePrepareBuild)
+    $(declare -f PackageCompileSource)
+    export SOURCEDIR=$SOURCEDIR
+    export SOURCENAME=$SOURCENAME
+    export INSTALLDIR=$INSTALLDIR
+
+    cd "/$SOURCEDIR/$SOURCENAME"
+    #Call PrepareBuild functions
+    PrepareBuild
+
+    #Complile the source
+    STARTTIME=\$(date +%s)
+    PackageCompileSource 2>&1 | tee \"/$SOURCEDIR/$SOURCENAME/Logs/PackageCompileSource\"
+    ENDTIME=\$(date +%s)
+    echo "PackageCompileSource finished in '$((ENDTIME-STARTTIME))' seconds" 2>&1 | tee -a \"/$SOURCEDIR/$SOURCENAME/Logs/PackageCompileSource\"
+" > packagecompilescript
+
+    chmod +x ./packagecompilescript
+    $NONROOTCOMMAND ./packagecompilescript
 
     #Create a script file that will be called by checkinstall, or just called if no .deb files are being made. It exports the current build scripts PackageInstallSource and PackagePostInstall functions to the script.
     echo "#! /bin/bash
     mkdir -p \"/$SOURCEDIR/$SOURCENAME/Logs\"
+    $(declare -f SetBuildVariables)
     $(declare -f PackageInstallSource)
     $(declare -f PackagePostInstall)
     export SOURCEDIR=$SOURCEDIR
     export SOURCENAME=$SOURCENAME
     export INSTALLDIR=$INSTALLDIR
 
-    touch \"/usr/share/logs/build_core/$SOURCENAME/GetSourceVersion\"
+    mkdir \"/usr/share/buildcore_revisions/\"
+    cp \"$BUILDLOGDIR/$SOURCENAME/GetSourceVersion\" \"/usr/share/buildcore_revisions/$SOURCENAME\"
+
+    SetBuildVariables
 
     STARTTIME=\$(date +%s)
     PackageInstallSource 2>&1 | tee \"/$SOURCEDIR/$SOURCENAME/Logs/PackageInstallSource\"
+    PackageInstallSourceResult=\${PIPESTATUS[0]}
     ENDTIME=\$(date +%s)
     echo \"PackageInstallSource finished in \$((ENDTIME-STARTTIME)) seconds\" 2>&1 | tee -a \"/$SOURCEDIR/$SOURCENAME/Logs/PackageInstallSource\"
 
     STARTTIME=\$(date +%s)
     PackagePostInstall 2>&1 | tee \"/$SOURCEDIR/$SOURCENAME/Logs/PackagePostInstall\"
     ENDTIME=\$(date +%s)
-    echo \" PackagePostInstall finished in \$((ENDTIME-STARTTIME)) seconds\" 2>&1 | tee -a \"/$SOURCEDIR/$SOURCENAME/Logs/PackagePostInstall\"
+    echo \" PackagePostInstall finished in \$((ENDTIME-STARTTIME)) seconds with result \$PackageInstallSourceResult\" 2>&1 | tee -a \"/$SOURCEDIR/$SOURCENAME/Logs/PackagePostInstall\"
+    if [[ \$PackageInstallSourceResult != 0 ]]
+    then
+      mkdir \"/usr/share/buildcore_revisions/buildresults/\"
+      touch $SOURCENAME \"/usr/share/buildcore_revisions/buildresults/$SOURCENAME\"
+      echo $SOURCENAME >> \"/$SOURCEDIR/$SOURCENAME/Logs/failedcompiles\"
+    fi
     exit 0
 " > packageinstallscript
 
@@ -602,7 +737,15 @@ function MakeAndInstall()
         FILETYPE=\$(file -b  \"\$FILE\" 2>/dev/null)
         if [[ \"\$FILE\" != $INSTALLDIR/include/* ]] && ! [[ \"\$FILETYPE\" == \"current ar archive\" && \"\$FILE\" == *.a ]]
         then
-          touch \"\$FILE\"
+          FILELINKPATH=\$(readlink -f \"\$FILE\")
+          if [[ \"\$FILE\" == \"\$FILELINKPATH\" ]]
+          then
+            touch \"\$FILE\"
+          else
+            FILELINKDEST=\$(readlink \"\$FILE\")
+            rm \"\$FILE\"
+            ln -s \"\$FILELINKDEST\" \"\$FILE\"
+          fi
         fi
       fi
     done
@@ -621,25 +764,44 @@ function MakeAndInstall()
       mkdir debian
       touch debian/control
 
+      #Set the build variables for ldd
+      SetBuildVariables
+
       #Update database containing the list of files that belong to packages
       update-dlocatedb
+      
+      #Find All so file names, built within the package, so that they can be excluded from the list of dependant files. 
+      BUILTSOFILES=$(find /$SOURCEDIR/$SOURCENAME/ |grep -e '\.so$' -e '\.so\.' |while read SOFILE
+      do 
+        SOFILE=$(basename "$SOFILE")
+        IFS="."
+        SOFILE=($SOFILE)
+        unset IFS
+        SOFILE=${SOFILE[0]}.${SOFILE[1]}
+        echo $SOFILE
+      done)
 
       #Find all Executable files compiled in the source tree, get the dependancy Library files, and find the package the libraries belong to
+      echo "Evaluating dependancies, this might take some time..."
       DEPENDS=$(find /$SOURCEDIR/$SOURCENAME/ -type f -executable | while read FILE
       do
-	DIRECTDEPENDS=$(readelf -d "$FILE" 2>/dev/null | grep NEEDED |sed -e 's/\[//g' -e 's/]//g' |awk '{print $5}')
-	DIRECTDEPENDS=$(echo $DIRECTDEPENDS | sed 's/ /\\\|/g')
-	ALLDEPENDS=$(ldd "$FILE" 2>/dev/null | grep =\> | awk '{print $3}')
-	echo "$ALLDEPENDS" | grep "$DIRECTDEPENDS"
+        FILETYPE=$(file -bi $FILE |awk -F / '{print $1}')
+        if [[ $FILETYPE == application ]]
+        then
+          DIRECTDEPENDS=$(readelf -d "$FILE" 2>/dev/null | grep NEEDED |sed -e 's/\[//g' -e 's/]//g' |awk '{print $5}')
+          DIRECTDEPENDS=$(echo $DIRECTDEPENDS | sed 's/ /\\\|/g')
+          ALLDEPENDS=$(ldd "$FILE" 2>/dev/null | grep =\> | awk '{print $3}')
+          echo "$ALLDEPENDS" | grep "$DIRECTDEPENDS" | grep -v "$BUILTSOFILES"
+        fi
       done | sort | uniq | grep -v ^$ | while read LIBRARY
       do
-	if [[ -e "$LIBRARY" ]]
-	then
-	  DEPEND=$(dlocate -S --package-only "$LIBRARY")
-	  echo $DEPEND
-	  echo "$LIBRARY:$DEPEND" >> "/usr/share/logs/build_core/$SOURCENAME/CheckInstallDepends"
-	fi
-      done | sort | uniq | grep -v "\-dev:" | grep -v "\-dev$" | grep -v "\-dbg" | grep -v cmake | grep -v git | grep -v svn | grep -v bzr )
+        if [[ -e "$LIBRARY" ]]
+        then
+          DEPEND=$(dlocate -S --package-only "$LIBRARY"$)
+          echo $DEPEND
+          echo "$LIBRARY:$DEPEND" >> "$BUILDLOGDIR/$SOURCENAME/CheckinstallDepends"
+        fi
+      done | sort | uniq | grep -ve "\-dev:" -ve "\-dev$" -ve "\-dbg" -ve cmake -ve git -ve svn -ve bzr )
 
       DEPENDS=$(echo $DEPENDS | sed 's/ /,/g') 
 
@@ -656,18 +818,24 @@ function MakeAndInstall()
       #create the new deb
       STARTTIME=$(date +%s)
       PACKAGEDATE=$(date +%s)
-      checkinstall -y -D --fstrans=no --strip=no --stripso=no --nodoc --dpkgflags=--force-overwrite --install=yes --backup=no --pkgname="$PACKAGESOURCENAME"-"$PACKAGESUFFIX" --pkgversion=1 --pkgrelease=$PACKAGEDATE --pkglicense="OSI_COMPLIANT" --maintainer="$PACKAGESUFFIX"@"$PACKAGESUFFIX" --pkgsource="$PACKAGESUFFIX" --pkggroup="$PACKAGESUFFIX" --requires="$DEPENDS" ./packageinstallscript 2>&1 | tee "/usr/share/logs/build_core/$SOURCENAME/Checkinstall"
+      $CHECKINSTALLCMD -y -D --install=no --fstrans=no --strip=no --stripso=no --nodoc --dpkgflags=--force-overwrite --install=no --backup=no --pkgname="$PACKAGESOURCENAME"-"$PACKAGESUFFIX" --pkgversion=1 --pkgrelease=$PACKAGEDATE --pkglicense="OSI_COMPLIANT" --maintainer="$PACKAGESUFFIX"@"$PACKAGESUFFIX" --pkgsource="$PACKAGESUFFIX" --pkggroup="$PACKAGESUFFIX" --requires="$DEPENDS" --exclude=/srcbuild,/tmp/srcbuild_overlay,/srcbuild/buildoutput,/home/remastersys,/var/tmp,/buildlogs ./packageinstallscript 2>&1 | tee "$BUILDLOGDIR/$SOURCENAME/Checkinstall"
       ENDTIME=$(date +%s)
-      echo "Checkinstall finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "/usr/share/logs/build_core/$SOURCENAME/Checkinstall"
+      echo "Checkinstall finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "$BUILDLOGDIR/$SOURCENAME/Checkinstall"
 
       #move the resulting deb file into the buildoutput tree.
       mv "$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb "/$SOURCEDIR/buildoutput/"
-      
+
+      #Install the newly created deb file
+      STARTTIME=$(date +%s)
+      InstallDebFile "/$SOURCEDIR/buildoutput/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb 2>&1 | tee "$BUILDLOGDIR/$SOURCENAME/BuiltDebInstall"
+      ENDTIME=$(date +%s)
+      echo "BuiltDebInstall finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "$BUILDLOGDIR/$SOURCENAME/BuiltDebInstall"
+    
       #Build the 2nd smaller deb without debugging symbols for the smaller ISO. This is not installed by build_core and fstrans prevents the binaries from being clobbered
       STARTTIME=$(date +%s)
-      checkinstall -y -D --install=no --strip=yes --stripso=yes --nodoc --dpkgflags=--force-overwrite  --backup=no --pkgname="$PACKAGESOURCENAME"-"$PACKAGESUFFIX" --pkgversion=1 --pkgrelease=$PACKAGEDATE --pkglicense="OSI_COMPLIANT" --maintainer="$PACKAGESUFFIX"@"$PACKAGESUFFIX" --pkgsource="$PACKAGESUFFIX" --pkggroup="$PACKAGESUFFIX" --requires="$DEPENDS" ./packagereducescript 2>&1 | tee "/usr/share/logs/build_core/$SOURCENAME/SmallCheckinstall"
+      $CHECKINSTALLCMD -y -D --install=no --fstrans=no --strip=yes --stripso=yes --nodoc --dpkgflags=--force-overwrite  --backup=no --pkgname="$PACKAGESOURCENAME"-"$PACKAGESUFFIX" --pkgversion=1 --pkgrelease=$PACKAGEDATE --pkglicense="OSI_COMPLIANT" --maintainer="$PACKAGESUFFIX"@"$PACKAGESUFFIX" --pkgsource="$PACKAGESUFFIX" --pkggroup="$PACKAGESUFFIX" --requires="$DEPENDS" --exclude=/srcbuild,/tmp/srcbuild_overlay,/srcbuild/buildoutput,/home/remastersys,/var/tmp,/buildlogs ./packagereducescript 2>&1 | tee "$BUILDLOGDIR/$SOURCENAME/SmallCheckinstall"
       ENDTIME=$(date +%s)
-      echo "SmallCheckinstall finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "/usr/share/logs/build_core/$SOURCENAME/SmallCheckinstall"
+      echo "SmallCheckinstall finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "$BUILDLOGDIR/$SOURCENAME/SmallCheckinstall"
       
       #move the resulting deb file into the buildoutput tree.
       mv "$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb "/$SOURCEDIR/buildoutput/smallpackages"
@@ -681,13 +849,26 @@ function MakeAndInstall()
     fi
 
     #Copy the source logs correctly
-    cp "/$SOURCEDIR/$SOURCENAME/Logs/"* /usr/share/logs/build_core/$SOURCENAME/
+    cp  "/$SOURCEDIR/$SOURCENAME/Logs/PackagePrepareBuild" "$BUILDLOGDIR/$SOURCENAME/"
+    cp  "/$SOURCEDIR/$SOURCENAME/Logs/PackageCompileSource" "$BUILDLOGDIR/$SOURCENAME/"
+    cp  "/$SOURCEDIR/$SOURCENAME/Logs/PackageInstallSource" "$BUILDLOGDIR/$SOURCENAME/"
+    cp  "/$SOURCEDIR/$SOURCENAME/Logs/PackagePostInstall" "$BUILDLOGDIR/$SOURCENAME/"
+    if [[ -e "/$SOURCEDIR/$SOURCENAME/Logs/failedcompiles" ]]
+    then
+      cat "/$SOURCEDIR/$SOURCENAME/Logs/failedcompiles" >> "$BUILDLOGDIR/failedcompiles"
+    fi
 
     #If the deb file exists, the control file exists, and the script is configured to make deb files, then just install the deb
   else
     STARTTIME=$(date +%s)
-    dpkg -i --force-overwrite "/$SOURCEDIR/buildoutput/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb 2>&1 | tee "/usr/share/logs/build_core/$SOURCENAME/DebInstall"
+    InstallDebFile "/$SOURCEDIR/buildoutput/""$PACKAGESOURCENAME"-"$PACKAGESUFFIX"_*.deb 2>&1 | tee "$BUILDLOGDIR/$SOURCENAME/DebInstall"
     ENDTIME=$(date +%s)
-    echo "DebInstall finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "/usr/share/logs/build_core/$SOURCENAME/DebInstall"
+    echo "DebInstall finished in $((ENDTIME-STARTTIME)) seconds" 2>&1 | tee -a "$BUILDLOGDIR/$SOURCENAME/DebInstall"
   fi
 }
+
+#Run RunDownloadAndOrBuild directly if a file is specified
+if [[ $FILESPEC == 1 ]]
+then
+  RunDownloadAndOrBuild
+fi

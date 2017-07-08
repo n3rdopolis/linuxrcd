@@ -97,7 +97,6 @@ then
   fi
 fi
 
-HOMELOCATION=~
 unset HOME
 
 if [[ -z "$BUILDARCH" || -z $BUILDLOCATION || $UID != 0 ]]
@@ -106,23 +105,8 @@ then
   exit
 fi
 
-#create a folder for the media mountpoints in the media folder
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild/buildoutput
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/archives
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/remastersys
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/vartmp
-
 #Ensure that all the mountpoints in the namespace are private, and won't be shared to the main system
 mount --make-rprivate /
-
-#Clean up Phase 3 data.
-rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3/*
 
 if [[ $HASOVERLAYFS == 0 ]]
 then
@@ -132,10 +116,13 @@ then
   mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3 "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
 else
   #Union mount phase2 and phase3
-  mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/unionwork
-  mount -t overlay overlay -o lowerdir="$BUILDLOCATION"/build/"$BUILDARCH"/phase_2,upperdir="$BUILDLOCATION"/build/"$BUILDARCH"/phase_3,workdir="$BUILDLOCATION"/build/"$BUILDARCH"/unionwork "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
+  if [[ -d "$BUILDLOCATION"/build/"$BUILDARCH"/ramdisk/phase_3 ]]
+  then
+    mount -t overlay overlay -o lowerdir="$BUILDLOCATION"/build/"$BUILDARCH"/phase_2,upperdir="$BUILDLOCATION"/build/"$BUILDARCH"/ramdisk/phase_3,workdir="$BUILDLOCATION"/build/"$BUILDARCH"/ramdisk/unionwork "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
+  else
+    mount -t overlay overlay -o lowerdir="$BUILDLOCATION"/build/"$BUILDARCH"/phase_2,upperdir="$BUILDLOCATION"/build/"$BUILDARCH"/phase_3,workdir="$BUILDLOCATION"/build/"$BUILDARCH"/unionwork "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
+  fi
 fi
-
 
 #mounting critical fses on chrooted fs with bind 
 mount --rbind /dev "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/dev
@@ -144,21 +131,39 @@ mount --rbind /sys "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/sys
 mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/run/shm
 mount --bind /run/shm "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/run/shm
 
-#Mount in the folder with previously built debs
+#Bind mount shared directories
 mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild/buildoutput
 mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/home/remastersys
 mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/var/tmp
-mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/buildlogs
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/tmp/srcbuild_overlay
+
+#If no overlayfs is supported, set up srcbuild as a normal bind mount into the system, if overlayfs is supported, and there is enough ram, use the ramdisk as the upperdir, if not, use a path on the same filesystem as the upperdir
+if [[ $HASOVERLAYFS == 0 ]]
+then
+  mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild
+else
+  if [[ -d "$BUILDLOCATION"/build/"$BUILDARCH"/ramdisk/srcbuild_overlay ]]
+  then
+    mount -t overlay overlay -o  lowerdir="$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild,upperdir="$BUILDLOCATION"/build/"$BUILDARCH"/ramdisk/srcbuild_overlay,workdir="$BUILDLOCATION"/build/"$BUILDARCH"/ramdisk/unionwork_srcbuild "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild/
+    mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/ramdisk/srcbuild_overlay "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/tmp/srcbuild_overlay
+  else
+    mount -t overlay overlay -o  lowerdir="$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild,upperdir="$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild_overlay,workdir="$BUILDLOCATION"/build/"$BUILDARCH"/unionwork_srcbuild "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild/
+    mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild_overlay "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/tmp/srcbuild_overlay
+  fi
+fi
+
 mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/srcbuild/buildoutput
 mount --bind  "$BUILDLOCATION"/build/"$BUILDARCH"/remastersys "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/home/remastersys
 mount --bind  "$BUILDLOCATION"/build/"$BUILDARCH"/vartmp "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/var/tmp
+mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/buildlogs "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/buildlogs
 
 #copy the files to where they belong
-rsync "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/* -Cr "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/
+rsync "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/* -CKr "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/
 
 #Handle /usr/import for the creation of the deb file that contains this systems files
 mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/usr/import
-rsync "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/* -Cr "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/usr/import
+rsync "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/* -CKr "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/usr/import
 rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/usr/import/usr/import
 
 #delete the temp folder
@@ -175,47 +180,5 @@ then
   linux64 chroot "$BUILDLOCATION"/build/"$BUILDARCH"/workdir /tmp/configure_phase3.sh
 else
   echo "chroot execution failed. Please ensure your processor can handle the "$BUILDARCH" architecture, or that the target system isn't corrupt."
-fi
-
-
-#Create a date string for unique log folder names
-ENDDATE=$(date +"%Y-%m-%d %H-%M-%S")
-
-#Create a folder for the log files with the date string
-mkdir -p ""$BUILDLOCATION"/logs/$ENDDATE "$BUILDARCH""
-
-#Export the log files to the location
-cp -a ""$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/usr/share/logs/"* ""$BUILDLOCATION"/logs/$ENDDATE "$BUILDARCH""
-cp -a ""$BUILDLOCATION"/build/"$BUILDARCH"/workdir/usr/share/logs/"* ""$BUILDLOCATION"/logs/$ENDDATE "$BUILDARCH""
-rm ""$BUILDLOCATION"/logs/latest-"$BUILDARCH""
-ln -s ""$BUILDLOCATION"/logs/$ENDDATE "$BUILDARCH"" ""$BUILDLOCATION"/logs/latest-"$BUILDARCH""
-cp -a ""$BUILDLOCATION"/build/"$BUILDARCH"/workdir/usr/share/build_core_revisions.txt" ""$BUILDLOCATION"/logs/$ENDDATE "$BUILDARCH"" 
-cp -a ""$BUILDLOCATION"/build/"$BUILDARCH"/workdir/usr/share/build_core_revisions.txt" ""$HOMELOCATION"/LinuxRCD_Revisions_"$BUILDARCH".txt"
-
-#Take a snapshot of the source
-rm "$HOMELOCATION"/LinuxRCD_Source_"$BUILDARCH".tar.gz
-tar -czvf "$HOMELOCATION"/LinuxRCD_Source_"$BUILDARCH".tar.gz -C "$BUILDLOCATION"/build/"$BUILDARCH"/exportsource/ . &>/dev/null
-
-
-#If the live cd did not build then tell user 
-if [[ ! -f "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/home/remastersys/remastersys/custom.iso ]]
-then  
-  ISOFAILED=1
-else
-    mv "$BUILDLOCATION"/build/"$BUILDARCH"/remastersys/remastersys/custom.iso "$HOMELOCATION"/LinuxRCD_"$BUILDARCH".iso
-fi 
-
-
-#allow the user to actually read the iso   
-chown $SUDO_USER "$HOMELOCATION"/LinuxRCD*.iso "$HOMELOCATION"/LinuxRCD*.txt
-chgrp $SUDO_USER "$HOMELOCATION"/LinuxRCD*.iso "$HOMELOCATION"/LinuxRCD*.txt
-chmod 777 "$HOMELOCATION"/LinuxRCD*.iso "$HOMELOCATION"/LinuxRCD*.txt
-
-#If the live cd did  build then tell user   
-if [[ $ISOFAILED != 1  ]];
-then  
-  echo "Live CD image build was successful."
-else
-  echo "The Live CD did not succesfuly build. The script could have been modified, or a network connection could have failed to one of the servers preventing the installation packages for Ubuntu, or Remstersys from installing. There could also be a problem with the selected architecture for the build, such as an incompatible kernel or CPU, or a misconfigured qemu-system bin_fmt"
 fi
 

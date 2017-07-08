@@ -27,16 +27,6 @@ then
   exit
 fi
 
-#create a folder for the media mountpoints in the media folder
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_3
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/buildoutput
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/archives
-
 #Ensure that all the mountpoints in the namespace are private, and won't be shared to the main system
 mount --make-rprivate /
 
@@ -49,7 +39,7 @@ mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/archives "$BUILDLOCATION"/build
 #Set the debootstrap dir
 export DEBOOTSTRAP_DIR="$BUILDLOCATION"/debootstrap
 
-#setup a really basic Ubuntu installation for downloading 
+#setup a really basic Debian installation for downloading 
 #if set to rebuild phase 1
 if [ ! -f "$BUILDLOCATION"/DontRestartPhase1"$BUILDARCH" ]
 then
@@ -62,11 +52,18 @@ then
   fi
 fi
 
-
 #if set to rebuild phase 1
 if [ ! -f "$BUILDLOCATION"/DontRestartPhase2"$BUILDARCH" ]
 then
-  #setup a really basic Ubuntu installation for the live cd
+  #Force phase1 to rehandle downloads if phase2 is reset
+  if [ ! -f "$BUILDLOCATION"/DontRestartPhase2"$BUILDARCH" ]
+  then
+    rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/INSTALLS.txt.downloadbak
+    rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/FAILEDDOWNLOADS.txt
+    rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/INSTALLSSTATUS.txt
+  fi
+
+  #setup a really basic Debian installation for the live cd
   echo "Setting up chroot for the Live CD..."
   "$BUILDLOCATION"/debootstrap/debootstrap --arch "$BUILDARCH" stretch "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2 http://httpredir.debian.org/debian
   debootstrapresult=$?
