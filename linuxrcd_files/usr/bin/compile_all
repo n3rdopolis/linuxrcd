@@ -102,3 +102,5 @@ if [[ ! -e /usr/share/initramfs-tools/hooks/lupin_casper ]]
 then
   CompilePackage lupin
 fi
+
+wait
