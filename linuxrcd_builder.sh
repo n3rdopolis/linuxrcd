@@ -70,6 +70,11 @@ function setup_buildprocess
   #If user presses CTRL+C, kill any namespace, remove the lock file, exit the script
   trap 'if [[ $BUILD_RUNNING == 0 ]]; then exit 2; fi; if [[ -e /proc/"$ROOTPID" && $ROOTPID != "" ]]; then kill -9 $ROOTPID; rm "$BUILDLOCATION"/build/"$BUILDARCH"/lockfile; echo -e "\nCTRL+C pressed, exiting..."; exit 2; fi' 2
 
+  #Handle when the script is resumed
+  trap 'kill -CONT $UNSHAREPID' 18
+
+  #Stop the background process that the script is waiting on when CTRL+Z is sent
+  trap 'kill -STOP $UNSHAREPID' 20
 }
 
 #Function to start a command and all arguments, starting from the third one, as a command in a seperate PID and mount namespace. The first argument determines if the namespace should have network connectivity or not (1 = have network connectivity, 0 = no network connectivity). The second argument states where the log output will be written.
@@ -87,7 +92,7 @@ function NAMESPACE_EXECUTE {
   fi
 
   #Create the PID and Mount namespaces to start the command in
-  ($PYTHONCOMMAND -c 'import pty, sys; pty.spawn(sys.argv[1:])' unshare $UNSHAREFLAGS "$@" |& tee "$LOGFILE" ) &
+  ($PYTHONCOMMAND -c 'import pty, sys; from signal import signal, SIGPIPE, SIG_DFL; signal(SIGPIPE,SIG_DFL); pty.spawn(sys.argv[1:])' bash -c "stty cols 80 rows 24; exec unshare $UNSHAREFLAGS "$@"" |& tee "$LOGFILE" ) &
   UNSHAREPID=$!
   
   #Get the PID of the unshared process, which is pid 1 for the namespace, wait at the very most 1 minute for the process to start, 120 attempts with half 1 second intervals.
@@ -109,7 +114,7 @@ function NAMESPACE_EXECUTE {
   fi
 
   #Wait for the PID to complete
-  wait $UNSHAREPID
+  tail -f /dev/null --pid=$UNSHAREPID
 }
 
 #Declare most of the script as a function, to protect against the script from any changes when running, from causing the build process to be inconsistant
