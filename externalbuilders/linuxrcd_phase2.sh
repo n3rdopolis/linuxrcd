@@ -30,19 +30,14 @@ fi
 #Ensure that all the mountpoints in the namespace are private, and won't be shared to the main system
 mount --make-rprivate /
 
-#copy the installs data copied in phase 1 into phase 2 
-cp "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/INSTALLS.txt "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/tmp/INSTALLS.txt 
-
-
 #bind mount phase2 at the workdir
-mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2 "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
+mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/$PHASE2_PATHNAME "$BUILDLOCATION"/build/"$BUILDARCH"/workdir
 
 #mounting critical fses on chrooted fs with bind 
-mount --rbind /dev "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/dev
+mount --rbind "$BUILDLOCATION"/build/"$BUILDARCH"/minidev/ "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/dev
 mount --rbind /proc "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/proc
-mount --rbind /sys "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/sys
 mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/run/shm
-mount --bind /run/shm "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/run/shm
+mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/minidev/shm "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/run/shm
 
 #Bind mount shared directories
 mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/var/cache/apt/archives
@@ -50,12 +45,20 @@ mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/buildlogs
 mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/archives "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/var/cache/apt/archives
 mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/buildlogs "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/buildlogs
 
+#Hide /proc/modules as some debian packages call lsmod during install, which could lead to different results
+mount --bind /dev/null "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/proc/modules
+
 #Bring in needed files.
-rm -rf "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/var/lib/apt/lists/*
 cp -a "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/tmp/*     "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/tmp
 cp -a "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/etc/apt/sources.list "$BUILDLOCATION"/build/"$BUILDARCH"/workdir/etc/apt/sources.list 
-cp -a "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/var/cache/apt/*.bin "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/var/cache/apt
-cp -a "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/var/lib/apt/lists "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/var/lib/apt
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/$PHASE2_PATHNAME/etc/apt/preferences.d/
+rm "$BUILDLOCATION"/build/"$BUILDARCH"/$PHASE2_PATHNAME/etc/apt/preferences.d/*
+cp "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/etc/apt/preferences.d/* "$BUILDLOCATION"/build/"$BUILDARCH"/$PHASE2_PATHNAME/etc/apt/preferences.d/
+
+if [[ -e "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/tmp/etc_apt_sources.list ]]
+then
+  cp "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/tmp/etc_apt_sources.list "$BUILDLOCATION"/build/"$BUILDARCH"/$PHASE2_PATHNAME/etc/apt/sources.list
+fi
 
 #Configure the Live system########################################
 TARGETBITSIZE=$(chroot "$BUILDLOCATION"/build/"$BUILDARCH"/workdir /usr/bin/getconf LONG_BIT)

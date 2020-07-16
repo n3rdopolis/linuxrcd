@@ -31,20 +31,40 @@ fi
 mount --make-rprivate /
 
 #Initilize the two systems, Phase1 is the download system, for filling  "$BUILDLOCATION"/build/"$BUILDARCH"/archives and  "$BUILDLOCATION"/build/"$BUILDARCH"/srcbuild, and phase2 is the base of the installed system
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/var/cache/apt/archives
-mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/archives "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/var/cache/apt/archives
-mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/var/cache/apt/archives
-mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/archives "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2/var/cache/apt/archives
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/$PHASE1_PATHNAME/var/cache/apt/archives
+mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/archives "$BUILDLOCATION"/build/"$BUILDARCH"/$PHASE1_PATHNAME/var/cache/apt/archives
+mkdir -p "$BUILDLOCATION"/build/"$BUILDARCH"/$PHASE2_PATHNAME/var/cache/apt/archives
+mount --bind "$BUILDLOCATION"/build/"$BUILDARCH"/archives "$BUILDLOCATION"/build/"$BUILDARCH"/$PHASE2_PATHNAME/var/cache/apt/archives
+
+#If using a revisions file, force downloading a snapshot from the time specified
+if [[ -e "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/tmp/buildcore_revisions.txt ]]
+then
+  #add
+  #--keyring /usr/share/keyrings/debian-archive-removed-keys.gpg
+  #to debootstrap if in the future building a snapshot, and debootstrap fails with 'Release signed by unknown key'
+  APTFETCHDATESECONDS=$(grep APTFETCHDATESECONDS= "$BUILDLOCATION"/build/"$BUILDARCH"/importdata/tmp/buildcore_revisions.txt | head -1 | sed 's/APTFETCHDATESECONDS=//g')
+  APTFETCHDATE=$(date -d @$APTFETCHDATESECONDS -u +%Y%m%dT%H%M%SZ 2>/dev/null)
+  APTFETCHDATERESULT=$?
+  if [[ $APTFETCHDATERESULT == 0 ]]
+  then
+    DEBIANREPO="http://snapshot.debian.org/archive/debian/$APTFETCHDATE/"
+  else
+    echo "Invalid APTFETCHDATESECONDS set. Falling back"
+    DEBIANREPO="http://httpredir.debian.org/debian"
+  fi
+else
+  DEBIANREPO="http://httpredir.debian.org/debian"
+fi
 
 #Set the debootstrap dir
 export DEBOOTSTRAP_DIR="$BUILDLOCATION"/debootstrap
 
 #setup a really basic Debian installation for downloading 
 #if set to rebuild phase 1
-if [ ! -f "$BUILDLOCATION"/DontRestartPhase1"$BUILDARCH" ]
+if [[ ! -f "$BUILDLOCATION"/DontRestartPhase1"$BUILDARCH" || $BUILD_SNAPSHOT_SYSTEMS == 1 ]]
 then
   echo "Setting up chroot for downloading archives and software..."
-  "$BUILDLOCATION"/debootstrap/debootstrap --arch "$BUILDARCH" stretch "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1 http://httpredir.debian.org/debian
+  "$BUILDLOCATION"/debootstrap/debootstrap --arch "$BUILDARCH" stretch "$BUILDLOCATION"/build/"$BUILDARCH"/$PHASE1_PATHNAME $DEBIANREPO
   debootstrapresult=$?
   if [[ $debootstrapresult == 0 ]]
   then
@@ -53,19 +73,11 @@ then
 fi
 
 #if set to rebuild phase 1
-if [ ! -f "$BUILDLOCATION"/DontRestartPhase2"$BUILDARCH" ]
+if [[ ! -f "$BUILDLOCATION"/DontRestartPhase2"$BUILDARCH" || $BUILD_SNAPSHOT_SYSTEMS == 1 ]]
 then
-  #Force phase1 to rehandle downloads if phase2 is reset
-  if [ ! -f "$BUILDLOCATION"/DontRestartPhase2"$BUILDARCH" ]
-  then
-    rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/INSTALLS.txt.downloadbak
-    rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/FAILEDDOWNLOADS.txt
-    rm "$BUILDLOCATION"/build/"$BUILDARCH"/phase_1/tmp/INSTALLSSTATUS.txt
-  fi
-
   #setup a really basic Debian installation for the live cd
   echo "Setting up chroot for the Live CD..."
-  "$BUILDLOCATION"/debootstrap/debootstrap --arch "$BUILDARCH" stretch "$BUILDLOCATION"/build/"$BUILDARCH"/phase_2 http://httpredir.debian.org/debian
+  "$BUILDLOCATION"/debootstrap/debootstrap --arch "$BUILDARCH" stretch "$BUILDLOCATION"/build/"$BUILDARCH"/$PHASE2_PATHNAME $DEBIANREPO
   debootstrapresult=$?
   if [[ $debootstrapresult == 0 ]]
   then

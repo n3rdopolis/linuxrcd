@@ -60,8 +60,8 @@ adduser --no-create-home --disabled-password --system --force-badname _apt
 apt-get install -f
 dpkg --configure -a
 
-#Create the correct /etc/resolv.conf symlink
-ln -s ../run/resolvconf/resolv.conf /etc/resolv.conf 
+#attempt to prevent packages from prompting for debconf
+export DEBIAN_FRONTEND=noninteractive
 
 #install basic applications that the system needs to get repositories and packages
 apt-get install aptitude git bzr subversion mercurial wget rustc curl dselect locales acl sudo -y 
@@ -70,39 +70,40 @@ apt-get install aptitude git bzr subversion mercurial wget rustc curl dselect lo
 locale-gen en_US.UTF-8
 localedef -i en_US -f UTF-8 en_US.UTF-8
 
-#attempt to prevent packages from prompting for debconf
-export DEBIAN_FRONTEND=noninteractive
-
 #Create folder to hold the install logs
 mkdir -p "$PACKAGEOPERATIONLOGDIR"/Installs
 
 #Ensure that the files that are being created exist
-touch /tmp/FAILEDREMOVES.txt
-touch /tmp/FAILEDINSTALLS.txt
-touch /tmp/INSTALLS.txt.installbak
+touch /tmp/INSTALLS.txt.lastrun
 
-#Get the packages that need to be installed, by determining new packages specified, and packages that did not complete.
-sed -i 's/^ *//;s/ *$//;/^$/d' /tmp/FAILEDREMOVES.txt
-sed -i 's/^ *//;s/ *$//;/^$/d' /tmp/FAILEDINSTALLS.txt
-sed -i 's/^ *//;s/ *$//;/^$/d' /tmp/INSTALLS.txt.installbak
+#Generate a list of all valid packages off the apt cache into a quickly parseable format, to test if a package name is valid.
+apt-cache search . | awk '{print $1}' > /tmp/AVAILABLEPACKAGES.txt
 
-#Get the list of packages to remove, that have been removed from INSTALLS_LIST.txt
-grep -Fxv -f /tmp/INSTALLS.txt /tmp/INSTALLS.txt.installbak | grep -v ::REMOVE | awk -F "#" '{print $1}' >> /tmp/FAILEDREMOVES.txt
-
-#Ensure that all the failed removes that will attempt to be removes again are not actually specified to be installed again in INSTALLS_LIST.txt
-INSTALLS=$(grep -Fxv -f /tmp/INSTALLS.txt /tmp/FAILEDREMOVES.txt | awk -F :: '{print $1"::REMOVE"}')
-
-#Get list of new packages to install, compared from the previous run
+#Get list of new packages to install
+INSTALLS=$(cat /tmp/INSTALLS.txt | awk -F "#" '{print $1}')
 INSTALLS+=$'\n'
-INSTALLS_FAILAPPEND="$(grep -Fxv -f /tmp/INSTALLS.txt.installbak /tmp/INSTALLS.txt | awk -F "#" '{print $1}' )"
-INSTALLS+=$INSTALLS_FAILAPPEND
 
-#Add the FAILEDINSTALLS.txt contents to the installs list, insure that the failed package is still set to be installed by INSTALLS_LIST.txt
-INSTALLS+="
-$(grep -Fx -f /tmp/INSTALLS.txt /tmp/FAILEDINSTALLS.txt )"
-
-#log new packages to FAILEDINSTALLS.txt, which will then be removed once the download is successful
-echo "$INSTALLS_FAILAPPEND" >> /tmp/FAILEDINSTALLS.txt
+#Get list of new packages to remove, compared from the previous run
+grep -Fxv -f /tmp/INSTALLS.txt /tmp/INSTALLS.txt.lastrun | grep -v ::REMOVE | awk -F "#" '{print $1}' | awk -F "::" '{print $1}' | while read -r OLDPACKAGE
+do
+  AvailableCount=$(cat /tmp/AVAILABLEPACKAGES.txt | grep -c ^$OLDPACKAGE$)
+  if [[ $AvailableCount != 0 ]]
+  then
+    echo "$OLDPACKAGE" >> /tmp/INSTALLS.txt.removes
+  fi
+done
+if [[ -f /tmp/INSTALLS.txt.removes ]]
+then
+  INSTALLS+=$(cat /tmp/INSTALLS.txt.removes | sort | uniq | while read -r PACKAGE
+  do
+    AvailableCount=$(cat /tmp/AVAILABLEPACKAGES.txt | grep -c ^$PACKAGE$)
+    if [[ $AvailableCount != 0 ]]
+    then
+      echo "$PACKAGE::REMOVE"
+    fi
+  done)
+fi
+INSTALLS+=$'\n'
 
 #Clear any empty lines
 INSTALLS=$(echo -n "$INSTALLS" |sed 's/^ *//;s/ *$//;/^::$/d;/^$/d')
@@ -113,37 +114,46 @@ then
   INSTALLS+=$'\n'
 fi
 
-#DOWNLOAD THE PACKAGES SPECIFIED
-while read PACKAGEINSTRUCTION
+#INSTALL THE PACKAGES SPECIFIED
+PART_PACKAGES=""
+FULL_PACKAGES=""
+REMOVE_PACKAGES=""
+while read -r PACKAGEINSTRUCTION
 do
   PACKAGE=$(echo $PACKAGEINSTRUCTION | awk -F "::" '{print $1}' )
   METHOD=$(echo $PACKAGEINSTRUCTION | awk -F "::" '{print $2}' )
 
-  #This is for partial installs
+  AvailableCount=$(cat /tmp/AVAILABLEPACKAGES.txt | grep -c ^$PACKAGE$)
+  if [[ $AvailableCount == 0 ]]
+  then
+    Result=1
+  else
+    Result=0
+  fi
+
+  #Partial install
   if [[ $METHOD == "PART" ]]
   then
-    echo "Installing with partial dependancies for $PACKAGE"                        2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/"$PACKAGE".log
-    apt-get --no-install-recommends install $PACKAGE -y       2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/"$PACKAGE".log
-    Result=${PIPESTATUS[0]}
-  #This is for full installs
+    if [[ $Result == 0 ]]
+    then
+      echo "Installing with partial dependancies for $PACKAGE"                     > "$PACKAGEOPERATIONLOGDIR"/Installs/PART_Installs.log
+      PART_PACKAGES+="$PACKAGE "
+    fi
+  #with all dependancies
   elif [[ $METHOD == "FULL" ]]
   then
-    echo "Installing with all dependancies for $PACKAGE"                            2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/"$PACKAGE".log
-    apt-get install $PACKAGE -y                                         2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/"$PACKAGE".log
-    Result=${PIPESTATUS[0]}
+    if [[ $Result == 0 ]]
+    then
+      echo "Installing with all dependancies for $PACKAGE"                         > "$PACKAGEOPERATIONLOGDIR"/Installs/FULL_Installs.log
+      FULL_PACKAGES+="$PACKAGE "
+    fi
   #Remove packages if specified, or if a package is no longer specified in INSTALLS.txt
   elif [[ $METHOD == "REMOVE" ]]
   then
-    echo "Removing $PACKAGE"                                                               2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/"$PACKAGE".log
-    apt-get purge $PACKAGE -y                                 2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/"$PACKAGE".log
-    Result=${PIPESTATUS[0]}
-    if [[ $Result != 0 ]]
+    if [[ $Result == 0 ]]
     then
-      dpkg -l $PACKAGE &> /dev/null
-      if [[ $? != 0 ]]
-      then
-         Result=0
-      fi
+      echo "Removing $PACKAGE"                                                      > "$PACKAGEOPERATIONLOGDIR"/Installs/REMOVE_Uninstalls.log
+      REMOVE_PACKAGES+="$PACKAGE "
     fi
   else
     echo "Invalid Install Operation: $METHOD on package $PACKAGE"                   2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/"$PACKAGE".log
@@ -155,24 +165,43 @@ do
   if [[ $Result != 0 ]]
   then
     echo "$PACKAGE failed to $METHOD" |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/failedpackages.log
-  else
-    echo "$PACKAGE successfully $METHOD"
-    grep -v "$PACKAGEINSTRUCTION" /tmp/FAILEDINSTALLS.txt > /tmp/FAILEDINSTALLS.txt.bak
-    cat /tmp/FAILEDINSTALLS.txt.bak > /tmp/FAILEDINSTALLS.txt
-    rm /tmp/FAILEDINSTALLS.txt.bak
-    if [[ $METHOD == "REMOVE" ]]
-    then
-      grep -v "$PACKAGE::" /tmp/FAILEDREMOVES.txt > /tmp/FAILEDREMOVES.txt.bak
-      cat /tmp/FAILEDREMOVES.txt.bak > /tmp/FAILEDREMOVES.txt
-      rm /tmp/FAILEDREMOVES.txt.bak
-    fi
-
   fi
 
 done < <(echo -n "$INSTALLS")
 
-cp /tmp/INSTALLS.txt /tmp/INSTALLS.txt.installbak
+apt-get --no-install-recommends install $PART_PACKAGES -y    2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/PART_Installs.log
+Result=${PIPESTATUS[0]}
+if [[ $Result != 0 ]]
+then
+  echo "Partial Installs failed" |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/failedpackages.log
+fi
 
+apt-get install $FULL_PACKAGES -y                            2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/FULL_Installs.log
+Result=${PIPESTATUS[0]}
+if [[ $Result != 0 ]]
+then
+  echo "Full Installs failed" |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/failedpackages.log
+fi
+
+apt-get purge $REMOVE_PACKAGES -y                            2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/REMOVE_Uninstalls.log
+Result=${PIPESTATUS[0]}
+if [[ $Result != 0 ]]
+then
+  echo "Removes failed" |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/failedpackages.log
+else
+  rm /tmp/INSTALLS.txt.removes
+fi
+
+
+cp /tmp/INSTALLS.txt /tmp/INSTALLS.txt.lastrun
+
+#install updates
+apt-get dist-upgrade -y --no-install-recommends                         2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/dist-upgrade.log
+Result=${PIPESTATUS[0]}
+if [[ $Result != 0 ]]
+then
+ echo "APT dist-upgrade failed" |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/failedpackages.log
+fi
 
 #remove old kernels!
 CURRENTKERNELVERSION=$(basename $(readlink /vmlinuz) |awk -F "-" '{print $2"-"$3}')
@@ -181,22 +210,29 @@ then
   CURRENTKERNELVERSION=$(dpkg --get-selections | awk '{print $1}' | grep linux-image-[0-9]'\.'[0-9] | tail -1 |awk -F "-" '{print $3"-"$4}')
 fi
 
-dpkg --get-selections | awk '{print $1}' | grep -v "$CURRENTKERNELVERSION" | grep 'linux-image\|linux-headers' | grep -E \(linux-image-[0-9]'\.'[0-9]\|linux-headers-[0-9]'\.'[0-9]\) | while read PACKAGE
+dpkg --get-selections | awk '{print $1}' | grep -v "$CURRENTKERNELVERSION" | grep 'linux-image\|linux-headers' | grep -E \(linux-image-[0-9]'\.'[0-9]\|linux-headers-[0-9]'\.'[0-9]\) | while read -r PACKAGE
 do
   apt-get purge $PACKAGE -y 
 done
 
-#install updates
-apt-get dist-upgrade -y                                                 2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/dist-upgrade.log
-
 #Delete the old depends of the packages no longer needed.
 apt-get --purge autoremove -y                                           2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/purge_autoremove.log
+Result=${PIPESTATUS[0]}
+if [[ $Result != 0 ]]
+then
+ echo "APT autoremove failed" |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/failedpackages.log
+fi
 
 #prevent packages removed from the repositories upstream to not make it in the ISOS
 ESSENTIALOBSOLETEPACKAGECOUNT=$(aptitude search '~o~E' |wc -l)
 if [[ $ESSENTIALOBSOLETEPACKAGECOUNT == 0 ]]
 then
   aptitude purge ?obsolete -y                                          2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/purge_obsolete.log
+  Result=${PIPESTATUS[0]}
+  if [[ $Result != 0 ]]
+  then
+   echo "APT purge failed" |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/failedpackages.log
+  fi
 else
   echo        "Not purging older packages, because apt-get update failed"    2>&1 |tee -a "$PACKAGEOPERATIONLOGDIR"/Installs/purge_obsolete.log
 fi
