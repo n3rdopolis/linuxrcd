@@ -134,14 +134,14 @@ function RunDownloadAndOrBuild
   export HOME="$SOURCEDIR"/buildhome/config/"$SOURCENAME"
 
   #Create home directory for the subcommand's $HOME folder, and standard home directories
-  mkdir -p "/$SOURCEDIR"/buildhome/config/"$SOURCENAME"
-  mkdir -p "/$SOURCEDIR"/buildhome/config/"$SOURCENAME/.local"
-  mkdir -p "/$SOURCEDIR"/buildhome/config/"$SOURCENAME/.cache"
-  mkdir -p "/$SOURCEDIR"/buildhome/config/"$SOURCENAME/.config"
+  $NONROOTCOMMAND mkdir -p "/$SOURCEDIR"/buildhome/config/"$SOURCENAME" 2>/dev/null
+  $NONROOTCOMMAND mkdir -p "/$SOURCEDIR"/buildhome/config/"$SOURCENAME/.local" 2>/dev/null
+  $NONROOTCOMMAND mkdir -p "/$SOURCEDIR"/buildhome/config/"$SOURCENAME/.cache" 2>/dev/null
+  $NONROOTCOMMAND mkdir -p "/$SOURCEDIR"/buildhome/config/"$SOURCENAME/.config" 2>/dev/null
 
   mkdir -p "$BUILDLOGDIR/$SOURCENAME"
-  mkdir -p "/$SOURCEDIR"/buildhome/sourcehome/"$SOURCENAME"
-  mkdir -p "/$SOURCEDIR"/buildhome/cargocache
+  $NONROOTCOMMAND mkdir -p "/$SOURCEDIR"/buildhome/sourcehome/"$SOURCENAME" 2>/dev/null
+  $NONROOTCOMMAND mkdir -p "/$SOURCEDIR"/buildhome/cargocache 2>/dev/null
 
   #create a variable for the package name that is the source name converted to all lower case.
   export PACKAGESOURCENAME="$(echo $SOURCENAME | tr [:upper:] [:lower:] | sed 's/_/-/g')"
@@ -161,7 +161,7 @@ function RunDownloadAndOrBuild
   export EXTERNALBUILDHOME="$SOURCEDIR"/buildhome/sourcehome/"$SOURCENAME"
   export INTERNALBUILDHOME="$SOURCEDIR"/"$SOURCENAME"
 
-  mkdir -p "$EXTERNALBUILDHOME"/bin
+  $NONROOTCOMMAND mkdir -p "$EXTERNALBUILDHOME"/bin
 
   #Set ACL permissions to allow a non root user account manage the source repos
   setfacl -dm $NONROOTUSER:rwx /"$SOURCEDIR"
@@ -544,6 +544,7 @@ function DownloadTOMLData()
 }
 
 #Function that calls download functions for GIT repos based on the repository type set by the main script
+#debs that have had build failures will have a /usr/share/buildcore_revisions/buildresults/$SOURCENAME file in them, to mark that they need to be rebuilt
 function DownloadSource()
 {
   #If /tmp/buildcore_revisions.txt exists, then import it.
